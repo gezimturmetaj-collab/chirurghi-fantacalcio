@@ -1,200 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
-import './App.css'
-import { players, type Player, type Role } from './data/players'
-
-type Purchase = {
-  player: Player
-  price: number
-}
-
-type RivalSale = {
-  player: Player
-  price: number
-  rivalId: number
-}
-
-type LeagueSize = 8 | 10
-type StartingBudget = 500 | 750 | 1000
-type ViewMode = 'war' | 'live' | 'rivals' | 'history' | 'squad' | 'report' | 'ranking' | 'settings'
-type Strategy = 'balanced' | 'aggressive' | 'value' | 'patient' | 'stars'
-type SuggestionMode = 'target' | 'bet' | 'decoy'
-
-type RankedPlayer = {
-  player: Player
-  score: number
-  reason: string
-}
-
-type ExtendedPlayer = Player & {
-  newToSerieA?: boolean
-}
-
-const BASE_BUDGET = 500
-const STORAGE_KEY = 'fantacalcio-auction-state-v1'
-
-type SavedAuction = {
-  setupComplete?: boolean
-  leagueSize: LeagueSize
-  startingBudget: StartingBudget
-  budget: number
-  strategy: Strategy
-  suggestionMode: SuggestionMode
-  purchases: Purchase[]
-  rivalSales: RivalSale[]
-  rivalNames: string[]
-}
-
-function loadSavedAuction(): Partial<SavedAuction> {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY)
-    return raw ? JSON.parse(raw) : {}
-  } catch {
-    return {}
-  }
-}
-
-const roles: Role[] = ['P', 'D', 'C', 'A']
-
-const slotLimits: Record<Role, number> = {
-  P: 3,
-  D: 8,
-  C: 8,
-  A: 6,
-}
-
-const roleNames: Record<Role, string> = {
-  P: 'PORTIERE',
-  D: 'DIFENSORE',
-  C: 'CENTROCAMPISTA',
-  A: 'ATTACCANTE',
-}
-
-const strategies: Record<
-  Strategy,
-  { name: string; description: string; budgets: Record<Role, number> }
-> = {
-  balanced: {
-    name: 'EQUILIBRATA',
-    description: 'Distribuzione completa e bilanciata tra i reparti.',
-    budgets: { P: 30, D: 80, C: 155, A: 235 },
-  },
-  aggressive: {
-    name: 'AGGRESSIVA',
-    description: 'Più crediti sui giocatori offensivi e sui profili premium.',
-    budgets: { P: 25, D: 65, C: 135, A: 275 },
-  },
-  value: {
-    name: 'VALUE',
-    description: 'Punta sul rapporto qualità/prezzo e su una rosa profonda.',
-    budgets: { P: 30, D: 100, C: 180, A: 190 },
-  },
-  patient: {
-    name: 'ATTENDISTA',
-    description: 'Riduce gli eccessi iniziali e conserva potere d’acquisto.',
-    budgets: { P: 30, D: 90, C: 170, A: 210 },
-  },
-  stars: {
-    name: 'STELLE & SCOMMESSE',
-    description: 'Top player costosi accompagnati da low-cost ad alto potenziale.',
-    budgets: { P: 25, D: 65, C: 125, A: 285 },
-  },
-}
-
-const goalkeeperTeamPairs: Record<string, number> = {
-  'Juventus|Torino': 60,
-  'Lazio|Roma': 60,
-  'Inter|Milan': 60,
-  'Napoli|Roma': 45,
-  'Parma|Sassuolo': 35,
-  'Lecce|Parma': 35,
-  'Genoa|Sassuolo': 35,
-  'Atalanta|Frosinone': 30,
-}
-
-const fantacalcioPhotoIds: Record<string, number> = {
-  'Malen': 5585,
-  'Martinez L.': 2764,
-  'Dimarco': 254,
-  'Paz N.': 6875,
-  'Calhanoglu': 2194,
-  'Thuram': 4871,
-  'McTominay': 4777,
-  'Ramos G.': 6397,
-  'Hojlund': 6052,
-  'Orsolini': 2167,
-  'Kean': 2097,
-  'Kolo Muani': 5951,
-  'Pulisic': 2423,
-  'Rabiot': 2379,
-  'Yildiz': 6434,
-  'Douvikas': 7017,
-  'Krstovic': 6435,
-  'Scamacca': 2137,
-  'Baturina': 7126,
-  'Davis K.': 5637,
-  'Mora': 7556,
-  'Da Cunha': 5559,
-  'Leao': 4510,
-  'Svilar': 5841,
-  'Berardi': 531,
-  'Zaniolo': 2766,
-  'Molina N.': 4998,
-  'De Ketelaere': 5995,
-  'Martinez Jo.': 5116,
-  'Barella': 1870,
-  'Esposito F.P.': 7071,
-  'McKennie': 4973,
-  'Wesley': 7181,
-  'Carnesecchi': 4431,
-  'Butez': 6966,
-  'Atta': 6908,
-  'Akanji': 4159,
-  'Bremer': 2788,
-  'Zaccagni': 632,
-  'Vicario': 4964,
-  'Dovbyk': 6675,
-  'Maignan': 4312,
-  'Mancini': 2296,
-  'Dybala': 309,
-  'Laurientè': 6060,
-  'Simeone': 2061,
-  'Raspadori': 4371,
-  'Bastoni': 2120,
-  'Pavlovic': 5022,
-  'Rrahmani': 4409,
-  'Santos A.': 7351,
-  'Pellegrino M.': 7023,
-  'Castro S.': 6572,
-  'Esposito Se.': 4463,
-  'Gudmundsson A.': 5800,
-  'Kalulu': 4976,
-  'Taylor K.': 7314,
-  'Nkunku': 4728,
-  "N'Dicka": 4317,
-  'Pinamonti': 2038,
-  'Vlasic': 5687,
-  'Solet': 6956,
-  'Kevin Carlos': 7547,
-  'Ederson D.S.': 5792,
-  'Samardzic': 5119,
-  'Rodriguez Je.': 7129,
-  'De Gea': 2521,
-  'Bisseck': 6217,
-  'Stones': 2514,
-  'Alajbegovic': 7436,
-  'Conceicao': 6884,
-  'Gila': 5833,
-  'Modric': 2606,
-  'Di Lorenzo': 2816,
-  'Soulè': 5734,
-  'Adams A.': 7484,
-  'Mastantuono': 7078
-}
-
-function PlayerPhoto({
-  player,
-  size = 42,
-  card = false,
+card = false,
 }: {
   player: Player
   size?: number
@@ -827,7 +631,7 @@ function App() {
   const [strategy, setStrategy] = useState<Strategy>(saved.strategy ?? 'balanced')
   const [suggestionMode, setSuggestionMode] = useState<SuggestionMode>(saved.suggestionMode ?? 'target')
   const [role, setRole] = useState<Role>('A')
-  const [moveRoleFilter, setMoveRoleFilter] = useState<'ALL' | Role>('ALL')
+  const [moveRoleFilter] = useState<'ALL' | Role>('ALL')
   const [warRoleChosen, setWarRoleChosen] = useState(false)
   const [warCallChosen, setWarCallChosen] = useState(false)
   const [comparisonSearch, setComparisonSearch] = useState('')
@@ -1847,25 +1651,6 @@ function App() {
   const nextAuctionMove =
     filteredAuctionMoves.find((move) => move.urgency > 0) ?? null
 
-  function openAuctionMove(currentRole: Role, player: Player | null) {
-    setSuggestionMode('target')
-    setRole(currentRole)
-
-    if (player) {
-      setSelectedName(player.name)
-      setPlayerSearch(player.name)
-      setPrice(getMarket(player))
-    } else {
-      setSelectedName('')
-      setPlayerSearch('')
-    }
-
-    setMessage(
-      player
-        ? `Prossima mossa: ${player.name} (${currentRole})`
-        : `Prossima mossa: reparto ${currentRole}`
-    )
-  }
 
   const allAvailableRolePlayers = useMemo(
     () =>
@@ -2845,8 +2630,8 @@ function App() {
         id: `next-move-${nextAuctionMove.role}`,
         level: 'opportunity',
         title: `È il momento di muoversi in ${nextAuctionMove.role}`,
-        text: nextAuctionMove.player
-          ? `${nextAuctionMove.player.name} è il target suggerito dal Regista d’Asta con priorità ${nextAuctionMove.urgency.toFixed(1)}/10.`
+        text: nextAuctionMove.bestPlayer
+          ? `${nextAuctionMove.bestPlayer.name} è il target suggerito dal Regista d’Asta con priorità ${nextAuctionMove.urgency.toFixed(1)}/10.`
           : `Il reparto ${nextAuctionMove.role} ha priorità ${nextAuctionMove.urgency.toFixed(1)}/10.`,
         priority: 90,
       })
@@ -3048,22 +2833,6 @@ function App() {
     setMessage(`Annullata assegnazione: ${sale.player.name}`)
   }
 
-  function undoLastAuctionAction() {
-    if (purchases.length === 0 && rivalSales.length === 0) return
-
-    // Con il formato dati attuale non esiste ancora un timestamp storico.
-    // L'undo rapido sceglie l'ultima registrazione disponibile fra i due registri,
-    // privilegiando quella che ha più elementi. La cronologia consente comunque
-    // l'annullamento preciso di ogni singola operazione.
-    if (purchases.length >= rivalSales.length && purchases.length > 0) {
-      undoMyPurchase(purchases.length - 1)
-      return
-    }
-
-    if (rivalSales.length > 0) {
-      undoRivalPurchase(rivalSales.length - 1)
-    }
-  }
 
   function pressureColor(level: 'BASSA' | 'MEDIA' | 'ALTA') {
     if (level === 'ALTA') return '#ff8b8b'

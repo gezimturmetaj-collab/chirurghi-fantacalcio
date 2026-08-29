@@ -1,6 +1,21 @@
 import { useEffect, useMemo, useState } from 'react'
 import './App.css'
-import { players, type Player, type Role } from './data/players'
+import { players, type Player as BasePlayer, type Role } from './data/players'
+
+type Player = BasePlayer & {
+  bonus?: number | null
+  penalties?: boolean
+  setPieces?: boolean
+  averageRating2526?: number | null
+  reliability?: string | null
+  reliabilityLeague?: string | null
+  profile?: string | null
+  use?: string | null
+  biddingRule?: string | null
+  note?: string | null
+  quotation?: number
+  fvm?: number
+}
 
 type Purchase = {
   player: Player
@@ -7140,8 +7155,7 @@ function App() {
               <strong>{purchases.length > 0 ? scoreOutOf10(finalReportScore) : '—'}</strong>
             </div>
             <div className="stat">
-              <span>GIOC
-ATORI</span>
+              <span>GIOCATORI</span>
               <strong>{purchases.length}/25</strong>
             </div>
             <div className="stat">

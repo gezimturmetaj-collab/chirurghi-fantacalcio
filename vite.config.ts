@@ -84,7 +84,7 @@ export default defineConfig({
           {
             urlPattern: ({ request, url }) =>
               request.destination === 'image' &&
-              url.origin !== self.location.origin,
+              url.hostname !== 'content.fantacalcio.it',
             handler: 'StaleWhileRevalidate',
             options: {
               cacheName: 'fantacalcio-external-images-v1',
@@ -101,7 +101,7 @@ export default defineConfig({
           // File statici locali caricati a runtime.
           {
             urlPattern: ({ request, url }) =>
-              url.origin === self.location.origin &&
+              url.pathname.startsWith('/assets/') &&
               ['script', 'style', 'font', 'image'].includes(request.destination),
             handler: 'StaleWhileRevalidate',
             options: {

@@ -1644,8 +1644,8 @@ function App() {
   const [wishlist, setWishlist] = useState<WishlistItem[]>(saved.wishlist ?? [])
   const [wishlistAddRole, setWishlistAddRole] = useState<Role>('P')
   const [wishlistSearch, setWishlistSearch] = useState('')
-  const [myTeamFilter, setMyTeamFilter] = useState<'ALL' | Role>('ALL')
-  const [myTeamSearch, setMyTeamSearch] = useState('')
+  const [wishlistFilterRole, setWishlistFilterRole] = useState<'ALL' | Role>('ALL')
+  const [wishlistFilterSearch, setWishlistFilterSearch] = useState('')
   const [wishlistAddOpen, setWishlistAddOpen] = useState(false)
   const [isOnline, setIsOnline] = useState(() => typeof navigator === 'undefined' ? true : navigator.onLine)
   const [dataUpdates, setDataUpdates] = useState<Record<string, PlayerUpdateData>>(() => loadDataUpdates())
@@ -2689,7 +2689,12 @@ function App() {
   }
 
   function playerPro(player: Player) {
+    const personalComment = myTeamComment(player)
     const update = dataUpdateFor(player)
+    if (personalComment) {
+      const base = update?.pro?.trim() || [player.profile, player.traits, player.biddingRule].filter(Boolean).map(String).join(' · ') || 'Profilo da valutare.'
+      return `★ MY TEAM: ${personalComment} · ${base}`
+    }
     if (update?.pro?.trim()) return update.pro.trim()
 
     const pieces = [player.profile, player.traits, player.biddingRule]
@@ -3175,9 +3180,6 @@ function App() {
 
     if (wish) {
       reasons.unshift(`È nella tua MY TEAM con priorità ${wish.priority}: il motore lo considera esplicitamente tra i tuoi obiettivi.`)
-      if (wish.comment?.trim()) {
-        reasons.unshift(`Nota MY TEAM: ${wish.comment.trim()}`)
-      }
     }
 
     const categoryIntro =
@@ -3276,18 +3278,13 @@ function App() {
     )
 
     if (sameRoleEntries.length >= wishlistLimits[player.role]) {
-      window.alert(
-        `MY TEAM può contenere al massimo ${wishlistLimits[player.role]} ${roleNames[player.role].toLowerCase()}.`
-      )
+      window.alert(`MY TEAM può contenere al massimo ${wishlistLimits[player.role]} ${roleNames[player.role].toLowerCase()}.`)
       return
     }
 
     const sameRole = sameRoleEntries.map((entry) => entry.item.priority)
 
-    const nextPriority = Math.min(
-      wishlistLimits[player.role],
-      Math.max(0, ...sameRole) + 1
-    )
+    const nextPriority = Math.min(wishlistLimits[player.role], Math.max(0, ...sameRole) + 1)
 
     setWishlist((current) => [
       ...current,
@@ -3302,10 +3299,12 @@ function App() {
   }
 
   function updateWishlistPriority(key: string, priority: number) {
+    const player = players.find((candidate) => playerKey(candidate) === key)
+    const limit = player ? wishlistLimits[player.role] : 20
     setWishlist((current) =>
       current.map((item) =>
         item.playerKey === key
-          ? { ...item, priority: Math.max(1, Math.min(40, priority)) }
+          ? { ...item, priority: Math.max(1, Math.min(limit, priority)) }
           : item
       )
     )
@@ -3313,14 +3312,12 @@ function App() {
 
   function updateWishlistComment(key: string, comment: string) {
     setWishlist((current) =>
-      current.map((item) =>
-        item.playerKey === key ? { ...item, comment } : item
-      )
+      current.map((item) => item.playerKey === key ? { ...item, comment } : item)
     )
   }
 
-  function wishlistCommentFor(player: Player) {
-    return wishlistItemFor(player)?.comment?.trim() ?? ''
+  function myTeamComment(player: Player) {
+    return wishlistItemFor(player)?.comment?.trim() || ''
   }
 
   function wishlistUsefulDetails(player: Player) {
@@ -3476,7 +3473,7 @@ function App() {
 
   function updateStatusLabel() {
     if (updateStatus === 'updating') return 'AGGIORNAMENTO IN CORSO…'
-    if (updateStatus === 'success') return 'DATI AGGIORNATI'
+    if (updateStatus === 'success') return 'APP E DATI AGGIORNATI'
     if (updateStatus === 'error') return 'AGGIORNAMENTO NON RIUSCITO'
     return updateMeta ? 'DATABASE LOCALE PRONTO' : 'DATABASE BASE'
   }
@@ -5574,13 +5571,6 @@ function App() {
                     </div>
                   </div>
 
-                  {wishlistCommentFor(selectedPlayer) && (
-                    <div style={{ marginTop: '9px', padding: '9px 10px', borderRadius: '11px', background: 'rgba(244,119,168,.08)', border: '1px solid rgba(244,119,168,.20)' }}>
-                      <small style={{ color: '#ff95c8', fontWeight: 950 }}>★ COMMENTO MY TEAM</small>
-                      <p className="tip" style={{ margin: '4px 0 0' }}>{wishlistCommentFor(selectedPlayer)}</p>
-                    </div>
-                  )}
-
                   <div style={{ marginTop: '9px', padding: '11px', borderRadius: '12px', background: 'rgba(77,163,255,.09)', border: '1px solid rgba(77,163,255,.20)' }}>
                     <small style={{ color: '#88c3ff' }}>COMMENTO ALLA VALUTAZIONE</small>
                     <p className="tip" style={{ marginBottom: 0 }}>🧠 {evaluationComment(selectedPlayer)}</p>
@@ -5735,13 +5725,6 @@ function App() {
                   </div>
                   <div className="recommendation-score"><span>VALUTAZIONE</span><strong>{scoreOutOf10(liveScore)}/10</strong></div>
                 </div>
-
-                {wishlistCommentFor(livePlayer) && (
-                  <div style={{ marginTop: '9px', padding: '9px 10px', borderRadius: '11px', background: 'rgba(244,119,168,.08)', border: '1px solid rgba(244,119,168,.20)' }}>
-                    <small style={{ color: '#ff95c8', fontWeight: 950 }}>★ COMMENTO MY TEAM</small>
-                    <p className="tip" style={{ margin: '4px 0 0' }}>{wishlistCommentFor(livePlayer)}</p>
-                  </div>
-                )}
 
                 <div className="dynamic-info-grid">
                   <div className="dynamic-main"><span>MAX LIVE</span><strong>{liveDynamicMax}</strong></div>
@@ -5933,17 +5916,25 @@ function App() {
               <p className="eyebrow">OBIETTIVI PERSONALI</p>
               <h1>MY TEAM</h1>
               <p className="tip" style={{ margin: '6px 0 0' }}>
-                Lista rapida per l’asta: priorità, prezzo massimo e commenti personali.
+                Costruisci la tua lista dei desideri. Le priorità entrano automaticamente
+                nel motore dei suggerimenti.
               </p>
             </div>
           </header>
 
           <section className="section">
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '10px', alignItems: 'center' }}>
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: '1fr auto',
+                gap: '10px',
+                alignItems: 'center',
+              }}
+            >
               <div>
                 <div className="section-title">LISTA DEI DESIDERI</div>
                 <p className="tip" style={{ margin: '5px 0 0' }}>
-                  {wishlist.length}/130 totali · P20 · D40 · C40 · A30 · Priorità 1 = obiettivo principale.
+                  {wishlist.length}/130 totali · P 20 · D 40 · C 40 · A 30 · Priorità 1 = obiettivo principale.
                 </p>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px', marginTop: '7px' }}>
                   {roles.map((role) => (
@@ -5965,54 +5956,72 @@ function App() {
               </button>
             </div>
 
-            <div className="main-card" style={{ marginTop: '10px', padding: '9px' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5,1fr)', gap: '5px' }}>
-                {(['ALL', 'P', 'D', 'C', 'A'] as const).map((role) => (
-                  <button
-                    type="button"
-                    key={`myteam-filter-${role}`}
-                    style={smallChoiceStyle(myTeamFilter === role)}
-                    onClick={() => setMyTeamFilter(role)}
-                  >
-                    {role === 'ALL' ? 'TUTTI' : role}
-                  </button>
-                ))}
-              </div>
-              <input
-                value={myTeamSearch}
-                onChange={(event) => setMyTeamSearch(event.target.value)}
-                placeholder="Filtra MY TEAM per nome o squadra"
-                style={{ marginTop: '7px' }}
-              />
-            </div>
-
             {wishlistAddOpen && wishlistPlayers.filter((entry) => entry.player.role === wishlistAddRole).length < wishlistLimits[wishlistAddRole] && (
-              <div className="main-card" style={{ marginTop: '10px', borderColor: 'rgba(244,119,168,.20)', background: 'rgba(244,119,168,.055)' }}>
+              <div
+                className="main-card"
+                style={{
+                  marginTop: '12px',
+                  borderColor: 'rgba(244,119,168,.20)',
+                  background: 'rgba(244,119,168,.055)',
+                }}
+              >
                 <div className="section-title">AGGIUNGI GIOCATORE</div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '6px', marginTop: '9px' }}>
+
+                <div
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(4,1fr)',
+                    gap: '6px',
+                    marginTop: '9px',
+                  }}
+                >
                   {roles.map((role) => (
                     <button
                       type="button"
                       key={`wishlist-role-${role}`}
                       style={smallChoiceStyle(wishlistAddRole === role)}
-                      onClick={() => { setWishlistAddRole(role); setWishlistSearch('') }}
+                      onClick={() => {
+                        setWishlistAddRole(role)
+                        setWishlistSearch('')
+                      }}
                     >
                       {role}
                     </button>
                   ))}
                 </div>
+
                 <input
                   value={wishlistSearch}
                   onChange={(event) => setWishlistSearch(event.target.value)}
                   placeholder={`Cerca ${roleNames[wishlistAddRole].toLowerCase()} per nome o squadra`}
                   style={{ marginTop: '9px' }}
                 />
+
                 <div style={{ display: 'grid', gap: '6px', marginTop: '8px' }}>
                   {wishlistAddResults.map((player) => (
-                    <button type="button" key={`wishlist-add-${playerKey(player)}`} className="recommendation-item" onClick={() => addToWishlist(player)}
-                      style={{ display: 'grid', gridTemplateColumns: 'auto 1fr auto', gap: '8px', alignItems: 'center', width: '100%', textAlign: 'left', color: '#fff', cursor: 'pointer' }}>
-                      <PlayerPhoto player={player} size={32} />
-                      <div><strong style={{ display: 'block' }}>{player.name}</strong><small style={{ color: '#94a5bc' }}>{player.team} · Tit. {estimatedStarterPct(player)}%</small></div>
+                    <button
+                      type="button"
+                      key={`wishlist-add-${playerKey(player)}`}
+                      className="recommendation-item"
+                      onClick={() => addToWishlist(player)}
+                      style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'auto 1fr auto',
+                        gap: '8px',
+                        alignItems: 'center',
+                        width: '100%',
+                        textAlign: 'left',
+                        color: '#fff',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      <PlayerPhoto player={player} size={36} />
+                      <div>
+                        <strong style={{ display: 'block' }}>{player.name}</strong>
+                        <small style={{ color: '#94a5bc' }}>
+                          {player.team} · Tit. {estimatedStarterPct(player)}%
+                        </small>
+                      </div>
                       <strong style={{ color: '#ff95c8' }}>＋</strong>
                     </button>
                   ))}
@@ -6021,72 +6030,195 @@ function App() {
             )}
           </section>
 
-          <section className="section">
-            <div style={{ display: 'grid', gap: '7px' }}>
-              {wishlistPlayers
-                .filter(({ player }) => myTeamFilter === 'ALL' || player.role === myTeamFilter)
-                .filter(({ player }) => {
-                  const q = myTeamSearch.trim().toLowerCase()
-                  return !q || player.name.toLowerCase().includes(q) || player.team.toLowerCase().includes(q)
-                })
-                .sort((a, b) => a.player.role.localeCompare(b.player.role) || a.item.priority - b.item.priority)
-                .map(({ item, player }) => {
-                  const boughtByMe = purchases.some((purchase) => playerKey(purchase.player) === playerKey(player))
-                  const soldToRival = rivalSales.some((sale) => playerKey(sale.player) === playerKey(player))
-                  return (
-                    <div className="main-card" key={`wishlist-${item.playerKey}`} style={{ padding: '8px 9px', opacity: boughtByMe || soldToRival ? .72 : 1 }}>
-                      <div style={{ display: 'grid', gridTemplateColumns: 'auto 1fr auto', gap: '8px', alignItems: 'center' }}>
-                        <PlayerPhoto player={player} size={34} />
-                        <div style={{ minWidth: 0 }}>
-                          <div style={{ display: 'flex', gap: '5px', alignItems: 'center', flexWrap: 'wrap' }}>
-                            <span className="purchase-role">{player.role}</span>
-                            <strong style={{ fontSize: '12px' }}>{player.name}</strong>
-                          </div>
-                          <small style={{ color: '#94a5bc' }}>{player.team} · Tit. {estimatedStarterPct(player)}% · MAX {calculateDynamicMax(player)}</small>
-                        </div>
-                        <button type="button" className="undo-button" style={{ width: '32px', minWidth: '32px', height: '32px', padding: 0, margin: 0 }} onClick={() => removeFromWishlist(item.playerKey)}>−</button>
-                      </div>
-
-                      <div style={{ display: 'grid', gridTemplateColumns: '74px 1fr', gap: '7px', marginTop: '7px', alignItems: 'end' }}>
-                        <div>
-                          <label style={{ marginTop: 0 }}>PRIORITÀ</label>
-                          <select value={item.priority} onChange={(event) => updateWishlistPriority(item.playerKey, Number(event.target.value))}>
-                            {Array.from({ length: wishlistLimits[player.role] }, (_, index) => index + 1).map((priority) => (
-                              <option key={`priority-${player.role}-${priority}`} value={priority}>{priority}</option>
-                            ))}
-                          </select>
-                        </div>
-                        <div>
-                          <label style={{ marginTop: 0 }}>COMMENTO MY TEAM</label>
-                          <input
-                            value={item.comment ?? ''}
-                            onChange={(event) => updateWishlistComment(item.playerKey, event.target.value)}
-                            placeholder="Es. fermarsi a 28, titolare, attenzione infortunio…"
-                          />
-                        </div>
-                      </div>
-
-                      {(item.comment?.trim() || boughtByMe || soldToRival) && (
-                        <div style={{ marginTop: '6px', display: 'flex', gap: '5px', flexWrap: 'wrap' }}>
-                          {item.comment?.trim() && <span className="setup-badge">★ NOTA SALVATA</span>}
-                          {boughtByMe && <span className="setup-badge">✓ ACQUISTATO</span>}
-                          {soldToRival && <span className="setup-badge">✕ RIVALE</span>}
-                        </div>
-                      )}
-                    </div>
-                  )
-                })}
+          <section className="section" style={{ padding: '10px' }}>
+            <div className="section-title">FILTRA MY TEAM</div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5,1fr)', gap: '5px', marginTop: '8px' }}>
+              {(['ALL', ...roles] as const).map((role) => (
+                <button
+                  type="button"
+                  key={`myteam-filter-${role}`}
+                  style={smallChoiceStyle(wishlistFilterRole === role)}
+                  onClick={() => setWishlistFilterRole(role)}
+                >
+                  {role === 'ALL' ? 'TUTTI' : role}
+                </button>
+              ))}
             </div>
-
-            {wishlistPlayers.filter(({ player }) => myTeamFilter === 'ALL' || player.role === myTeamFilter).length === 0 && (
-              <p className="tip" style={{ marginBottom: 0 }}>Nessun giocatore nel filtro selezionato.</p>
-            )}
+            <input
+              value={wishlistFilterSearch}
+              onChange={(event) => setWishlistFilterSearch(event.target.value)}
+              placeholder="Cerca tra i giocatori inseriti..."
+              style={{ marginTop: '7px' }}
+            />
           </section>
 
+          {roles.filter((role) => wishlistFilterRole === 'ALL' || wishlistFilterRole === role).map((role) => {
+            const filterQuery = wishlistFilterSearch.trim().toLowerCase()
+            const entries = wishlistPlayers
+              .filter((entry) => entry.player.role === role)
+              .filter((entry) => !filterQuery || entry.player.name.toLowerCase().includes(filterQuery) || entry.player.team.toLowerCase().includes(filterQuery))
+              .sort((a, b) => a.item.priority - b.item.priority)
+
+            return (
+              <section className="section" key={`wishlist-section-${role}`}>
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    gap: '10px',
+                    alignItems: 'center',
+                  }}
+                >
+                  <div className="section-title">{roleNames[role]}</div>
+                  <span className="setup-badge">{entries.length} NOMI</span>
+                </div>
+
+                {entries.length === 0 ? (
+                  <p className="tip" style={{ marginBottom: 0 }}>
+                    Nessun giocatore inserito in questo ruolo.
+                  </p>
+                ) : (
+                  <div style={{ display: 'grid', gap: '9px', marginTop: '10px' }}>
+                    {entries.map(({ item, player }) => {
+                      const boughtByMe = purchases.some(
+                        (purchase) => playerKey(purchase.player) === playerKey(player)
+                      )
+                      const soldToRival = rivalSales.some(
+                        (sale) => playerKey(sale.player) === playerKey(player)
+                      )
+
+                      return (
+                        <div
+                          className="main-card"
+                          key={`wishlist-${item.playerKey}`}
+                          style={{
+                            padding: '10px',
+                            opacity: boughtByMe || soldToRival ? .72 : 1,
+                            borderColor: boughtByMe
+                              ? 'rgba(71,214,157,.24)'
+                              : soldToRival
+                              ? 'rgba(255,123,114,.22)'
+                              : 'rgba(244,119,168,.16)',
+                          }}
+                        >
+                          <div
+                            style={{
+                              display: 'grid',
+                              gridTemplateColumns: 'auto 1fr auto',
+                              gap: '9px',
+                              alignItems: 'center',
+                            }}
+                          >
+                            <PlayerPhoto player={player} size={48} />
+                            <div style={{ minWidth: 0 }}>
+                              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px', alignItems: 'center' }}>
+                                <span className="purchase-role">{player.role}</span>
+                                <strong>{player.name}</strong>
+                              </div>
+                              <small style={{ color: '#94a5bc' }}>
+                                {player.team} · Titolarità {estimatedStarterPct(player)}%
+                              </small>
+                              {boughtByMe && (
+                                <small style={{ display: 'block', color: '#6ce6b3', marginTop: '3px', fontWeight: 900 }}>
+                                  ✓ ACQUISTATO
+                                </small>
+                              )}
+                              {soldToRival && (
+                                <small style={{ display: 'block', color: '#ff958d', marginTop: '3px', fontWeight: 900 }}>
+                                  ✕ PRESO DA UN RIVALE
+                                </small>
+                              )}
+                            </div>
+
+                            <button
+                              type="button"
+                              className="undo-button"
+                              style={{
+                                width: '37px',
+                                minWidth: '37px',
+                                height: '37px',
+                                padding: 0,
+                                fontSize: '18px',
+                                margin: 0,
+                              }}
+                              onClick={() => removeFromWishlist(item.playerKey)}
+                              aria-label={`Rimuovi ${player.name}`}
+                            >
+                              −
+                            </button>
+                          </div>
+
+                          <div
+                            style={{
+                              display: 'grid',
+                              gridTemplateColumns: '82px 1fr',
+                              gap: '8px',
+                              marginTop: '9px',
+                              alignItems: 'end',
+                            }}
+                          >
+                            <div>
+                              <label style={{ marginTop: 0 }}>PRIORITÀ</label>
+                              <select
+                                value={item.priority}
+                                onChange={(event) =>
+                                  updateWishlistPriority(item.playerKey, Number(event.target.value))
+                                }
+                              >
+                                {Array.from({ length: wishlistLimits[player.role] }, (_, index) => index + 1).map((priority) => (
+                                  <option key={`priority-${priority}`} value={priority}>
+                                    {priority}
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
+
+                            <div className="stat highlight-stat" style={{ minHeight: '45px' }}>
+                              <span>PREZZO SUGGERITO MAX</span>
+                              <strong>{calculateDynamicMax(player)}</strong>
+                            </div>
+                          </div>
+
+                          <div style={{ marginTop: '7px' }}>
+                            <textarea
+                              value={item.comment ?? ''}
+                              onChange={(event) => updateWishlistComment(item.playerKey, event.target.value)}
+                              placeholder="Commento MY TEAM: es. voglio prenderlo, max 25, rilanciare subito..."
+                              rows={2}
+                              style={{ width: '100%', minHeight: '52px', resize: 'vertical' }}
+                            />
+                          </div>
+
+                          <div
+                            style={{
+                              marginTop: '6px',
+                              padding: '7px 9px',
+                              borderRadius: '10px',
+                              border: '1px solid rgba(113,135,255,.15)',
+                              background: 'rgba(113,135,255,.055)',
+                            }}
+                          >
+                            <small style={{ color: '#bfc9ff', fontWeight: 950 }}>INFO RAPIDE</small>
+                            <p className="tip" style={{ margin: '3px 0 0' }}>
+                              {wishlistUsefulDetails(player)}
+                            </p>
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                )}
+              </section>
+            )
+          })}
+
           <section className="section">
-            <div className="section-title">COME INFLUENZA L’ASTA</div>
+            <div className="section-title">COME INFLUENZA I SUGGERIMENTI</div>
             <p className="tip" style={{ marginBottom: 0, lineHeight: 1.65 }}>
-              Priorità e commenti MY TEAM vengono richiamati nelle valutazioni del giocatore e nel Suggerimento specifico, così le tue note personali restano visibili durante l’asta.
+              Un giocatore presente in MY TEAM riceve un bonus di priorità nel motore
+              “Suggerimento specifico”. La priorità 1 pesa di più; il limite dipende dal ruolo, ma la lista
+              non forza un nome sbagliato: qualità, categoria scelta, stato della rosa,
+              titolarità, incastri e compatibilità restano comunque determinanti.
             </p>
           </section>
         </>
@@ -6638,7 +6770,7 @@ function App() {
                     ✓ AGGIORNAMENTO COMPLETATO
                   </strong>
                   <p className="tip" style={{ margin: '4px 0 0' }}>
-                    Dati aggiornati. Ora viene forzato anche il download dell’ultima versione dell’app; la schermata si ricaricherà automaticamente.
+                    Dati aggiornati e controllo della versione dell’app completato. L’app si ricarica automaticamente con la versione più recente disponibile.
                   </p>
                 </div>
               )}
@@ -6665,13 +6797,13 @@ function App() {
                   'STATISTICHE',
                   'INFORTUNI',
                   'TEMPI RECUPERO',
-                  'VERSIONE APP',
                 ].map((item) => (
                   <span className="setup-badge" key={`update-cap-${item}`}>{item}</span>
                 ))}
               </div>
               <p className="tip" style={{ margin: '9px 0 0' }}>
-                Aggiorna database calcistico e ultima versione dell’app. MY TEAM, commenti, acquisti, prezzi pagati, rivali, strategia, storico e impostazioni personali restano intatti.
+                L’aggiornamento modifica soltanto il database calcistico. MY TEAM, acquisti,
+                prezzi pagati, rivali, strategia, storico e impostazioni personali restano intatti.
               </p>
             </div>
 

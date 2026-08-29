@@ -38,6 +38,7 @@ type SuggestionCategory = 'top' | 'starter' | 'bet' | 'low' | 'decoy'
 type WishlistItem = {
   playerKey: string
   priority: number
+  comment?: string
 }
 
 type PlayerUpdateData = {
@@ -137,6 +138,13 @@ function loadUpdateMeta(): UpdateMeta | null {
 }
 
 const roles: Role[] = ['P', 'D', 'C', 'A']
+
+const wishlistLimits: Record<Role, number> = {
+  P: 20,
+  D: 40,
+  C: 40,
+  A: 30,
+}
 
 const slotLimits: Record<Role, number> = {
   P: 3,
@@ -1636,6 +1644,8 @@ function App() {
   const [wishlist, setWishlist] = useState<WishlistItem[]>(saved.wishlist ?? [])
   const [wishlistAddRole, setWishlistAddRole] = useState<Role>('P')
   const [wishlistSearch, setWishlistSearch] = useState('')
+  const [wishlistFilterRole, setWishlistFilterRole] = useState<'ALL' | Role>('ALL')
+  const [wishlistFilterSearch, setWishlistFilterSearch] = useState('')
   const [wishlistAddOpen, setWishlistAddOpen] = useState(false)
   const [isOnline, setIsOnline] = useState(() => typeof navigator === 'undefined' ? true : navigator.onLine)
   const [dataUpdates, setDataUpdates] = useState<Record<string, PlayerUpdateData>>(() => loadDataUpdates())
@@ -2679,7 +2689,12 @@ function App() {
   }
 
   function playerPro(player: Player) {
+    const personalComment = myTeamComment(player)
     const update = dataUpdateFor(player)
+    if (personalComment) {
+      const base = update?.pro?.trim() || [player.profile, player.traits, player.biddingRule].filter(Boolean).map(String).join(' · ') || 'Profilo da valutare.'
+      return `★ MY TEAM: ${personalComment} · ${base}`
+    }
     if (update?.pro?.trim()) return update.pro.trim()
 
     const pieces = [player.profile, player.traits, player.biddingRule]
@@ -3262,14 +3277,14 @@ function App() {
       (entry) => entry.player.role === player.role
     )
 
-    if (sameRoleEntries.length >= 20) {
-      window.alert(`MY TEAM può contenere al massimo 20 ${roleNames[player.role].toLowerCase()}.`)
+    if (sameRoleEntries.length >= wishlistLimits[player.role]) {
+      window.alert(`MY TEAM può contenere al massimo ${wishlistLimits[player.role]} ${roleNames[player.role].toLowerCase()}.`)
       return
     }
 
     const sameRole = sameRoleEntries.map((entry) => entry.item.priority)
 
-    const nextPriority = Math.min(20, Math.max(0, ...sameRole) + 1)
+    const nextPriority = Math.min(wishlistLimits[player.role], Math.max(0, ...sameRole) + 1)
 
     setWishlist((current) => [
       ...current,
@@ -3284,13 +3299,25 @@ function App() {
   }
 
   function updateWishlistPriority(key: string, priority: number) {
+    const player = players.find((candidate) => playerKey(candidate) === key)
+    const limit = player ? wishlistLimits[player.role] : 20
     setWishlist((current) =>
       current.map((item) =>
         item.playerKey === key
-          ? { ...item, priority: Math.max(1, Math.min(20, priority)) }
+          ? { ...item, priority: Math.max(1, Math.min(limit, priority)) }
           : item
       )
     )
+  }
+
+  function updateWishlistComment(key: string, comment: string) {
+    setWishlist((current) =>
+      current.map((item) => item.playerKey === key ? { ...item, comment } : item)
+    )
+  }
+
+  function myTeamComment(player: Player) {
+    return wishlistItemFor(player)?.comment?.trim() || ''
   }
 
   function wishlistUsefulDetails(player: Player) {
@@ -5868,12 +5895,12 @@ function App() {
               <div>
                 <div className="section-title">LISTA DEI DESIDERI</div>
                 <p className="tip" style={{ margin: '5px 0 0' }}>
-                  {wishlist.length}/80 totali · massimo 20 per ruolo · Priorità 1 = obiettivo principale.
+                  {wishlist.length}/130 totali · P 20 · D 40 · C 40 · A 30 · Priorità 1 = obiettivo principale.
                 </p>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px', marginTop: '7px' }}>
                   {roles.map((role) => (
                     <span className="setup-badge" key={`wishlist-count-${role}`}>
-                      {role} {wishlistPlayers.filter((entry) => entry.player.role === role).length}/20
+                      {role} {wishlistPlayers.filter((entry) => entry.player.role === role).length}/{wishlistLimits[role]}
                     </span>
                   ))}
                 </div>
@@ -5883,14 +5910,14 @@ function App() {
                 type="button"
                 className="primary-button"
                 style={{ width: '48px', minHeight: '48px', padding: 0, fontSize: '22px' }}
-                disabled={wishlistPlayers.filter((entry) => entry.player.role === wishlistAddRole).length >= 20}
+                disabled={wishlistPlayers.filter((entry) => entry.player.role === wishlistAddRole).length >= wishlistLimits[wishlistAddRole]}
                 onClick={() => setWishlistAddOpen((value) => !value)}
               >
                 {wishlistAddOpen ? '−' : '+'}
               </button>
             </div>
 
-            {wishlistAddOpen && wishlistPlayers.filter((entry) => entry.player.role === wishlistAddRole).length < 20 && (
+            {wishlistAddOpen && wishlistPlayers.filter((entry) => entry.player.role === wishlistAddRole).length < wishlistLimits[wishlistAddRole] && (
               <div
                 className="main-card"
                 style={{
@@ -5964,9 +5991,33 @@ function App() {
             )}
           </section>
 
-          {roles.map((role) => {
+          <section className="section" style={{ padding: '10px' }}>
+            <div className="section-title">FILTRA MY TEAM</div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5,1fr)', gap: '5px', marginTop: '8px' }}>
+              {(['ALL', ...roles] as const).map((role) => (
+                <button
+                  type="button"
+                  key={`myteam-filter-${role}`}
+                  style={smallChoiceStyle(wishlistFilterRole === role)}
+                  onClick={() => setWishlistFilterRole(role)}
+                >
+                  {role === 'ALL' ? 'TUTTI' : role}
+                </button>
+              ))}
+            </div>
+            <input
+              value={wishlistFilterSearch}
+              onChange={(event) => setWishlistFilterSearch(event.target.value)}
+              placeholder="Cerca tra i giocatori inseriti..."
+              style={{ marginTop: '7px' }}
+            />
+          </section>
+
+          {roles.filter((role) => wishlistFilterRole === 'ALL' || wishlistFilterRole === role).map((role) => {
+            const filterQuery = wishlistFilterSearch.trim().toLowerCase()
             const entries = wishlistPlayers
               .filter((entry) => entry.player.role === role)
+              .filter((entry) => !filterQuery || entry.player.name.toLowerCase().includes(filterQuery) || entry.player.team.toLowerCase().includes(filterQuery))
               .sort((a, b) => a.item.priority - b.item.priority)
 
             return (
@@ -6075,7 +6126,7 @@ function App() {
                                   updateWishlistPriority(item.playerKey, Number(event.target.value))
                                 }
                               >
-                                {Array.from({ length: 20 }, (_, index) => index + 1).map((priority) => (
+                                {Array.from({ length: wishlistLimits[player.role] }, (_, index) => index + 1).map((priority) => (
                                   <option key={`priority-${priority}`} value={priority}>
                                     {priority}
                                   </option>
@@ -6089,77 +6140,29 @@ function App() {
                             </div>
                           </div>
 
-                          <div
-                            style={{
-                              display: 'grid',
-                              gridTemplateColumns: '1fr 1fr',
-                              gap: '7px',
-                              marginTop: '8px',
-                            }}
-                          >
-                            <div
-                              style={{
-                                padding: '9px',
-                                borderRadius: '11px',
-                                background: 'rgba(71,214,157,.075)',
-                                border: '1px solid rgba(71,214,157,.16)',
-                              }}
-                            >
-                              <small style={{ color: '#6ce6b3', fontWeight: 950 }}>PRO</small>
-                              <p className="tip" style={{ margin: '4px 0 0' }}>
-                                {playerPro(player)}
-                              </p>
-                            </div>
-
-                            <div
-                              style={{
-                                padding: '9px',
-                                borderRadius: '11px',
-                                background: 'rgba(255,123,114,.07)',
-                                border: '1px solid rgba(255,123,114,.16)',
-                              }}
-                            >
-                              <small style={{ color: '#ff958d', fontWeight: 950 }}>CONTRO</small>
-                              <p className="tip" style={{ margin: '4px 0 0' }}>
-                                {playerContra(player)}
-                              </p>
-                            </div>
+                          <div style={{ marginTop: '7px' }}>
+                            <textarea
+                              value={item.comment ?? ''}
+                              onChange={(event) => updateWishlistComment(item.playerKey, event.target.value)}
+                              placeholder="Commento MY TEAM: es. voglio prenderlo, max 25, rilanciare subito..."
+                              rows={2}
+                              style={{ width: '100%', minHeight: '52px', resize: 'vertical' }}
+                            />
                           </div>
 
                           <div
                             style={{
-                              marginTop: '8px',
-                              padding: '9px',
-                              borderRadius: '11px',
+                              marginTop: '6px',
+                              padding: '7px 9px',
+                              borderRadius: '10px',
                               border: '1px solid rgba(113,135,255,.15)',
-                              background: 'rgba(113,135,255,.07)',
+                              background: 'rgba(113,135,255,.055)',
                             }}
                           >
-                            <small style={{ color: '#bfc9ff', fontWeight: 950 }}>DETTAGLI UTILI</small>
-                            <p className="tip" style={{ margin: '4px 0 0' }}>
+                            <small style={{ color: '#bfc9ff', fontWeight: 950 }}>INFO RAPIDE</small>
+                            <p className="tip" style={{ margin: '3px 0 0' }}>
                               {wishlistUsefulDetails(player)}
                             </p>
-                            {dataUpdateFor(player)?.injuryStatus && dataUpdateFor(player)?.injuryStatus !== 'available' && (
-                              <div
-                                style={{
-                                  marginTop: '7px',
-                                  paddingTop: '7px',
-                                  borderTop: '1px solid rgba(255,255,255,.07)',
-                                }}
-                              >
-                                <small style={{ color: '#ffb17a', fontWeight: 950 }}>
-                                  ⚕ DISPONIBILITÀ
-                                </small>
-                                <p className="tip" style={{ margin: '4px 0 0' }}>
-                                  {dataUpdateFor(player)?.injury || dataUpdateFor(player)?.injuryStatus}
-                                  {dataUpdateFor(player)?.recoveryTime
-                                    ? ` · Recupero: ${dataUpdateFor(player)?.recoveryTime}`
-                                    : dataUpdateFor(player)?.expectedReturn
-                                    ? ` · Rientro previsto: ${dataUpdateFor(player)?.expectedReturn}`
-                                    : ''}
-                                </p>
-                              </div>
-                            )}
                           </div>
                         </div>
                       )
@@ -6174,7 +6177,7 @@ function App() {
             <div className="section-title">COME INFLUENZA I SUGGERIMENTI</div>
             <p className="tip" style={{ marginBottom: 0, lineHeight: 1.65 }}>
               Un giocatore presente in MY TEAM riceve un bonus di priorità nel motore
-              “Suggerimento specifico”. La priorità 1 pesa più della 20, ma la lista
+              “Suggerimento specifico”. La priorità 1 pesa di più; il limite dipende dal ruolo, ma la lista
               non forza un nome sbagliato: qualità, categoria scelta, stato della rosa,
               titolarità, incastri e compatibilità restano comunque determinanti.
             </p>
@@ -7306,7 +7309,8 @@ function App() {
           </section>
 
 
-          <section className="section">
+          <section className="section
+">
             <div className="section-title">CONTROLLO AVVERSARI</div>
             <div style={{ display: 'grid', gap: '10px' }}>
               {activeRivals.map((name, rivalId) => {

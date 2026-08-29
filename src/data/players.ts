@@ -12,11 +12,22 @@ export type Player = {
   fitD: number | null;
   fitC: number | null;
   fitA: number | null;
+
+  bonus?: number | null;
+  penalties?: boolean;
+  setPieces?: boolean;
+  averageRating2526?: number | null;
+  reliability?: string | null;
+  reliabilityLeague?: string | null;
+  profile?: string | null;
+  use?: string | null;
+  biddingRule?: string | null;
+  note?: string | null;
+
   quotation?: number;
   fvm?: number;
   dataQuality?: 'elite' | 'auto' | 'roster';
-};
-export const players: Player[] = [
+};export const players: Player[] = [
   {
     name: 'Malen',
     role: 'A',

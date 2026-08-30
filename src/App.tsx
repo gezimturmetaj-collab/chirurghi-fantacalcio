@@ -2795,19 +2795,6 @@ function App() {
     return { action, max, market, score, pressure, reasons }
   }
 
-  function simulatePurchase(player: Player, simulatedPrice: number) {
-    const safePrice = Math.max(0, simulatedPrice)
-    const remainingBudget = Math.max(0, budget - safePrice)
-    const remainingSlots = Math.max(0, slotsRemaining - 1)
-    const reserve = Math.max(0, remainingSlots)
-    const spendable = Math.max(0, remainingBudget - reserve)
-    const score = chirurgoScore(player)
-    const affordability = safePrice <= calculateGameTheoryMax(player, safePrice) ? 100 : 45
-    const projected = clampScore((purchases.length ? finalReportScore : 72) * .48 + score.total * .37 + affordability * .15)
-    const sustainable = safePrice <= calculateStructuralMax(player) && remainingBudget >= reserve
-    return { remainingBudget, remainingSlots, spendable, projected, sustainable }
-  }
-
   const opportunityRadar = availablePlayers
     .map((player) => ({ player, score: opportunityScore(player) }))
     .sort((a, b) => b.score - a.score)
@@ -3863,6 +3850,21 @@ function App() {
       return acc
     }, {} as Record<Role, Player | null>)
 
+    const safePrice = Math.max(0, price)
+    const remainingBudget = Math.max(0, afterBudget)
+    const remainingSlots = afterSlots
+    const reserve = Math.max(0, remainingSlots)
+    const spendable = Math.max(0, remainingBudget - reserve)
+    const score = chirurgoScore(player)
+    const affordability = safePrice <= calculateGameTheoryMax(player, safePrice) ? 100 : 45
+    const projected = clampScore(
+      (purchases.length ? finalReportScore : 72) * .48 +
+      score.total * .37 +
+      affordability * .15
+    )
+    const sustainable =
+      safePrice <= calculateStructuralMax(player) && remainingBudget >= reserve
+
     return {
       afterBudget,
       afterSlots,
@@ -3870,6 +3872,11 @@ function App() {
       roleAveragesAfter,
       nextTargets,
       afterCreditsPerSlot: afterSlots > 0 ? afterBudget / afterSlots : 0,
+      remainingBudget,
+      remainingSlots,
+      spendable,
+      projected,
+      sustainable,
     }
   }
 

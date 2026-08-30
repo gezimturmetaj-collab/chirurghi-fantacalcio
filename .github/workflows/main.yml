@@ -7,6 +7,9 @@ on:
     branches:
       - main
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -43,10 +46,30 @@ jobs:
         working-directory: android
         run: ./gradlew assembleDebug
 
-      - name: Upload Android APK
+      - name: Prepare APK
+        run: |
+          cp android/app/build/outputs/apk/debug/app-debug.apk Chirurghi-Fantacalcio.apk
+
+      - name: Upload Android APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: Chirurghi-Fantacalcio-APK
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          path: Chirurghi-Fantacalcio.apk
           if-no-files-found: error
           retention-days: 30
+
+      - name: Delete previous latest release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release delete android-latest --yes --cleanup-tag || true
+
+      - name: Create latest Android release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create android-latest \
+            Chirurghi-Fantacalcio.apk \
+            --title "Chirurghi Fantacalcio - Ultima versione Android" \
+            --notes "APK Android aggiornato automaticamente dall'ultima versione disponibile su main." \
+            --latest

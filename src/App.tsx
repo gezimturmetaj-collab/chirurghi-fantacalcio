@@ -61,6 +61,26 @@ type PlayerUpdateData = {
   expectedReturn?: string | null
   recoveryTime?: string | null
   lastUpdated?: string | null
+  appearances?: number | null
+  starts?: number | null
+  minutes?: number | null
+  goals?: number | null
+  assists?: number | null
+  fantasyAverage?: number | null
+  xg?: number | null
+  xa?: number | null
+  shots90?: number | null
+  chances90?: number | null
+  bonus90?: number | null
+  malus90?: number | null
+  injuryDays?: number | null
+  injuryCount?: number | null
+  rotationRisk?: number | null
+  transferRisk?: number | null
+  cardRisk?: number | null
+  position?: string | null
+  competition?: string | null
+  sourceUpdatedAt?: string | null
 }
 
 type UpdateChange = {
@@ -1640,6 +1660,8 @@ function App() {
   const [warRosterOpen, setWarRosterOpen] = useState(false)
   const [alertsOpen, setAlertsOpen] = useState(false)
   const [comparisonOpen, setComparisonOpen] = useState(false)
+  const [chirurgoOpen, setChirurgoOpen] = useState(true)
+  const [simulatorOpen, setSimulatorOpen] = useState(false)
   const [expandedSuggestionKey, setExpandedSuggestionKey] = useState<string | null>(null)
   const [wishlist, setWishlist] = useState<WishlistItem[]>(saved.wishlist ?? [])
   const [wishlistAddRole, setWishlistAddRole] = useState<Role>('P')
@@ -2686,6 +2708,119 @@ function App() {
     if (tierScore(player) >= 82) value += 7
     if (tierScore(player) <= 50) value -= 6
     return Math.max(25, Math.min(98, Math.round(value)))
+  }
+
+  function clampScore(value: number) {
+    return Math.max(0, Math.min(100, Math.round(value)))
+  }
+
+  function playerStats(player: Player) {
+    const update = dataUpdateFor(player)
+    return {
+      appearances: update?.appearances ?? null,
+      starts: update?.starts ?? null,
+      minutes: update?.minutes ?? null,
+      goals: update?.goals ?? null,
+      assists: update?.assists ?? null,
+      fantasyAverage: update?.fantasyAverage ?? null,
+      xg: update?.xg ?? null,
+      xa: update?.xa ?? null,
+      shots90: update?.shots90 ?? null,
+      chances90: update?.chances90 ?? null,
+      bonus90: update?.bonus90 ?? null,
+      malus90: update?.malus90 ?? null,
+      injuryDays: update?.injuryDays ?? null,
+      injuryCount: update?.injuryCount ?? null,
+      rotationRisk: update?.rotationRisk ?? null,
+      transferRisk: update?.transferRisk ?? null,
+      cardRisk: update?.cardRisk ?? null,
+      position: update?.position ?? player.use ?? null,
+    }
+  }
+
+  function chirurgoScore(player: Player) {
+    const stats = playerStats(player)
+    const quality = tierScore(player)
+    const starter = estimatedStarterPct(player)
+    const fit = calculateStrategyFit(player)
+    const market = Math.max(1, getMarket(player))
+    const max = Math.max(1, calculateDynamicMax(player))
+    const value = clampScore(72 + ((max - market) / max) * 90)
+    const bonusBase = (player.bonus ?? 0) * 10 + (player.penalties ? 18 : 0) + (player.setPieces ? 10 : 0)
+    const bonus = clampScore(quality * .48 + bonusBase + (stats.goals ?? 0) * 1.4 + (stats.assists ?? 0))
+    const physicalPenalty = (stats.injuryDays ?? 0) * .18 + (stats.injuryCount ?? 0) * 5
+    const reliability = clampScore(starter * .65 + quality * .35 - physicalPenalty)
+    const upside = clampScore(quality * .50 + fit * .30 + bonus * .20)
+    const total = clampScore(quality * .25 + starter * .20 + value * .20 + fit * .15 + reliability * .10 + upside * .10)
+    return { total, quality: clampScore(quality), starter, value, fit: clampScore(fit), bonus, reliability, upside }
+  }
+
+  function roleMarketTemperature(currentRole: Role) {
+    const sales = [
+      ...purchases.filter((item) => item.player.role === currentRole).map((item) => ({ player: item.player, price: item.price })),
+      ...rivalSales.filter((item) => item.player.role === currentRole).map((item) => ({ player: item.player, price: item.price })),
+    ]
+    if (sales.length < 2) return { pct: 0, sample: sales.length, label: 'POCHI DATI' }
+    const ratios = sales.map((item) => item.price / Math.max(1, getMarket(item.player)))
+    const pct = Math.round((ratios.reduce((a, b) => a + b, 0) / ratios.length - 1) * 100)
+    return { pct, sample: sales.length, label: pct >= 10 ? 'SURRISCALDATO' : pct <= -10 ? 'SCONTO' : 'REGOLARE' }
+  }
+
+  function opportunityScore(player: Player) {
+    const base = calculateTargetScore(player)
+    const temp = roleMarketTemperature(player.role).pct
+    const pressure = getAuctionPressure(player, Math.max(1, getMarket(player))).rivals
+    const wishlistBoost = wishlist.some((item) => item.playerKey === playerKey(player)) ? 7 : 0
+    return clampScore(base - Math.max(-12, Math.min(18, temp * .35)) - pressure * 1.4 + wishlistBoost)
+  }
+
+  function chirurgoAdvice(player: Player, currentPrice: number) {
+    const score = chirurgoScore(player)
+    const max = calculateGameTheoryMax(player, currentPrice)
+    const market = getMarket(player)
+    const pressure = getAuctionPressure(player, currentPrice)
+    const roleTemp = roleMarketTemperature(player.role)
+    const missing = roleRemaining(player.role)
+    const scarcity = availablePlayers.filter((candidate) => candidate.role === player.role && tierScore(candidate) >= 82).length
+    let action = 'VALUTA'
+    if (currentPrice <= max * .82 && score.total >= 75) action = 'COMPRA FORTE'
+    else if (currentPrice <= max && score.total >= 68) action = 'COMPRA'
+    else if (currentPrice > max) action = 'PASSA'
+    const reasons = [
+      `${missing} slot ${player.role} ancora liberi`,
+      `${scarcity} profili premium ${player.role} ancora disponibili`,
+      pressure.rivals > 0 ? `${pressure.rivals} rivali potenzialmente in competizione` : 'pressione rivali contenuta',
+      roleTemp.sample >= 2 ? `mercato ${player.role} ${roleTemp.label.toLowerCase()} (${roleTemp.pct > 0 ? '+' : ''}${roleTemp.pct}%)` : 'mercato del ruolo ancora poco campionato',
+    ]
+    return { action, max, market, score, pressure, reasons }
+  }
+
+  function simulatePurchase(player: Player, simulatedPrice: number) {
+    const safePrice = Math.max(0, simulatedPrice)
+    const remainingBudget = Math.max(0, budget - safePrice)
+    const remainingSlots = Math.max(0, slotsRemaining - 1)
+    const reserve = Math.max(0, remainingSlots)
+    const spendable = Math.max(0, remainingBudget - reserve)
+    const score = chirurgoScore(player)
+    const affordability = safePrice <= calculateGameTheoryMax(player, safePrice) ? 100 : 45
+    const projected = clampScore((purchases.length ? finalReportScore : 72) * .48 + score.total * .37 + affordability * .15)
+    const sustainable = safePrice <= calculateStructuralMax(player) && remainingBudget >= reserve
+    return { remainingBudget, remainingSlots, spendable, projected, sustainable }
+  }
+
+  const opportunityRadar = availablePlayers
+    .map((player) => ({ player, score: opportunityScore(player) }))
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 5)
+
+  const nextCallCandidate = opportunityRadar[0] ?? null
+  const bestDecoyCandidate = availablePlayers
+    .map((player) => ({ player, score: calculateDecoyScore(player) }))
+    .sort((a, b) => b.score - a.score)[0] ?? null
+
+  function formatLiveStat(value: number | null | undefined, digits = 0) {
+    if (value === null || value === undefined || Number.isNaN(value)) return '—'
+    return digits > 0 ? value.toFixed(digits) : String(Math.round(value))
   }
 
   function playerPro(player: Player) {
@@ -5125,6 +5260,26 @@ function App() {
             )}
           </section>
 
+          <section className="section" style={{ padding: '11px 12px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', gap: '8px', alignItems: 'center' }}>
+              <div><div className="section-title" style={{ marginBottom: '2px' }}>CENTRO COMANDO</div><small style={{ color: '#7f93ad' }}>Opportunity Radar · prossima chiamata · mercato live</small></div>
+              <button type="button" style={smallChoiceStyle(chirurgoOpen)} onClick={() => setChirurgoOpen((v) => !v)}>{chirurgoOpen ? 'CHIUDI' : 'APRI'}</button>
+            </div>
+            {chirurgoOpen && <div style={{ marginTop: '9px', display: 'grid', gap: '7px' }}>
+              {nextCallCandidate && <div className="main-card" style={{ border: '1px solid rgba(77,163,255,.24)' }}>
+                <small style={{ color: '#88c3ff' }}>🎙️ PROSSIMA CHIAMATA</small>
+                <strong style={{ display: 'block', marginTop: '3px' }}>{nextCallCandidate.player.name} · {nextCallCandidate.player.team}</strong>
+                <p className="tip" style={{ marginBottom: 0 }}>Opportunity {nextCallCandidate.score}/100 · mercato {getMarket(nextCallCandidate.player)} · MAX {calculateGameTheoryMax(nextCallCandidate.player, Math.max(1, getMarket(nextCallCandidate.player)))}.</p>
+              </div>}
+              {bestDecoyCandidate && <div className="main-card"><small style={{ color: '#ffd37a' }}>🎣 ESCA CONSIGLIATA</small><strong style={{ display: 'block', marginTop: '3px' }}>{bestDecoyCandidate.player.name}</strong><p className="tip" style={{ marginBottom: 0 }}>Indice esca {scoreOutOf10(bestDecoyCandidate.score)}/10 · utile per assorbire budget ai rivali che devono ancora completare il ruolo.</p></div>}
+              <div className="main-card">
+                <small className="small-label">🔥 OPPORTUNITY RADAR</small>
+                <div style={{ display: 'grid', gap: '5px', marginTop: '6px' }}>{opportunityRadar.map(({ player, score }) => <button type="button" key={`radar-${playerKey(player)}`} onClick={() => { setSelectedName(player.name); setPlayerSearch(player.name) }} style={{ display: 'grid', gridTemplateColumns: '28px 1fr auto', gap: '7px', alignItems: 'center', padding: '7px', border: '1px solid rgba(148,163,184,.12)', borderRadius: '9px', background: 'rgba(11,18,31,.65)', color: '#fff', textAlign: 'left' }}><span>{player.role}</span><span><strong>{player.name}</strong><small style={{ display: 'block', color: '#7f93ad' }}>{player.team} · mercato {getMarket(player)}</small></span><strong>{score}</strong></button>)}</div>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '5px' }}>{roles.map((r) => { const temp = roleMarketTemperature(r); return <div className="stat" key={`temp-${r}`}><span>{r} · {temp.label}</span><strong>{temp.sample >= 2 ? `${temp.pct > 0 ? '+' : ''}${temp.pct}%` : '—'}</strong></div> })}</div>
+            </div>}
+          </section>
+
           <section className="section" style={{ padding: '12px' }}>
             <div
               style={{
@@ -5552,6 +5707,46 @@ function App() {
                     <div className="stat"><span>MERCATO</span><strong>{getMarket(selectedPlayer)}</strong></div>
                     <div className="stat highlight-stat"><span>MAX LIVE</span><strong>{dynamicMaxBid}</strong></div>
                   </div>
+
+                  {(() => {
+                    const ai = chirurgoAdvice(selectedPlayer, price)
+                    const sim = simulatePurchase(selectedPlayer, price)
+                    const stats = playerStats(selectedPlayer)
+                    return (
+                      <>
+                        <div className="main-card" style={{ marginTop: '9px', border: '1px solid rgba(112,214,161,.28)', background: 'rgba(40,180,120,.07)' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', gap: '8px', alignItems: 'center' }}>
+                            <div><small style={{ color: '#76edaa' }}>🧠 CHIRURGO AI</small><strong style={{ display: 'block', fontSize: '16px' }}>{ai.action}</strong></div>
+                            <div style={{ textAlign: 'right' }}><small>CHIRURGO SCORE</small><strong style={{ display: 'block', fontSize: '20px' }}>{ai.score.total}/100</strong></div>
+                          </div>
+                          <p className="tip" style={{ margin: '7px 0 0' }}>MAX consigliato ora <strong>{ai.max}</strong> · {ai.reasons.join(' · ')}.</p>
+                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5,1fr)', gap: '4px', marginTop: '8px' }}>
+                            {[['BONUS', ai.score.bonus], ['TIT.', ai.score.starter], ['AFFID.', ai.score.reliability], ['VALUE', ai.score.value], ['UPSIDE', ai.score.upside]].map(([label, value]) => <div className="stat" key={String(label)}><span>{label}</span><strong>{value}</strong></div>)}
+                          </div>
+                        </div>
+
+                        <button type="button" style={{ ...smallChoiceStyle(simulatorOpen), width: '100%', marginTop: '8px' }} onClick={() => setSimulatorOpen((value) => !value)}>🔮 SE LO COMPRO A {price}</button>
+                        {simulatorOpen && <div className="main-card" style={{ marginTop: '6px' }}>
+                          <strong>{sim.sustainable ? '✅ ACQUISTO SOSTENIBILE' : '⚠️ ACQUISTO RISCHIOSO'}</strong>
+                          <p className="tip">Budget dopo l’acquisto: {sim.remainingBudget} · slot residui: {sim.remainingSlots} · crediti realmente spendibili oltre le riserve: {sim.spendable} · rosa prevista: {sim.projected}/100.</p>
+                        </div>}
+
+                        <div className="main-card" style={{ marginTop: '8px' }}>
+                          <small className="small-label">DATI LIVE / STATISTICHE</small>
+                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '5px', marginTop: '7px' }}>
+                            <div className="stat"><span>PRES.</span><strong>{formatLiveStat(stats.appearances)}</strong></div>
+                            <div className="stat"><span>MINUTI</span><strong>{formatLiveStat(stats.minutes)}</strong></div>
+                            <div className="stat"><span>GOL</span><strong>{formatLiveStat(stats.goals)}</strong></div>
+                            <div className="stat"><span>ASSIST</span><strong>{formatLiveStat(stats.assists)}</strong></div>
+                            <div className="stat"><span>FM</span><strong>{formatLiveStat(stats.fantasyAverage, 2)}</strong></div>
+                            <div className="stat"><span>xG</span><strong>{formatLiveStat(stats.xg, 2)}</strong></div>
+                            <div className="stat"><span>xA</span><strong>{formatLiveStat(stats.xa, 2)}</strong></div>
+                            <div className="stat"><span>INF. GG</span><strong>{formatLiveStat(stats.injuryDays)}</strong></div>
+                          </div>
+                        </div>
+                      </>
+                    )
+                  })()}
 
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: '7px', marginTop: '8px' }}>
                     <div className="main-card"><span className="small-label">MEDIA VOTO 25/26</span><strong style={{ display: 'block' }}>{selectedPlayer.averageRating2526 ?? '—'}</strong></div>

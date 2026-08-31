@@ -1,6 +1,6 @@
 const QUOTATIONS_URL = 'https://www.fantacalcio.it/quotazioni-fantacalcio'
-const INJURIES_URL = 'https://www.fantacalcio.it/indisponibili-serie-a'
 const STATS_URL = 'https://www.fantacalcio.it/statistiche-serie-a/2026-27/italia'
+const INJURIES_URL = 'https://www.fantacalcio.it/indisponibili-serie-a'
 
 const TEAM_CODES = {
   ATA: 'Atalanta',
@@ -22,296 +22,284 @@ const TEAM_CODES = {
   SAS: 'Sassuolo',
   TOR: 'Torino',
   UDI: 'Udinese',
-  VEN: 'Venezia',
+  VEN: 'Venezia'
 }
 
-function clean(value = '') {
-  return value
-    .replace(/&nbsp;/gi, ' ')
-    .replace(/&amp;/gi, '&')
-    .replace(/&#39;/gi, "'")
-    .replace(/&quot;/gi, '"')
-    .replace(/<[^>]*>/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim()
-}
-
-function normalizeName(value = '') {
-  return clean(value)
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[’‘`]/g, "'")
-    .toLowerCase()
-    .replace(/[^a-z0-9.' -]/g, '')
-    .replace(/\s+/g, ' ')
-    .trim()
-}
-
-function parseNumber(value) {
-  const number = Number(String(value ?? '').replace(',', '.'))
-  return Number.isFinite(number) ? number : null
-}
-
-async function fetchHtml(url) {
-  const response = await fetch(url, {
-    headers: {
-      'user-agent':
-        'Mozilla/5.0 (compatible; ChirurghiFantacalcio/1.0; +Netlify)',
-      accept: 'text/html,application/xhtml+xml',
-      'accept-language': 'it-IT,it;q=0.9,en;q=0.6',
-    },
-  })
-
-  if (!response.ok) {
-    throw new Error(`Fonte non disponibile: ${response.status} ${url}`)
-  }
-
-  return response.text()
-}
-
-function parseQuotationRows(html) {
-  const rows = []
-
-  // Fantacalcio renders the quotations in table rows. We extract text first,
-  // then identify a team code followed by QI, QA and FVM values.
-  const trMatches = html.match(/<tr\b[\s\S]*?<\/tr>/gi) ?? []
-
-  for (const tr of trMatches) {
-    const cells = [...tr.matchAll(/<t[dh]\b[^>]*>([\s\S]*?)<\/t[dh]>/gi)]
-      .map((match) => clean(match[1]))
-      .filter(Boolean)
-
-    if (cells.length < 5) continue
-
-    const teamIndex = cells.findIndex((cell) => TEAM_CODES[cell.toUpperCase()])
-    if (teamIndex < 1) continue
-
-    const teamCode = cells[teamIndex].toUpperCase()
-    const numericAfter = cells
-      .slice(teamIndex + 1)
-      .map(parseNumber)
-      .filter((value) => value !== null)
-
-    if (numericAfter.length < 3) continue
-
-    // The nearest textual cell before the team is the displayed player name.
-    let name = ''
-    for (let i = teamIndex - 1; i >= 0; i -= 1) {
-      if (cells[i] && !/^\d+(?:[.,]\d+)?$/.test(cells[i])) {
-        name = cells[i]
-        break
-      }
-    }
-
-    if (!name) continue
-
-    const quotation = numericAfter[1] ?? numericAfter[0]
-    const fvm = numericAfter[2] ?? null
-
-    rows.push({
-      name,
-      team: TEAM_CODES[teamCode],
-      quotation,
-      fvm,
-    })
-  }
-
-  // De-duplicate same name/team if page contains Classic + Mantra representations.
-  const unique = new Map()
-  for (const row of rows) {
-    unique.set(`${normalizeName(row.name)}|${row.team}`, row)
-  }
-
-  return [...unique.values()]
-}
-
-function parseStatsRows(html) {
-  const rows = []
-  const trMatches = html.match(/<tr\b[\s\S]*?<\/tr>/gi) ?? []
-  for (const tr of trMatches) {
-    const cells = [...tr.matchAll(/<t[dh]\b[^>]*>([\s\S]*?)<\/t[dh]>/gi)]
-      .map((match) => clean(match[1]))
-      .filter(Boolean)
-    if (cells.length < 8) continue
-    const teamIndex = cells.findIndex((cell) => TEAM_CODES[cell.toUpperCase()])
-    if (teamIndex < 1) continue
-    let name = ''
-    for (let i = teamIndex - 1; i >= 0; i -= 1) {
-      if (cells[i] && !/^\d+(?:[.,]\d+)?$/.test(cells[i])) { name = cells[i]; break }
-    }
-    if (!name) continue
-    const after = cells.slice(teamIndex + 1)
-    const appearances = parseNumber(after[0])
-    const averageRating = parseNumber(after[1])
-    const fantasyAverage = parseNumber(after[2])
-    const goals = parseNumber(after[3])
-    const assists = parseNumber(after[7])
-    rows.push({ name, team: TEAM_CODES[cells[teamIndex].toUpperCase()], appearances, averageRating, fantasyAverage, goals, assists })
-  }
-  const unique = new Map()
-  for (const row of rows) unique.set(`${normalizeName(row.name)}|${row.team}`, row)
-  return [...unique.values()]
-}
-
-function decodeEntities(value = '') {
-  return value
+function decodeHtml(value) {
+  return String(value || '')
     .replace(/&nbsp;/gi, ' ')
     .replace(/&amp;/gi, '&')
     .replace(/&#39;/gi, "'")
     .replace(/&quot;/gi, '"')
     .replace(/&agrave;/gi, 'à')
     .replace(/&egrave;/gi, 'è')
+    .replace(/&eacute;/gi, 'é')
     .replace(/&igrave;/gi, 'ì')
     .replace(/&ograve;/gi, 'ò')
     .replace(/&ugrave;/gi, 'ù')
 }
 
-function visibleLines(html) {
-  return decodeEntities(
+function clean(value) {
+  return decodeHtml(value)
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
+function normalizeName(value) {
+  return clean(value)
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9.' -]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
+function toNumber(value) {
+  const text = String(value ?? '').trim().replace(',', '.')
+  if (!text || text === '-' || text.toLowerCase() === 'n.d.') return null
+  const n = Number(text)
+  return Number.isFinite(n) ? n : null
+}
+
+async function fetchHtml(url) {
+  const response = await fetch(url, {
+    headers: {
+      'user-agent': 'Mozilla/5.0 (compatible; ChirurghiFantacalcio/2026.27)',
+      accept: 'text/html,application/xhtml+xml',
+      'accept-language': 'it-IT,it;q=0.9,en;q=0.6'
+    },
+    redirect: 'follow'
+  })
+
+  if (!response.ok) {
+    throw new Error(`Fonte non disponibile (${response.status}): ${url}`)
+  }
+
+  return response.text()
+}
+
+function getCells(tr) {
+  return Array.from(tr.matchAll(/<t[dh]\b[^>]*>([\s\S]*?)<\/t[dh]>/gi))
+    .map((m) => clean(m[1]))
+}
+
+function parseQuotationRows(html) {
+  const rows = []
+  const trMatches = html.match(/<tr\b[\s\S]*?<\/tr>/gi) || []
+
+  for (const tr of trMatches) {
+    const cells = getCells(tr)
+    if (cells.length < 5) continue
+
+    const teamIndex = cells.findIndex((cell) => TEAM_CODES[cell.toUpperCase()])
+    if (teamIndex < 1) continue
+
+    const teamCode = cells[teamIndex].toUpperCase()
+    const name = cells.slice(0, teamIndex).reverse().find((cell) =>
+      cell && !/^\d+(?:[.,]\d+)?$/.test(cell)
+    )
+    if (!name) continue
+
+    const numeric = cells.slice(teamIndex + 1).map(toNumber).filter((v) => v !== null)
+    if (numeric.length < 2) continue
+
+    // Fantacalcio espone QI, QA, FVM; in caso di doppia visualizzazione
+    // i primi tre valori numerici sono sufficienti.
+    rows.push({
+      name,
+      team: TEAM_CODES[teamCode],
+      quotation: numeric[1] ?? numeric[0] ?? null,
+      fvm: numeric[2] ?? null
+    })
+  }
+
+  const unique = new Map()
+  rows.forEach((row) => unique.set(`${normalizeName(row.name)}|${row.team}`, row))
+  return Array.from(unique.values())
+}
+
+function parseStatRows(html) {
+  const rows = []
+  const trMatches = html.match(/<tr\b[\s\S]*?<\/tr>/gi) || []
+
+  for (const tr of trMatches) {
+    const cells = getCells(tr)
+    if (cells.length < 9) continue
+
+    const teamIndex = cells.findIndex((cell) => TEAM_CODES[cell.toUpperCase()])
+    if (teamIndex < 1) continue
+
+    const teamCode = cells[teamIndex].toUpperCase()
+    const name = cells.slice(0, teamIndex).reverse().find((cell) =>
+      cell && !/^\d+(?:[.,]\d+)?$/.test(cell)
+    )
+    if (!name) continue
+
+    // Dopo la squadra: PV, MV, FM, Gol, GS, Rig, RP, Ass, Amm, Esp
+    const data = cells.slice(teamIndex + 1)
+    if (data.length < 8) continue
+
+    const rigText = data[5] || ''
+    const rigParts = rigText.split('/').map((x) => toNumber(x.trim()))
+
+    rows.push({
+      name,
+      team: TEAM_CODES[teamCode],
+      appearances: toNumber(data[0]),
+      averageRating: toNumber(data[1]),
+      fantasyAverage: toNumber(data[2]),
+      goals: toNumber(data[3]),
+      goalsConceded: toNumber(data[4]),
+      penaltiesScored: rigParts[0] ?? null,
+      penaltiesTaken: rigParts[1] ?? null,
+      penaltiesSaved: toNumber(data[6]),
+      assists: toNumber(data[7]),
+      yellowCards: toNumber(data[8]),
+      redCards: toNumber(data[9])
+    })
+  }
+
+  const unique = new Map()
+  rows.forEach((row) => unique.set(`${normalizeName(row.name)}|${row.team}`, row))
+  return Array.from(unique.values())
+}
+
+function textWithLines(html) {
+  return decodeHtml(
     html
       .replace(/<script\b[\s\S]*?<\/script>/gi, ' ')
       .replace(/<style\b[\s\S]*?<\/style>/gi, ' ')
       .replace(/<br\s*\/?>/gi, '\n')
-      .replace(/<\/(?:p|div|li|h1|h2|h3|h4|section|article|tr|td)>/gi, '\n')
-      .replace(/<[^>]+>/g, ' ')
+      .replace(/<\/(?:p|li|div|section|article|h1|h2|h3|h4|h5|tr)>/gi, '\n')
+      .replace(/<[^>]*>/g, ' ')
   )
-    .split(/\n+/)
-    .map((line) => line.replace(/\s+/g, ' ').trim())
+    .split(/\r?\n/)
+    .map((line) => line.replace(/[ \t]+/g, ' ').trim())
     .filter(Boolean)
 }
 
-function injuryHintsFromPage(html, quotationRows) {
-  const lines = visibleLines(html)
-  const byNormalized = new Map()
-
-  for (const row of quotationRows) {
-    const key = normalizeName(row.name)
-    if (!key) continue
-    byNormalized.set(key, row)
-  }
-
-  const hints = []
-  const seen = new Set()
-
-  for (let i = 0; i < lines.length; i += 1) {
-    const candidate = normalizeName(lines[i])
-    const row = byNormalized.get(candidate)
-    if (!row) continue
-
-    let detail = ''
-    for (let j = i + 1; j < Math.min(lines.length, i + 7); j += 1) {
-      const line = lines[j]
-      if (byNormalized.has(normalizeName(line))) break
-      if (/^(atalanta|bologna|cagliari|como|fiorentina|frosinone|genoa|inter|juventus|lazio|lecce|milan|monza|napoli|parma|roma|sassuolo|torino|udinese|venezia)$/i.test(line)) break
-      if (/^(infortunati serie a|prossimo turno|home|news)$/i.test(line)) continue
-      detail = detail ? `${detail} ${line}` : line
-      if (detail.length >= 90) break
-    }
-
-    detail = clean(detail).slice(0, 420)
-    if (detail.length < 8) continue
-
-    const uniqueKey = `${candidate}|${row.team}`
-    if (seen.has(uniqueKey)) continue
-    seen.add(uniqueKey)
-
-    hints.push({ name: row.name, team: row.team, detail })
-  }
-
-  return hints
+function isSectionHeader(line) {
+  return /^(Infortunati|Squalificati|Diffidati|Nessuno|Indisponibili Serie A)$/i.test(line)
 }
 
-function recoveryFromDetail(detail = '') {
-  const lower = detail.toLowerCase()
+function looksLikePlayerName(line) {
+  if (!line || line.length < 2 || line.length > 48) return false
+  if (isSectionHeader(line)) return false
+  if (/^(atalanta|bologna|cagliari|como|fiorentina|frosinone|genoa|inter|juventus|lazio|lecce|milan|monza|napoli|parma|roma|sassuolo|torino|udinese|venezia)$/i.test(line)) return false
+  if (/[.!?:;]/.test(line)) return false
+  return /^[A-ZÀ-Ü][A-Za-zÀ-ÿ' .-]+$/.test(line)
+}
 
-  const phrases = [
-    /rientro[^,.]{0,80}/i,
-    /recuper[^,.]{0,80}/i,
-    /torna[^,.]{0,80}/i,
-    /tornare[^,.]{0,80}/i,
-    /da inizio [a-zà-ù]+/i,
-    /da metà [a-zà-ù]+/i,
-    /da fine [a-zà-ù]+/i,
+function parseUnavailable(html) {
+  const lines = textWithLines(html)
+  const result = []
+  let section = null
+
+  for (let i = 0; i < lines.length; i += 1) {
+    const line = lines[i]
+
+    if (/^Infortunati$/i.test(line)) {
+      section = 'injured'
+      continue
+    }
+    if (/^Squalificati$/i.test(line)) {
+      section = 'suspended'
+      continue
+    }
+    if (/^Diffidati$/i.test(line)) {
+      section = null
+      continue
+    }
+    if (!section || /^Nessuno$/i.test(line)) continue
+    if (!looksLikePlayerName(line)) continue
+
+    const detailParts = []
+    for (let j = i + 1; j < Math.min(lines.length, i + 6); j += 1) {
+      if (isSectionHeader(lines[j]) || looksLikePlayerName(lines[j])) break
+      detailParts.push(lines[j])
+      if (detailParts.join(' ').length >= 380) break
+    }
+
+    const detail = detailParts.join(' ').trim() || null
+    result.push({
+      name: line,
+      status: section,
+      detail
+    })
+  }
+
+  const unique = new Map()
+  result.forEach((item) => unique.set(normalizeName(item.name), item))
+  return Array.from(unique.values())
+}
+
+function recoveryTime(detail) {
+  if (!detail) return null
+  const patterns = [
+    /recuperabile[^,.]{0,100}/i,
+    /rientro[^,.]{0,100}/i,
+    /tornare[^,.]{0,100}/i,
+    /torna[^,.]{0,100}/i,
+    /da inizio[^,.]{0,80}/i,
+    /dalla seconda metà[^,.]{0,80}/i,
+    /tempi di recupero[^,.]{0,100}/i
   ]
-
-  for (const pattern of phrases) {
+  for (const pattern of patterns) {
     const match = detail.match(pattern)
     if (match) return clean(match[0])
   }
-
-  if (lower.includes('indefinit')) return 'Rientro indefinito'
   return null
 }
 
-function matchInjury(name, team, injuryHints) {
+function findByNameAndTeam(rows, name, team) {
   const target = normalizeName(name)
-  if (!target) return null
-
   return (
-    injuryHints.find(
-      (item) => normalizeName(item.name) === target && (!item.team || item.team === team)
-    ) ??
-    injuryHints.find((item) => {
-      const candidate = normalizeName(item.name)
-      return candidate.length >= 4 &&
-        (target.includes(candidate) || candidate.includes(target)) &&
-        (!item.team || item.team === team)
-    }) ??
+    rows.find((row) => normalizeName(row.name) === target && (!row.team || row.team === team)) ||
+    rows.find((row) => normalizeName(row.name) === target) ||
     null
   )
 }
 
-const CORS_HEADERS = {
-  'access-control-allow-origin': '*',
-  'access-control-allow-methods': 'GET, OPTIONS',
-  'access-control-allow-headers': 'Content-Type, Accept, Cache-Control',
-}
-
-export default async (request) => {
-  if (request.method === 'OPTIONS') {
-    return new Response(null, { status: 204, headers: CORS_HEADERS })
-  }
-
+export default async function handler(request) {
   if (request.method !== 'GET') {
     return new Response(JSON.stringify({ error: 'Method not allowed' }), {
       status: 405,
-      headers: { ...CORS_HEADERS, 'content-type': 'application/json; charset=utf-8' },
+      headers: { 'content-type': 'application/json; charset=utf-8' }
     })
   }
 
   try {
-    const [quotationsResult, injuriesResult, statsResult] = await Promise.allSettled([
+    const settled = await Promise.allSettled([
       fetchHtml(QUOTATIONS_URL),
-      fetchHtml(INJURIES_URL),
       fetchHtml(STATS_URL),
+      fetchHtml(INJURIES_URL)
     ])
 
-    if (quotationsResult.status !== 'fulfilled') {
-      throw new Error('Fonte quotazioni non disponibile.')
+    if (settled[0].status !== 'fulfilled') {
+      throw settled[0].reason
     }
 
-    const quotations = parseQuotationRows(quotationsResult.value)
-    const injuries =
-      injuriesResult.status === 'fulfilled'
-        ? injuryHintsFromPage(injuriesResult.value, quotations)
-        : []
-    const statsRows =
-      statsResult.status === 'fulfilled'
-        ? parseStatsRows(statsResult.value)
-        : []
-    const statsByKey = new Map(statsRows.map((row) => [`${normalizeName(row.name)}|${row.team}`, row]))
+    const quotationHtml = settled[0].value
+    const statsHtml = settled[1].status === 'fulfilled' ? settled[1].value : ''
+    const injuriesHtml = settled[2].status === 'fulfilled' ? settled[2].value : ''
+
+    const quotations = parseQuotationRows(quotationHtml)
+    const stats = statsHtml ? parseStatRows(statsHtml) : []
+    const unavailable = injuriesHtml ? parseUnavailable(injuriesHtml) : []
 
     if (quotations.length < 100) {
       throw new Error(
-        `Parsing quotazioni incompleto: trovati solo ${quotations.length} giocatori. Nessun dato locale verrà sovrascritto.`
+        `Parsing quotazioni incompleto: trovati solo ${quotations.length} giocatori. Nessun dato locale è stato sovrascritto.`
       )
     }
 
     const generatedAt = new Date().toISOString()
 
     const players = quotations.map((row) => {
-      const injury = matchInjury(row.name, row.team, injuries)
-      const stats = statsByKey.get(`${normalizeName(row.name)}|${row.team}`)
+      const stat = findByNameAndTeam(stats, row.name, row.team)
+      const unavail = findByNameAndTeam(unavailable, row.name, row.team)
 
       return {
         playerKey: `${row.name}|${row.team}`,
@@ -319,57 +307,69 @@ export default async (request) => {
         team: row.team,
         quotation: row.quotation,
         fvm: row.fvm,
-        appearances: stats?.appearances ?? null,
-        averageRating: stats?.averageRating ?? null,
-        fantasyAverage: stats?.fantasyAverage ?? null,
-        goals: stats?.goals ?? null,
-        assists: stats?.assists ?? null,
-        injury: injury?.detail ?? null,
-        injuryStatus: injury ? 'injured' : null,
-        recoveryTime: injury ? recoveryFromDetail(injury.detail) : null,
-        lastUpdated: generatedAt,
+
+        appearances: stat?.appearances ?? null,
+        averageRating: stat?.averageRating ?? null,
+        fantasyAverage: stat?.fantasyAverage ?? null,
+        goals: stat?.goals ?? null,
+        assists: stat?.assists ?? null,
+        goalsConceded: stat?.goalsConceded ?? null,
+        penaltiesScored: stat?.penaltiesScored ?? null,
+        penaltiesTaken: stat?.penaltiesTaken ?? null,
+        penaltiesSaved: stat?.penaltiesSaved ?? null,
+        yellowCards: stat?.yellowCards ?? null,
+        redCards: stat?.redCards ?? null,
+
+        injury: unavail?.detail ?? null,
+        injuryStatus: unavail?.status ?? null,
+        recoveryTime: unavail ? recoveryTime(unavail.detail) : null,
+        expectedReturn: unavail ? recoveryTime(unavail.detail) : null,
+
+        sourceUpdatedAt: generatedAt,
+        lastUpdated: generatedAt
       }
     })
 
-    return new Response(
-      JSON.stringify({
-        version: `live-${generatedAt.slice(0, 10)}`,
-        generatedAt,
-        sourceLabel: 'Fantacalcio.it · live (quotazioni + statistiche + infortuni)',
-        players,
-        changes: [],
-        diagnostics: {
-          quotationPlayers: quotations.length,
-          statsPlayers: statsRows.length,
-          injuryHints: injuries.length,
-          injuriesSourceOk: injuriesResult.status === 'fulfilled',
-          statsSourceOk: statsResult.status === 'fulfilled',
-        },
-      }),
-      {
-        status: 200,
-        headers: {
-          ...CORS_HEADERS,
-          'content-type': 'application/json; charset=utf-8',
-          'cache-control': 'no-store, max-age=0',
-        },
+    const matchedStats = players.filter((p) => p.appearances !== null).length
+    const matchedUnavailable = players.filter((p) => p.injuryStatus !== null).length
+
+    const payload = {
+      version: `live-${generatedAt}`,
+      generatedAt,
+      sourceLabel: 'Fantacalcio.it · Quotazioni + Statistiche 2026/27 + Indisponibili',
+      players,
+      changes: [],
+      diagnostics: {
+        quotationPlayers: quotations.length,
+        statsRows: stats.length,
+        matchedStats,
+        unavailableRows: unavailable.length,
+        matchedUnavailable,
+        statsSourceOk: settled[1].status === 'fulfilled',
+        injuriesSourceOk: settled[2].status === 'fulfilled'
       }
-    )
+    }
+
+    return new Response(JSON.stringify(payload), {
+      status: 200,
+      headers: {
+        'content-type': 'application/json; charset=utf-8',
+        'cache-control': 'no-store, max-age=0',
+        'access-control-allow-origin': '*'
+      }
+    })
   } catch (error) {
     return new Response(
       JSON.stringify({
-        error:
-          error instanceof Error
-            ? error.message
-            : 'Aggiornamento non disponibile.',
+        error: error instanceof Error ? error.message : 'Aggiornamento non disponibile.'
       }),
       {
         status: 503,
         headers: {
-          ...CORS_HEADERS,
           'content-type': 'application/json; charset=utf-8',
           'cache-control': 'no-store, max-age=0',
-        },
+          'access-control-allow-origin': '*'
+        }
       }
     )
   }

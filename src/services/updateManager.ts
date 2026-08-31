@@ -119,6 +119,14 @@ export class UpdateManager {
       updatedAt: payload.generatedAt,
       source: payload.sourceLabel ?? 'UPDATE_FEED',
     }
+    manifest.datasets.stats = {
+      updatedAt: payload.generatedAt,
+      source: payload.sourceLabel ?? 'UPDATE_FEED',
+    }
+    manifest.datasets.injuries = {
+      updatedAt: payload.generatedAt,
+      source: payload.sourceLabel ?? 'UPDATE_FEED',
+    }
 
     this.dataManager.setManifest(manifest)
 

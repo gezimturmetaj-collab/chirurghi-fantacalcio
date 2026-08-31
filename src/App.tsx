@@ -72,6 +72,12 @@ type PlayerUpdateData = {
   minutes?: number | null
   goals?: number | null
   assists?: number | null
+  goalsConceded?: number | null
+  penaltiesScored?: number | null
+  penaltiesTaken?: number | null
+  penaltiesSaved?: number | null
+  yellowCards?: number | null
+  redCards?: number | null
   fantasyAverage?: number | null
   xg?: number | null
   xa?: number | null
@@ -2759,6 +2765,12 @@ function App() {
       minutes: update?.minutes ?? null,
       goals: update?.goals ?? null,
       assists: update?.assists ?? null,
+      goalsConceded: update?.goalsConceded ?? null,
+      penaltiesScored: update?.penaltiesScored ?? null,
+      penaltiesTaken: update?.penaltiesTaken ?? null,
+      penaltiesSaved: update?.penaltiesSaved ?? null,
+      yellowCards: update?.yellowCards ?? null,
+      redCards: update?.redCards ?? null,
       fantasyAverage: update?.fantasyAverage ?? null,
       xg: update?.xg ?? null,
       xa: update?.xa ?? null,
@@ -5057,7 +5069,7 @@ function App() {
                 const stats = playerStats(selectedPlayer)
                 const upd = dataUpdateFor(selectedPlayer)
                 const wish = wishlistItemFor(selectedPlayer)
-                const injuryLabel = upd?.injuryStatus === 'injured' ? '🔴 INFORTUNATO' : upd?.injuryStatus === 'doubt' ? '🟠 IN DUBBIO' : upd?.injuryStatus === 'recovering' ? '🟡 RECUPERO' : '🟢 DISPONIBILE'
+                const injuryLabel = upd?.injuryStatus === 'injured' ? '🔴 INFORTUNATO' : upd?.injuryStatus === 'doubt' ? '🟠 IN DUBBIO' : upd?.injuryStatus === 'recovering' ? '🟡 RECUPERO' : upd?.injuryStatus === 'suspended' ? '🟣 SQUALIFICATO' : '🟢 DISPONIBILE'
                 return <div style={{ marginTop: '10px' }}>
                   <div style={{ display: 'grid', gridTemplateColumns: 'auto 1fr auto', gap: '10px', alignItems: 'center' }}>
                     <PlayerPhoto player={selectedPlayer} size={64} card />
@@ -5073,19 +5085,30 @@ function App() {
                   </div>
 
                   <div className="main-card" style={{ marginTop: '8px' }}>
-                    <small className="small-label">🏥 INFORTUNI</small>
+                    <small className="small-label">🏥 INFORTUNI E DISPONIBILITÀ</small>
                     <strong style={{ display: 'block', marginTop: '4px' }}>{injuryLabel}</strong>
-                    <p className="tip" style={{ margin: '4px 0 0' }}>{upd?.injury ?? 'Nessun infortunio segnalato nel feed aggiornato.'}{upd?.recoveryTime ? ` · ${upd.recoveryTime}` : ''}{upd?.expectedReturn ? ` · Rientro: ${upd.expectedReturn}` : ''}</p>
+                    <p className="tip" style={{ margin: '4px 0 0' }}>
+                      {upd?.injury ?? (upd?.injuryStatus === 'suspended' ? 'Giocatore squalificato.' : 'Nessun infortunio segnalato nel feed aggiornato.')}
+                      {upd?.recoveryTime ? ` · ${upd.recoveryTime}` : ''}
+                      {upd?.expectedReturn && upd.expectedReturn !== upd.recoveryTime ? ` · Rientro: ${upd.expectedReturn}` : ''}
+                    </p>
                   </div>
 
                   <div className="main-card" style={{ marginTop: '8px' }}>
-                    <small className="small-label">📊 STATISTICHE 2026/27</small>
+                    <small className="small-label">📊 STATISTICHE AGGIORNATE 2026/27</small>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5,1fr)', gap: '5px', marginTop: '7px' }}>
                       <div className="stat"><span>PRES.</span><strong>{formatLiveStat(stats.appearances)}</strong></div>
                       <div className="stat"><span>MV</span><strong>{formatLiveStat(stats.averageRating, 2)}</strong></div>
                       <div className="stat"><span>FM</span><strong>{formatLiveStat(stats.fantasyAverage, 2)}</strong></div>
                       <div className="stat"><span>GOL</span><strong>{formatLiveStat(stats.goals)}</strong></div>
                       <div className="stat"><span>ASSIST</span><strong>{formatLiveStat(stats.assists)}</strong></div>
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5,1fr)', gap: '5px', marginTop: '5px' }}>
+                      <div className="stat"><span>GS</span><strong>{formatLiveStat(stats.goalsConceded)}</strong></div>
+                      <div className="stat"><span>RIG. GOL</span><strong>{formatLiveStat(stats.penaltiesScored)}</strong></div>
+                      <div className="stat"><span>RIG. TIR.</span><strong>{formatLiveStat(stats.penaltiesTaken)}</strong></div>
+                      <div className="stat"><span>RIG. PAR.</span><strong>{formatLiveStat(stats.penaltiesSaved)}</strong></div>
+                      <div className="stat"><span>🟨/🟥</span><strong>{formatLiveStat(stats.yellowCards)}/{formatLiveStat(stats.redCards)}</strong></div>
                     </div>
                   </div>
 
@@ -6267,9 +6290,6 @@ function App() {
                   <span className="setup-badge">
                     FEED {formatUpdateDate(updateMeta.generatedAt)}
                   </span>
-                  {updateMeta.sourceLabel && (
-                    <span className="setup-badge">{updateMeta.sourceLabel}</span>
-                  )}
                 </div>
               )}
 

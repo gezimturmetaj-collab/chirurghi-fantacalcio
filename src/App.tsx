@@ -1709,16 +1709,10 @@ function App() {
   const [suggestionMode, setSuggestionMode] = useState<SuggestionMode>(saved.suggestionMode ?? 'target')
   const [suggestionRole, setSuggestionRole] = useState<'ALL' | Role>('ALL')
   const [suggestionCategory, setSuggestionCategory] = useState<SuggestionCategory | null>(null)
-  const [strategyDetailsOpen, setStrategyDetailsOpen] = useState(false)
   const [squadReportOpen, setSquadReportOpen] = useState(false)
-  const [warRosterOpen, setWarRosterOpen] = useState(false)
   const [alertsOpen, setAlertsOpen] = useState(false)
-  const [comparisonOpen, setComparisonOpen] = useState(false)
-  const [chirurgoOpen, setChirurgoOpen] = useState(true)
   const [commandCallRole, setCommandCallRole] = useState<Role>('A')
   const [commandDecoyRole, setCommandDecoyRole] = useState<Role>('A')
-  const [simulatorOpen, setSimulatorOpen] = useState(false)
-  const [expandedSuggestionKey, setExpandedSuggestionKey] = useState<string | null>(null)
   const [wishlist, setWishlist] = useState<WishlistItem[]>(saved.wishlist ?? [])
   const [wishlistAddRole, setWishlistAddRole] = useState<Role>('P')
   const [wishlistSearch, setWishlistSearch] = useState('')
@@ -1900,11 +1894,6 @@ function App() {
       .filter((purchase) => purchase.player.role === currentRole)
       .reduce((total, purchase) => total + purchase.price, 0)
   }
-
-  function originalRoleRemaining(currentRole: Role) {
-    return plannedRoleBudget(currentRole) - spentByRole(currentRole)
-  }
-
   function rivalPurchases(rivalId: number) {
     return rivalSales.filter((sale) => sale.rivalId === rivalId)
   }
@@ -2436,21 +2425,6 @@ function App() {
 
     return Math.round(score * 10) / 10
   }
-
-  function betReason(player: Player) {
-    const market = getMarket(player)
-    const fit = getFit(player) ?? 0
-    if (isNewToSerieA(player))
-      return 'Nuovo in Serie A: profilo ad alto rischio/potenziale'
-    if (market <= startingBudget * 0.012 && fit >= 75)
-      return 'Low-cost con potenziale molto interessante'
-    if (market <= startingBudget * 0.02 && fit >= 65)
-      return 'Costo ridotto e buon margine di crescita'
-    if (market <= startingBudget * 0.035)
-      return 'Scommessa economica con rischio controllato'
-    return 'Profilo di upside da valutare solo a prezzo basso'
-  }
-
   function calculateDecoyScore(player: Player) {
     const tier = tierScore(player)
     const market = getMarket(player)
@@ -2482,30 +2456,6 @@ function App() {
 
     return Math.round(score * 10) / 10
   }
-
-  function decoyReason(player: Player) {
-    const demand = activeRivals.filter((_, rivalId) =>
-      rivalNeedsRole(rivalId, player.role)
-    ).length
-    const target = calculateTargetScore(player)
-
-    if (demand >= 4 && target < 75) {
-      return 'Molto appetibile ai rivali, ma non prioritario per la tua strategia'
-    }
-
-    if (tierScore(player) >= 82 && target < 82) {
-      return 'Nome forte: può spingere gli avversari a spendere'
-    }
-
-    if (demand >= 2) {
-      return 'Buona esca: diversi rivali hanno ancora bisogno del ruolo'
-    }
-
-    return 'Esca situazionale: chiamala solo se vuoi muovere il budget dei rivali'
-  }
-
-
-
   function getAuctionPressure(player: Player, currentPrice: number) {
     const interested = activeRivals
       .map((_, rivalId) => ({
@@ -2852,36 +2802,6 @@ function App() {
     const pct = Math.round((ratios.reduce((a, b) => a + b, 0) / ratios.length - 1) * 100)
     return { pct, sample: sales.length, label: pct >= 10 ? 'SURRISCALDATO' : pct <= -10 ? 'SCONTO' : 'REGOLARE' }
   }
-
-  function opportunityScore(player: Player) {
-    const base = calculateTargetScore(player)
-    const temp = roleMarketTemperature(player.role).pct
-    const pressure = getAuctionPressure(player, Math.max(1, getMarket(player))).rivals
-    const wishlistBoost = wishlist.some((item) => item.playerKey === playerKey(player)) ? 7 : 0
-    return clampScore(base - Math.max(-12, Math.min(18, temp * .35)) - pressure * 1.4 + wishlistBoost)
-  }
-
-  function chirurgoAdvice(player: Player, currentPrice: number) {
-    const score = chirurgoScore(player)
-    const max = calculateGameTheoryMax(player, currentPrice)
-    const market = getMarket(player)
-    const pressure = getAuctionPressure(player, currentPrice)
-    const roleTemp = roleMarketTemperature(player.role)
-    const missing = roleRemaining(player.role)
-    const scarcity = availablePlayers.filter((candidate) => candidate.role === player.role && tierScore(candidate) >= 82).length
-    let action = 'VALUTA'
-    if (currentPrice <= max * .82 && score.total >= 75) action = 'COMPRA FORTE'
-    else if (currentPrice <= max && score.total >= 68) action = 'COMPRA'
-    else if (currentPrice > max) action = 'PASSA'
-    const reasons = [
-      `${missing} slot ${player.role} ancora liberi`,
-      `${scarcity} profili premium ${player.role} ancora disponibili`,
-      pressure.rivals > 0 ? `${pressure.rivals} rivali potenzialmente in competizione` : 'pressione rivali contenuta',
-      roleTemp.sample >= 2 ? `mercato ${player.role} ${roleTemp.label.toLowerCase()} (${roleTemp.pct > 0 ? '+' : ''}${roleTemp.pct}%)` : 'mercato del ruolo ancora poco campionato',
-    ]
-    return { action, max, market, score, pressure, reasons }
-  }
-
   function commandCallScore(player: Player) {
     return specificSuggestionScore(player, 'top') + (isStarred(player) ? 28 : 0)
   }
@@ -2924,41 +2844,6 @@ function App() {
     if (value === null || value === undefined || Number.isNaN(value)) return '—'
     return digits > 0 ? value.toFixed(digits) : String(Math.round(value))
   }
-
-  function playerPro(player: Player) {
-    const personalComment = myTeamComment(player)
-    const update = dataUpdateFor(player)
-    if (personalComment) {
-      const base = update?.pro?.trim() || [player.profile, player.traits, player.biddingRule].filter(Boolean).map(String).join(' · ') || 'Profilo da valutare.'
-      return `★ MY TEAM: ${personalComment} · ${base}`
-    }
-    if (update?.pro?.trim()) return update.pro.trim()
-
-    const pieces = [player.profile, player.traits, player.biddingRule]
-      .filter(Boolean)
-      .map((item) => String(item).trim())
-    return pieces[0] || 'Profilo utile se acquistato al prezzo corretto.'
-  }
-
-  function playerContra(player: Player) {
-    const update = dataUpdateFor(player)
-    if (update?.contra?.trim()) return update.contra.trim()
-    if (update?.injuryStatus === 'injured') {
-      const recovery = update.recoveryTime || update.expectedReturn
-      return `Infortunato${update.injury ? `: ${update.injury}` : ''}${recovery ? ` · recupero ${recovery}` : ''}.`
-    }
-    if (update?.injuryStatus === 'doubt') {
-      return `Condizione da monitorare${update.injury ? `: ${update.injury}` : ''}.`
-    }
-    if (update?.injuryStatus === 'suspended') {
-      return 'Indisponibile per squalifica.'
-    }
-    if (player.note) return player.note
-    if (estimatedStarterPct(player) < 60) return 'Titolarità da monitorare: evitare aste aggressive.'
-    if (getMarket(player) > calculateDynamicMax(player)) return 'Prezzo di mercato sopra il massimo consigliato.'
-    return 'Nessuna criticità forte nel database: resta decisivo il prezzo d’acquisto.'
-  }
-
   function evaluationComment(player: Player) {
     const market = getMarket(player)
     const max = calculateDynamicMax(player)
@@ -3121,37 +3006,6 @@ function App() {
     if (category === 'low') return value * 0.52 + target * 0.30 + starter * 0.18
     return calculateDecoyScore(player)
   }
-
-  function categoryReason(player: Player, category: SuggestionCategory) {
-    if (strategy === 'free') {
-      const pricePct = freeMarketPercentile(player)
-
-      if (category === 'top') {
-        return 'TOP FREE: qualità assoluta. Nessun filtro su costo, budget o strategia.'
-      }
-
-      if (category === 'starter') {
-        return `TITOLARE: ${estimatedStarterPct(player)}% titolarità stimata e costo in fascia media (${pricePct}° percentile del gruppo).`
-      }
-
-      if (category === 'bet') {
-        return `SCOMMESSA: costo contenuto (${pricePct}° percentile) e potenziale tecnico elevato.`
-      }
-
-      if (category === 'low') {
-        return `LOW BUDGET: costo tra i più bassi (${pricePct}° percentile) con ${estimatedStarterPct(player)}% di titolarità stimata.`
-      }
-
-      return `ESCA: profilo molto appetibile e costoso (${pricePct}° percentile), adatto a generare rilanci degli avversari.`
-    }
-
-    if (category === 'top') return 'Qualità assoluta, tier e impatto potenziale sul reparto.'
-    if (category === 'starter') return `Titolarità stimata ${estimatedStarterPct(player)}% e profilo affidabile.`
-    if (category === 'bet') return betReason(player)
-    if (category === 'low') return `Costo sostenibile (${getMarket(player)}) con margine rispetto al MAX LIVE ${calculateDynamicMax(player)}.`
-    return decoyReason(player)
-  }
-
   function squadTeamCount(team: string) {
     return purchases.filter((purchase) => purchase.player.team === team).length
   }
@@ -3447,21 +3301,6 @@ function App() {
 
     return `${categoryIntro} ${positiveText}${warningText}`
   }
-
-  function specificSuggestionHeadline(player: Player, category: SuggestionCategory) {
-    const analysis = squadSpecificAnalysis(player)
-
-    if (analysis.positives.length > 0) {
-      return analysis.positives[0]
-    }
-
-    if (analysis.cautions.length > 0) {
-      return `Profilo interessante, ma ${analysis.cautions[0].charAt(0).toLowerCase()}${analysis.cautions[0].slice(1)}`
-    }
-
-    return categoryReason(player, category)
-  }
-
   const suggestionCandidates = useMemo(() => {
     if (!warRoleChosen || !warCallChosen || !suggestionCategory) return []
     return availablePlayers
@@ -3563,11 +3402,6 @@ function App() {
       current.map((item) => item.playerKey === key ? { ...item, starred: !item.starred } : item)
     )
   }
-
-  function myTeamComment(player: Player) {
-    return wishlistItemFor(player)?.comment?.trim() || ''
-  }
-
   function wishlistUsefulDetails(player: Player) {
     const details: string[] = []
     const starter = estimatedStarterPct(player)
@@ -3793,43 +3627,6 @@ function App() {
     ? calculateGameTheoryMax(selectedPlayer, price)
     : 0
   const decision = selectedPlayer ? getDecision(selectedPlayer, price) : null
-
-  const totalSpent = purchases.reduce((total, purchase) => total + purchase.price, 0)
-  const expectedSpentByNow = roles.reduce(
-    (total, currentRole) =>
-      total +
-      plannedRoleBudget(currentRole) *
-        (roleCount(currentRole) / slotLimits[currentRole]),
-    0
-  )
-  const strategyDifference = totalSpent - expectedSpentByNow
-  const tolerance = startingBudget * 0.03
-
-  const strategyStatus =
-    strategy === 'free'
-      ? {
-          label: 'BUDGET FREE',
-          text: 'Nessun piano strategico condiziona i suggerimenti: il costo viene usato solo per definire TITOLARE, SCOMMESSA, LOW BUDGET ed ESCA.',
-          className: 'positive',
-        }
-      : strategyDifference > tolerance
-      ? {
-          label: 'RECUPERO',
-          text: `Stai spendendo circa ${Math.round(strategyDifference)} crediti più rapidamente del piano.`,
-          className: 'danger',
-        }
-      : strategyDifference < -tolerance
-      ? {
-          label: 'VANTAGGIO',
-          text: `Hai circa ${Math.abs(Math.round(strategyDifference))} crediti di margine rispetto al piano.`,
-          className: 'positive',
-        }
-      : {
-          label: 'EQUILIBRIO',
-          text: 'La spesa attuale è coerente con la strategia scelta.',
-          className: 'neutral',
-        }
-
   const liveResults = useMemo(() => {
     const search = liveSearch.trim().toLowerCase()
     if (!search) return []
@@ -4114,15 +3911,6 @@ function App() {
     setSelectedName('')
     setPlayerSearch('')
   }
-
-  function undoLastPurchase() {
-    if (purchases.length === 0) return
-    const last = purchases[purchases.length - 1]
-    setPurchases((current) => current.slice(0, -1))
-    setBudget((current) => current + last.price)
-    setMessage(`Annullato acquisto di ${last.player.name}.`)
-  }
-
   function selectLivePlayer(player: Player) {
     setLiveSelectedName(player.name)
     setLiveSearch(player.name)
@@ -4205,23 +3993,6 @@ function App() {
 
   const integrityIssues = auctionIntegrity()
   const auctionSafe = integrityIssues.length === 0
-
-  function resetWarChoiceFlow() {
-    setWarRoleChosen(false)
-    setWarCallChosen(false)
-    setSuggestionRole('ALL')
-    setSuggestionCategory(null)
-    setSuggestionMode('target')
-    setMessage('')
-  }
-
-  function resetSearchEvaluate() {
-    setSelectedName('')
-    setPlayerSearch('')
-    setPrice(1)
-    setMessage('')
-  }
-
   function resetAuction() {
     const confirmed = window.confirm(
       'Vuoi davvero iniziare una nuova asta? Rosa, rivali e prezzi verranno azzerati.'
@@ -5267,7 +5038,7 @@ function App() {
               {([['top','TOP'],['starter','TIT.'],['bet','SCOM.'],['low','LOW'],['decoy','ESCA']] as [SuggestionCategory,string][]).map(([c,label]) => <button type="button" key={`scat-${c}`} style={{ ...smallChoiceStyle(suggestionCategory === c), fontSize: '7px', paddingLeft: '3px', paddingRight: '3px' }} onClick={() => { setSuggestionCategory(c); setWarCallChosen(true); if (!warRoleChosen) setWarRoleChosen(true) }}>{label}</button>)}
             </div>
             {suggestionCategory && <div style={{ display: 'grid', gap: '7px', marginTop: '10px' }}>
-              {suggestionCandidates.length === 0 ? <p className="tip">Nessun profilo disponibile.</p> : suggestionCandidates.map(({player,score},index) => <div className="main-card" key={`fast-sug-${playerKey(player)}`} style={{ border: isStarred(player) ? '2px solid #ffb703' : undefined }}>
+              {suggestionCandidates.length === 0 ? <p className="tip">Nessun profilo disponibile.</p> : suggestionCandidates.map(({player},index) => <div className="main-card" key={`fast-sug-${playerKey(player)}`} style={{ border: isStarred(player) ? '2px solid #ffb703' : undefined }}>
                 <div style={{ display: 'grid', gridTemplateColumns: 'auto 1fr auto', gap: '8px', alignItems: 'center' }}><PlayerPhoto player={player} size={42}/><div><small>{index+1}° · {player.role} · {player.team}</small><strong style={{ display:'block' }}>{isStarred(player) ? '★ ' : ''}{player.name}</strong></div><div className="recommendation-score"><span>MAX</span><strong>{calculateDynamicMax(player)}</strong></div></div>
                 <p className="tip" style={{ margin:'7px 0 0', lineHeight:1.55 }}><strong>Perché:</strong> {specificSuggestionExplanation(player,suggestionCategory)}</p>
               </div>)}

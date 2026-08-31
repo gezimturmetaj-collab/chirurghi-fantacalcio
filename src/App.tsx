@@ -72,12 +72,6 @@ type PlayerUpdateData = {
   minutes?: number | null
   goals?: number | null
   assists?: number | null
-  goalsConceded?: number | null
-  penaltiesScored?: number | null
-  penaltiesTaken?: number | null
-  penaltiesSaved?: number | null
-  yellowCards?: number | null
-  redCards?: number | null
   fantasyAverage?: number | null
   xg?: number | null
   xa?: number | null
@@ -2765,12 +2759,6 @@ function App() {
       minutes: update?.minutes ?? null,
       goals: update?.goals ?? null,
       assists: update?.assists ?? null,
-      goalsConceded: update?.goalsConceded ?? null,
-      penaltiesScored: update?.penaltiesScored ?? null,
-      penaltiesTaken: update?.penaltiesTaken ?? null,
-      penaltiesSaved: update?.penaltiesSaved ?? null,
-      yellowCards: update?.yellowCards ?? null,
-      redCards: update?.redCards ?? null,
       fantasyAverage: update?.fantasyAverage ?? null,
       xg: update?.xg ?? null,
       xa: update?.xa ?? null,
@@ -2789,6 +2777,7 @@ function App() {
 
   function chirurgoScore(player: Player) {
     const stats = playerStats(player)
+    const update = dataUpdateFor(player)
     const quality = tierScore(player)
     const starter = estimatedStarterPct(player)
     const fit = calculateStrategyFit(player)
@@ -2797,11 +2786,54 @@ function App() {
     const value = clampScore(72 + ((max - market) / max) * 90)
     const bonusBase = (player.bonus ?? 0) * 10 + (player.penalties ? 18 : 0) + (player.setPieces ? 10 : 0)
     const bonus = clampScore(quality * .48 + bonusBase + (stats.goals ?? 0) * 1.4 + (stats.assists ?? 0))
-    const physicalPenalty = (stats.injuryDays ?? 0) * .18 + (stats.injuryCount ?? 0) * 5
-    const reliability = clampScore(starter * .65 + quality * .35 - physicalPenalty)
-    const upside = clampScore(quality * .50 + fit * .30 + bonus * .20)
-    const total = clampScore(quality * .25 + starter * .20 + value * .20 + fit * .15 + reliability * .10 + upside * .10)
-    return { total, quality: clampScore(quality), starter, value, fit: clampScore(fit), bonus, reliability, upside }
+
+    const liveForm = clampScore(
+      stats.appearances === null && stats.averageRating === null && stats.fantasyAverage === null
+        ? 55
+        : 28 +
+          Math.min(24, (stats.appearances ?? 0) * 2) +
+          Math.max(0, ((stats.averageRating ?? 5.8) - 5.5) * 18) +
+          Math.max(0, ((stats.fantasyAverage ?? 5.8) - 5.5) * 13) +
+          (stats.goals ?? 0) * 2.5 +
+          (stats.assists ?? 0) * 1.8
+    )
+
+    const availability =
+      update?.injuryStatus === 'injured' ? 18 :
+      update?.injuryStatus === 'suspended' ? 35 :
+      update?.injuryStatus === 'doubt' ? 52 :
+      update?.injuryStatus === 'recovering' ? 66 : 92
+
+    const physicalPenalty =
+      (stats.injuryDays ?? 0) * .18 +
+      (stats.injuryCount ?? 0) * 5 +
+      Math.max(0, 92 - availability) * .45
+
+    const reliability = clampScore(starter * .48 + quality * .24 + availability * .28 - physicalPenalty)
+    const upside = clampScore(quality * .42 + fit * .24 + bonus * .19 + liveForm * .15)
+    const total = clampScore(
+      quality * .20 +
+      starter * .15 +
+      value * .18 +
+      fit * .13 +
+      reliability * .11 +
+      upside * .09 +
+      liveForm * .08 +
+      availability * .06
+    )
+
+    return {
+      total,
+      quality: clampScore(quality),
+      starter,
+      value,
+      fit: clampScore(fit),
+      bonus,
+      reliability,
+      upside,
+      liveForm,
+      availability,
+    }
   }
 
   function roleMarketTemperature(currentRole: Role) {
@@ -3273,9 +3305,14 @@ function App() {
     const base = categoryScore(player, category)
     const analysis = squadSpecificAnalysis(player)
     const wishlistBonus = wishlistPriorityBonus(player)
+    const live = chirurgoScore(player)
+    const liveAdjustment =
+      (live.liveForm - 55) * 0.10 +
+      (live.availability - 70) * 0.12 +
+      (live.value - 60) * 0.05
 
-    // La categoria resta dominante; rosa e MY TEAM riordinano i profili vicini.
-    return Math.max(0, Math.min(120, base + analysis.bonus + wishlistBonus))
+    // La categoria resta dominante; rosa, MY TEAM e dati live riordinano i profili vicini.
+    return Math.max(0, Math.min(120, base + analysis.bonus + wishlistBonus + liveAdjustment))
   }
 
   function specificSuggestionExplanation(player: Player, category: SuggestionCategory) {
@@ -3311,7 +3348,10 @@ function App() {
         ? ` Attenzione: ${warnings.join(' ')}`
         : ''
 
-    return `${categoryIntro} ${positiveText}${warningText}`
+    const live = chirurgoScore(player)
+    const liveText = ` Dati live: forma ${scoreOutOf10(live.liveForm)}/10 · disponibilità ${scoreOutOf10(live.availability)}/10 · Chirurgo Score ${scoreOutOf10(live.total)}/10.`
+
+    return `${categoryIntro} ${positiveText}${warningText}${liveText}`
   }
   const suggestionCandidates = useMemo(() => {
     if (!warRoleChosen || !warCallChosen || !suggestionCategory) return []
@@ -3338,6 +3378,7 @@ function App() {
     strategy,
     startingBudget,
     leagueSize,
+    dataUpdates,
   ])
 
 
@@ -3906,6 +3947,20 @@ function App() {
   function handlePlayerSearch(value: string) {
     setPlayerSearch(value)
     setSelectedName('')
+    setMessage('')
+  }
+
+  function resetWarChoiceFlow() {
+    setSuggestionRole('ALL')
+    setSuggestionCategory(null)
+    setWarRoleChosen(false)
+    setWarCallChosen(false)
+  }
+
+  function resetSearchEvaluate() {
+    setSelectedName('')
+    setPlayerSearch('')
+    setPrice(1)
     setMessage('')
   }
 
@@ -5049,6 +5104,11 @@ function App() {
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5,1fr)', gap: '5px', marginTop: '6px' }}>
               {([['top','TOP'],['starter','TIT.'],['bet','SCOM.'],['low','LOW'],['decoy','ESCA']] as [SuggestionCategory,string][]).map(([c,label]) => <button type="button" key={`scat-${c}`} style={{ ...smallChoiceStyle(suggestionCategory === c), fontSize: '7px', paddingLeft: '3px', paddingRight: '3px' }} onClick={() => { setSuggestionCategory(c); setWarCallChosen(true); if (!warRoleChosen) setWarRoleChosen(true) }}>{label}</button>)}
             </div>
+            {(warRoleChosen || warCallChosen || suggestionCategory) && (
+              <button type="button" className="back-button" onClick={resetWarChoiceFlow} style={{ width: '100%', marginTop: '7px' }}>
+                ↺ RESET SUGGERIMENTI
+              </button>
+            )}
             {suggestionCategory && <div style={{ display: 'grid', gap: '7px', marginTop: '10px' }}>
               {suggestionCandidates.length === 0 ? <p className="tip">Nessun profilo disponibile.</p> : suggestionCandidates.map(({player},index) => <div className="main-card" key={`fast-sug-${playerKey(player)}`} style={{ border: isStarred(player) ? '2px solid #ffb703' : undefined }}>
                 <div style={{ display: 'grid', gridTemplateColumns: 'auto 1fr auto', gap: '8px', alignItems: 'center' }}><PlayerPhoto player={player} size={42}/><div><small>{index+1}° · {player.role} · {player.team}</small><strong style={{ display:'block' }}>{isStarred(player) ? '★ ' : ''}{player.name}</strong></div><div className="recommendation-score"><span>MAX</span><strong>{calculateDynamicMax(player)}</strong></div></div>
@@ -5061,6 +5121,11 @@ function App() {
             <div className="section-title">CERCA E VALUTA</div>
             <div className="target-card" style={{ marginTop: '9px' }}>
               <input type="text" placeholder="Nome o squadra..." value={playerSearch} onChange={(event) => handlePlayerSearch(event.target.value)} />
+              {(playerSearch || selectedPlayer) && (
+                <button type="button" className="back-button" onClick={resetSearchEvaluate} style={{ width: '100%', marginTop: '7px' }}>
+                  ↺ RESET RICERCA
+                </button>
+              )}
               {playerSearch && !selectedPlayer && <div style={{ display: 'grid', gap: '5px', marginTop: '7px' }}>
                 {searchedPlayers.slice(0, 8).map((player) => <button type="button" key={`quick-${playerKey(player)}`} onClick={() => changePlayer(player.name)} style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '8px', padding: '9px', borderRadius: '11px', border: '1px solid rgba(64,92,160,.15)', background: 'rgba(255,255,255,.76)', color: '#15203a', textAlign: 'left' }}><span><strong>{isStarred(player) ? '★ ' : ''}{player.name}</strong><small style={{ display: 'block' }}>{player.team} · {player.role}</small></span><strong>{getMarket(player)}</strong></button>)}
               </div>}
@@ -5069,7 +5134,7 @@ function App() {
                 const stats = playerStats(selectedPlayer)
                 const upd = dataUpdateFor(selectedPlayer)
                 const wish = wishlistItemFor(selectedPlayer)
-                const injuryLabel = upd?.injuryStatus === 'injured' ? '🔴 INFORTUNATO' : upd?.injuryStatus === 'doubt' ? '🟠 IN DUBBIO' : upd?.injuryStatus === 'recovering' ? '🟡 RECUPERO' : upd?.injuryStatus === 'suspended' ? '🟣 SQUALIFICATO' : '🟢 DISPONIBILE'
+                const injuryLabel = upd?.injuryStatus === 'injured' ? '🔴 INFORTUNATO' : upd?.injuryStatus === 'doubt' ? '🟠 IN DUBBIO' : upd?.injuryStatus === 'recovering' ? '🟡 RECUPERO' : '🟢 DISPONIBILE'
                 return <div style={{ marginTop: '10px' }}>
                   <div style={{ display: 'grid', gridTemplateColumns: 'auto 1fr auto', gap: '10px', alignItems: 'center' }}>
                     <PlayerPhoto player={selectedPlayer} size={64} card />
@@ -5084,31 +5149,38 @@ function App() {
                     <div className="stat"><span>FIT</span><strong>{scoreOutOf10(calculateStrategyFit(selectedPlayer))}</strong></div>
                   </div>
 
+                  {(() => {
+                    const intelligence = chirurgoScore(selectedPlayer)
+                    return (
+                      <div className="main-card" style={{ marginTop: '8px' }}>
+                        <small className="small-label">🧠 CHIRURGO INTELLIGENCE LIVE</small>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '5px', marginTop: '7px' }}>
+                          <div className="stat highlight-stat"><span>SCORE</span><strong>{scoreOutOf10(intelligence.total)}</strong></div>
+                          <div className="stat"><span>FORMA</span><strong>{scoreOutOf10(intelligence.liveForm)}</strong></div>
+                          <div className="stat"><span>DISP.</span><strong>{scoreOutOf10(intelligence.availability)}</strong></div>
+                          <div className="stat"><span>VALUE</span><strong>{scoreOutOf10(intelligence.value)}</strong></div>
+                        </div>
+                        <p className="tip" style={{ margin: '7px 0 0' }}>
+                          Il punteggio combina qualità, titolarità, prezzo, strategia, statistiche live e disponibilità fisica. I suggerimenti rapidi usano ora anche questi dati.
+                        </p>
+                      </div>
+                    )
+                  })()}
+
                   <div className="main-card" style={{ marginTop: '8px' }}>
-                    <small className="small-label">🏥 INFORTUNI E DISPONIBILITÀ</small>
+                    <small className="small-label">🏥 INFORTUNI</small>
                     <strong style={{ display: 'block', marginTop: '4px' }}>{injuryLabel}</strong>
-                    <p className="tip" style={{ margin: '4px 0 0' }}>
-                      {upd?.injury ?? (upd?.injuryStatus === 'suspended' ? 'Giocatore squalificato.' : 'Nessun infortunio segnalato nel feed aggiornato.')}
-                      {upd?.recoveryTime ? ` · ${upd.recoveryTime}` : ''}
-                      {upd?.expectedReturn && upd.expectedReturn !== upd.recoveryTime ? ` · Rientro: ${upd.expectedReturn}` : ''}
-                    </p>
+                    <p className="tip" style={{ margin: '4px 0 0' }}>{upd?.injury ?? 'Nessun infortunio segnalato nel feed aggiornato.'}{upd?.recoveryTime ? ` · ${upd.recoveryTime}` : ''}{upd?.expectedReturn ? ` · Rientro: ${upd.expectedReturn}` : ''}</p>
                   </div>
 
                   <div className="main-card" style={{ marginTop: '8px' }}>
-                    <small className="small-label">📊 STATISTICHE AGGIORNATE 2026/27</small>
+                    <small className="small-label">📊 STATISTICHE 2026/27</small>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5,1fr)', gap: '5px', marginTop: '7px' }}>
                       <div className="stat"><span>PRES.</span><strong>{formatLiveStat(stats.appearances)}</strong></div>
                       <div className="stat"><span>MV</span><strong>{formatLiveStat(stats.averageRating, 2)}</strong></div>
                       <div className="stat"><span>FM</span><strong>{formatLiveStat(stats.fantasyAverage, 2)}</strong></div>
                       <div className="stat"><span>GOL</span><strong>{formatLiveStat(stats.goals)}</strong></div>
                       <div className="stat"><span>ASSIST</span><strong>{formatLiveStat(stats.assists)}</strong></div>
-                    </div>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5,1fr)', gap: '5px', marginTop: '5px' }}>
-                      <div className="stat"><span>GS</span><strong>{formatLiveStat(stats.goalsConceded)}</strong></div>
-                      <div className="stat"><span>RIG. GOL</span><strong>{formatLiveStat(stats.penaltiesScored)}</strong></div>
-                      <div className="stat"><span>RIG. TIR.</span><strong>{formatLiveStat(stats.penaltiesTaken)}</strong></div>
-                      <div className="stat"><span>RIG. PAR.</span><strong>{formatLiveStat(stats.penaltiesSaved)}</strong></div>
-                      <div className="stat"><span>🟨/🟥</span><strong>{formatLiveStat(stats.yellowCards)}/{formatLiveStat(stats.redCards)}</strong></div>
                     </div>
                   </div>
 
@@ -6290,6 +6362,9 @@ function App() {
                   <span className="setup-badge">
                     FEED {formatUpdateDate(updateMeta.generatedAt)}
                   </span>
+                  {updateMeta.sourceLabel && (
+                    <span className="setup-badge">{updateMeta.sourceLabel}</span>
+                  )}
                 </div>
               )}
 

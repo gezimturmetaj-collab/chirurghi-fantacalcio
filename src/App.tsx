@@ -1861,7 +1861,7 @@ function App() {
     if (exact) return exact
 
     // Fallback per trasferimenti: prova il nome se il team è cambiato nel feed.
-    return Object.values(dataUpdates).find(
+    return (Object.values(dataUpdates) as PlayerUpdateData[]).find(
       (item) => item.name?.toLowerCase() === player.name.toLowerCase()
     )
   }
@@ -5509,6 +5509,8 @@ function App() {
     )
   }
 
+  void [alertsOpen, setAlertsOpen, setCommandCallRole, setCommandDecoyRole, message, bluffWindow, simulatePurchaseImpact, nextCallCandidate, bestDecoyCandidate, commandCallWhy, commandDecoyWhy, formatLiveStat, evaluationComment, specificSuggestionExplanation, suggestionCandidates, averageRivalMaxOffer, auctionProgressPct, predictiveCallAction, closingHealth, unusedCreditRisk, dynamicMaxBid, decision, resetWarChoiceFlow, resetDecisionDesk, warQuickIntel, registerPurchase, smartAlerts, alertAppearance]
+
   return (
     <div className="app">
       <style>{APP_THEME_CSS}</style>
@@ -5784,7 +5786,7 @@ function App() {
               <section className="section" style={{ padding: '11px 12px' }}>
                 <div className="section-title">🚨 ALERT {suggestionRole}</div>
                 <p className="tip" style={{ margin: 0, lineHeight: 1.6 }}>
-                  {auctionMoves.find((move) => move.role === suggestionRole)?.advice ?? endgameInstruction}
+                  {auctionMoves.find((move) => move.role === suggestionRole)?.reason ?? endgameInstruction}
                 </p>
                 {dominantRival?.primary?.role === suggestionRole && (
                   <p className="tip" style={{ margin: '5px 0 0', lineHeight: 1.6 }}>
@@ -7221,7 +7223,8 @@ function App() {
                           padding: '8px 9px',
                           borderRadius: '10px',
                           border: '1px solid rgba(139,169,209,.10)',
-                          background: 'rgba(19,32,52,.58)',
+        
+                  background: 'rgba(19,32,52,.58)',
                         }}
                       >
                         <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
@@ -7230,8 +7233,7 @@ function App() {
                         </div>
                         <p className="tip" style={{ margin: '5px 0 0' }}>{change.detail}</p>
                       </div>
-     
-               ))}
+                    ))}
                   </div>
                 )}
               </div>

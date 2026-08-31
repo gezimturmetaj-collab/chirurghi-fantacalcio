@@ -3113,7 +3113,7 @@ function App() {
   }
 
 
-  function simulatePurchase(player: Player, simulatedPrice: number) {
+  function simulatePurchaseImpact(player: Player, simulatedPrice: number) {
     const priceNow = Math.max(1, simulatedPrice)
     const futureBudget = Math.max(0, budget - priceNow)
     const futureRoleRemaining = Math.max(0, roleRemaining(player.role) - 1)
@@ -5868,7 +5868,7 @@ function App() {
                   })()}
 
                   {(() => {
-                    const simulation = simulatePurchase(selectedPlayer, price)
+                    const simulation = simulatePurchaseImpact(selectedPlayer, price)
                     const bluff = bluffWindow(selectedPlayer)
                     return (
                       <>

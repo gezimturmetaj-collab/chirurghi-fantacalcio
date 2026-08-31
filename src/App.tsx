@@ -950,7 +950,7 @@ const APP_THEME_CSS = `
   }
 
   /* =========================================================
-     PASSO 39 — OBSIDIAN / ICE UI
+     MEGA UPGRADE — ASTA PRO / OBSIDIAN ICE
      Più pulita, moderna e leggibile durante l'asta
      ========================================================= */
 
@@ -2842,6 +2842,137 @@ function App() {
     }
   }
 
+
+  function buyNowIntelligence(player: Player, currentPrice: number) {
+    const live = chirurgoScore(player)
+    const market = Math.max(1, getMarket(player))
+    const max = Math.max(1, calculateGameTheoryMax(player, currentPrice))
+    const pressure = getAuctionPressure(player, currentPrice)
+    const temperature = roleMarketTemperature(player.role)
+    const remainingRole = roleRemaining(player.role)
+    const remainingTotal = roles.reduce((total, role) => total + roleRemaining(role), 0)
+    const reserveAfter = Math.max(0, remainingTotal - 1)
+    const budgetAfter = Math.max(0, budget - currentPrice)
+    const structuralSafety = budgetAfter >= reserveAfter ? 100 : 20
+    const headroomPct = Math.round(((max - currentPrice) / max) * 100)
+
+    const strongAlternatives = availablePlayers.filter((candidate) =>
+      candidate.role === player.role &&
+      candidate.name !== player.name &&
+      chirurgoScore(candidate).total >= Math.max(72, live.total - 5)
+    ).length
+
+    const scarcity =
+      strongAlternatives <= 2 ? 96 :
+      strongAlternatives <= 5 ? 78 :
+      strongAlternatives <= 9 ? 58 : 38
+
+    const roleNeed = clampScore(
+      (remainingRole / Math.max(1, slotLimits[player.role])) * 72 +
+      (roleCount(player.role) === 0 ? 22 : 0)
+    )
+
+    const pressureScore =
+      pressure.level === 'ALTA' ? 90 :
+      pressure.level === 'MEDIA' ? 65 : 35
+
+    const marketHeat =
+      temperature.sample < 2 ? 50 :
+      temperature.pct >= 15 ? 82 :
+      temperature.pct >= 5 ? 66 :
+      temperature.pct <= -10 ? 35 : 50
+
+    const starredBoost = isStarred(player) ? 14 : wishlistItemFor(player) ? 7 : 0
+    const affordability =
+      currentPrice <= max * .78 ? 100 :
+      currentPrice <= max * .92 ? 84 :
+      currentPrice <= max ? 68 :
+      currentPrice <= max * 1.08 ? 38 : 10
+
+    const risk = clampScore(
+      (100 - live.availability) * .40 +
+      pressureScore * .20 +
+      marketHeat * .12 +
+      (100 - structuralSafety) * .20 +
+      Math.max(0, currentPrice - market) / market * 100 * .08
+    )
+
+    const actionScore = clampScore(
+      live.total * .34 +
+      live.value * .16 +
+      roleNeed * .13 +
+      scarcity * .12 +
+      affordability * .13 +
+      structuralSafety * .08 +
+      pressureScore * .04 +
+      starredBoost -
+      risk * .10
+    )
+
+    const fairPrice = Math.max(
+      1,
+      Math.min(
+        max,
+        Math.round((market * .58) + (max * .42))
+      )
+    )
+    const attackPrice = Math.max(
+      1,
+      Math.min(max, Math.round(fairPrice * (isStarred(player) ? 1.06 : 1.02)))
+    )
+    const bargainPrice = Math.max(1, Math.min(fairPrice, Math.round(market * .88)))
+
+    let priority: 'MASSIMA' | 'ALTA' | 'MEDIA' | 'BASSA' = 'BASSA'
+    if (actionScore >= 86) priority = 'MASSIMA'
+    else if (actionScore >= 74) priority = 'ALTA'
+    else if (actionScore >= 60) priority = 'MEDIA'
+
+    let action = 'PASSA'
+    if (currentPrice > max) action = 'STOP'
+    else if (actionScore >= 86 && currentPrice <= attackPrice) action = 'CHIUDI ORA'
+    else if (actionScore >= 74 && currentPrice <= fairPrice) action = 'COMPRA'
+    else if (actionScore >= 62 && currentPrice <= max) action = 'RESTA IN GARA'
+    else if (currentPrice <= bargainPrice) action = 'OCCASIONE'
+    else action = 'ASPETTA'
+
+    const reasons: string[] = []
+    if (isStarred(player)) reasons.push('obiettivo ★')
+    if (live.availability < 65) reasons.push('rischio disponibilità')
+    if (scarcity >= 78) reasons.push('poche alternative equivalenti')
+    if (pressure.level === 'ALTA') reasons.push('forte pressione rivali')
+    if (temperature.sample >= 2 && temperature.pct >= 10) reasons.push('reparto surriscaldato')
+    if (headroomPct >= 20) reasons.push('ampio margine sotto MAX')
+    if (structuralSafety < 60) reasons.push('budget residuo da proteggere')
+
+    return {
+      actionScore,
+      priority,
+      action,
+      risk,
+      scarcity,
+      roleNeed,
+      pressureScore,
+      marketHeat,
+      strongAlternatives,
+      fairPrice,
+      attackPrice,
+      bargainPrice,
+      max,
+      market,
+      headroomPct,
+      budgetAfter,
+      structuralSafety,
+      pressure,
+      temperature,
+      reasons,
+    }
+  }
+
+  function roleOpportunityScore(player: Player) {
+    const intel = buyNowIntelligence(player, getMarket(player))
+    return intel.actionScore + (isStarred(player) ? 8 : 0)
+  }
+
   function roleMarketTemperature(currentRole: Role) {
     const sales = [
       ...purchases.filter((item) => item.player.role === currentRole).map((item) => ({ player: item.player, price: item.price })),
@@ -3387,6 +3518,31 @@ function App() {
     dataUpdates,
   ])
 
+
+
+  const opportunityCandidates = useMemo(() => {
+    return availablePlayers
+      .filter((player) => roleRemaining(player.role) > 0)
+      .map((player) => ({
+        player,
+        score: roleOpportunityScore(player),
+        intel: buyNowIntelligence(player, getMarket(player)),
+      }))
+      .filter((item) => item.intel.action !== 'STOP')
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 5)
+  }, [
+    availablePlayers,
+    purchases,
+    rivalSales,
+    budget,
+    startingBudget,
+    leagueSize,
+    strategy,
+    suggestionMode,
+    dataUpdates,
+    wishlist,
+  ])
 
   const wishlistPlayers = useMemo(() => {
     return wishlist
@@ -3982,6 +4138,15 @@ function App() {
 
   function resetComparison() {
     setComparisonNames([])
+  }
+
+  function resetDecisionDesk() {
+    resetSearchEvaluate()
+    resetComparison()
+    setLiveSearch('')
+    setLiveSelectedName('')
+    setLivePrice(1)
+    setLiveMessage('')
   }
 
 
@@ -5138,7 +5303,55 @@ function App() {
           </section>
 
           <section className="section">
-            <div className="section-title">CERCA E VALUTA</div>
+            <div className="section-title">🚨 OPPORTUNITÀ LIVE · TOP 5</div>
+            <p className="tip" style={{ marginTop: 0 }}>
+              Priorità calcolata insieme su qualità, prezzo, bisogno di reparto, scarsità, pressione rivali, disponibilità e struttura del budget.
+            </p>
+            <div style={{ display: 'grid', gap: '7px' }}>
+              {opportunityCandidates.map(({ player, intel }, index) => (
+                <button
+                  type="button"
+                  key={`opportunity-${playerKey(player)}`}
+                  onClick={() => {
+                    setSelectedName(player.name)
+                    setPlayerSearch(player.name)
+                    setPrice(Math.max(1, getMarket(player)))
+                  }}
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'auto 1fr auto',
+                    gap: '9px',
+                    alignItems: 'center',
+                    padding: '10px',
+                    borderRadius: '13px',
+                    border: index === 0 ? '1px solid rgba(66,214,164,.38)' : '1px solid rgba(255,255,255,.08)',
+                    background: index === 0 ? 'rgba(66,214,164,.07)' : 'rgba(255,255,255,.025)',
+                    color: 'inherit',
+                    textAlign: 'left',
+                    cursor: 'pointer',
+                  }}
+                >
+                  <PlayerPhoto player={player} size={44} />
+                  <span style={{ minWidth: 0 }}>
+                    <strong style={{ display: 'block' }}>{index + 1}. {isStarred(player) ? '★ ' : ''}{player.name}</strong>
+                    <small>{player.team} · {player.role} · mercato {intel.market} · MAX {intel.max}</small>
+                    <small style={{ display: 'block', marginTop: '3px' }}>
+                      {intel.action} · priorità {intel.priority.toLowerCase()} · rischio {scoreOutOf10(intel.risk)}/10
+                    </small>
+                  </span>
+                  <strong>{scoreOutOf10(intel.actionScore)}</strong>
+                </button>
+              ))}
+            </div>
+          </section>
+
+          <section className="section">
+            <div style={{ display: 'flex', justifyContent: 'space-between', gap: '8px', alignItems: 'center' }}>
+              <div className="section-title" style={{ marginBottom: 0 }}>CERCA E VALUTA</div>
+              {(playerSearch || selectedPlayer || comparisonNames.length > 0) && (
+                <button type="button" className="back-button" onClick={resetDecisionDesk}>↺ RESET ANALISI</button>
+              )}
+            </div>
             <div className="target-card" style={{ marginTop: '9px' }}>
               <input type="text" placeholder="Nome o squadra..." value={playerSearch} onChange={(event) => handlePlayerSearch(event.target.value)} />
               {(playerSearch || selectedPlayer) && (
@@ -5182,6 +5395,30 @@ function App() {
                         </div>
                         <p className="tip" style={{ margin: '7px 0 0' }}>
                           Il punteggio combina qualità, titolarità, prezzo, strategia, statistiche live e disponibilità fisica. I suggerimenti rapidi usano ora anche questi dati.
+                        </p>
+                      </div>
+                    )
+                  })()}
+
+                  {(() => {
+                    const now = buyNowIntelligence(selectedPlayer, price)
+                    return (
+                      <div className="main-card" style={{ marginTop: '8px', border: now.action === 'CHIUDI ORA' || now.action === 'COMPRA' ? '1px solid rgba(66,214,164,.38)' : now.action === 'STOP' ? '1px solid rgba(255,115,135,.38)' : undefined }}>
+                        <small className="small-label">🧠 CENTRALE DECISIONALE ASTA</small>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '5px', marginTop: '7px' }}>
+                          <div className="stat"><span>AZIONE</span><strong style={{ fontSize: '11px' }}>{now.action}</strong></div>
+                          <div className="stat"><span>PRIORITÀ</span><strong style={{ fontSize: '11px' }}>{now.priority}</strong></div>
+                          <div className="stat"><span>SCORE</span><strong>{scoreOutOf10(now.actionScore)}</strong></div>
+                          <div className="stat"><span>PREZZO OK</span><strong>{now.fairPrice}</strong></div>
+                          <div className="stat"><span>ATTACCO</span><strong>{now.attackPrice}</strong></div>
+                          <div className="stat"><span>STOP</span><strong>{now.max}</strong></div>
+                        </div>
+                        <p className="tip" style={{ margin: '7px 0 0', lineHeight: 1.6 }}>
+                          Rischio {scoreOutOf10(now.risk)}/10 · scarsità {scoreOutOf10(now.scarcity)}/10 · pressione {now.pressure.level} ({now.pressure.rivals} rivali) · alternative forti {now.strongAlternatives}.
+                          {now.reasons.length > 0 ? ` Motivi: ${now.reasons.join(' · ')}.` : ''}
+                        </p>
+                        <p className="tip" style={{ margin: '5px 0 0', lineHeight: 1.6 }}>
+                          Fascia prezzo: <strong>occasione ≤ {now.bargainPrice}</strong> · prezzo corretto ≤ {now.fairPrice} · puoi attaccare fino a {now.attackPrice} · <strong>non superare {now.max}</strong>. Dopo l'acquisto resterebbero {now.budgetAfter} crediti.
                         </p>
                       </div>
                     )
@@ -5239,7 +5476,9 @@ function App() {
             </div>
 
             {comparisonPlayers.length > 0 && (() => {
-              const ranked = [...comparisonPlayers].sort((a, b) => chirurgoScore(b).total - chirurgoScore(a).total)
+              const ranked = [...comparisonPlayers].sort(
+                (a, b) => buyNowIntelligence(b, getMarket(b)).actionScore - buyNowIntelligence(a, getMarket(a)).actionScore
+              )
               const winner = ranked[0]
               const sameRole = comparisonPlayers.every((player) => player.role === comparisonPlayers[0]?.role)
               return (
@@ -5279,6 +5518,9 @@ function App() {
                                 <div><span>G+A </span><strong>{(stats.goals ?? 0) + (stats.assists ?? 0)}</strong></div>
                                 <div><span>DISP. </span><strong>{availabilityLabel}</strong></div>
                                 <div><span>VALUE </span><strong>{scoreOutOf10(intel.value)}</strong></div>
+                                <div><span>AZIONE </span><strong>{buyNowIntelligence(player, getMarket(player)).action}</strong></div>
+                                <div><span>PRIOR. </span><strong>{buyNowIntelligence(player, getMarket(player)).priority}</strong></div>
+                                <div><span>RISCHIO </span><strong>{scoreOutOf10(buyNowIntelligence(player, getMarket(player)).risk)}</strong></div>
                               </div>
                               <button type="button" className="back-button" onClick={() => toggleComparisonPlayer(player)} style={{ width: '100%', marginTop: '7px', padding: '0 5px' }}>RIMUOVI</button>
                             </div>
@@ -5290,8 +5532,8 @@ function App() {
                         <small className="small-label">🏆 VERDETTO CONFRONTO</small>
                         <strong style={{ display: 'block', marginTop: '4px' }}>{winner.name}</strong>
                         <p className="tip" style={{ margin: '4px 0 0', lineHeight: 1.6 }}>
-                          È il profilo con il miglior Chirurgo Score nel confronto attuale: {scoreOutOf10(chirurgoScore(winner).total)}/10, MAX {calculateDynamicMax(winner)} e titolarità stimata {estimatedStarterPct(winner)}%.
-                          {!sameRole ? ' Attenzione: stai confrontando ruoli diversi, quindi il verdetto considera anche bisogno di reparto, strategia e budget.' : ' Essendo giocatori dello stesso ruolo, il confronto è particolarmente utile per decidere su chi investire.'}
+                          È il profilo con la miglior priorità d'acquisto adesso: {scoreOutOf10(buyNowIntelligence(winner, getMarket(winner)).actionScore)}/10. Azione consigliata: {buyNowIntelligence(winner, getMarket(winner)).action}; prezzo corretto {buyNowIntelligence(winner, getMarket(winner)).fairPrice}, STOP {buyNowIntelligence(winner, getMarket(winner)).max}, rischio {scoreOutOf10(buyNowIntelligence(winner, getMarket(winner)).risk)}/10.
+                          {!sameRole ? ' Stai confrontando ruoli diversi: il verdetto pesa anche urgenza del reparto, budget e scarsità.' : ' Stesso ruolo: il verdetto privilegia chi conviene realmente comprare, non solo chi ha il punteggio individuale più alto.'}
                         </p>
                       </div>
                     </>
@@ -6833,7 +7075,8 @@ function App() {
                 gridTemplateColumns: '1fr 1fr',
                 gap: '8px',
                 marginTop: '10px',
-              }}>
+  
+            }}>
                 <div style={{ padding: '9px', border: '1px solid #273149', borderRadius: '9px' }}>
                   <span style={{ display: 'block', color: '#78859b', fontSize: '7px' }}>
                     PARTECIPANTI

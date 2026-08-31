@@ -3822,7 +3822,7 @@ function App() {
 
   const closingPlan = roles.map((role) => {
     const missing = roleRemaining(role)
-    const budgetRoom = Math.max(0, adaptiveTargetForRole(role) - roleSpent(role))
+    const budgetRoom = Math.max(0, adaptiveRoleBudget(role) - spentByRole(role))
     const minReserve = missing
     const attackRoom = Math.max(0, budgetRoom - minReserve)
     const availableRole = availablePlayers
@@ -6965,7 +6965,8 @@ function App() {
                         <strong>{scoreOutOf10(analysis.strategyFit)}</strong>
                       </div>
                       <div style={{ padding: '7px', border: '1px solid #273149', borderRadius: '8px' }}>
-                        <span style={{ display: 'block', color: '#78859b', fontSize: '7px' }}>VALUE</span>
+                        <span style={{ display: 'block'
+, color: '#78859b', fontSize: '7px' }}>VALUE</span>
                         <strong>{scoreOutOf10(analysis.value)}</strong>
                       </div>
                     </div>

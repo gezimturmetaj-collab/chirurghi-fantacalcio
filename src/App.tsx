@@ -950,7 +950,7 @@ const APP_THEME_CSS = `
   }
 
   /* =========================================================
-     MEGA UPGRADE — MEMORIA RIVALI / SIMULATORE / CHIUSURA
+     FINAL ENGINE — PREZZO / TIMING / ENDGAME / RIVALI
      Più pulita, moderna e leggibile durante l'asta
      ========================================================= */
 
@@ -2601,6 +2601,89 @@ function App() {
     return { leader, safeBluff, interested }
   }
 
+
+  function finalPriceForecast(player: Player, currentPrice: number) {
+    const market = Math.max(1, getMarket(player))
+    const myMax = Math.max(1, calculateDynamicMax(player))
+    const rivalBids = activeRivals
+      .map((_, rivalId) => ({
+        rivalId,
+        name: rivalNames[rivalId],
+        predicted: predictedRivalBid(rivalId, player),
+        danger: rivalPlayerDanger(rivalId, player, currentPrice),
+        needsRole: rivalNeedsRole(rivalId, player.role),
+      }))
+      .filter((item) => item.needsRole)
+      .sort((a, b) => b.predicted - a.predicted || b.danger - a.danger)
+
+    const strongest = rivalBids[0] ?? null
+    const second = rivalBids[1] ?? null
+    const rivalCeiling = strongest?.predicted ?? market
+    const secondCeiling = second?.predicted ?? market
+
+    const demand = clampScore(
+      28 +
+      rivalBids.length * 10 +
+      (strongest?.danger ?? 1) * 4 +
+      Math.max(0, estimatedStarterPct(player) - 65) * .20
+    )
+
+    const predictedFinal = Math.max(
+      1,
+      Math.round(
+        market * .52 +
+        rivalCeiling * .30 +
+        secondCeiling * .10 +
+        Math.min(myMax, market * 1.35) * .08
+      )
+    )
+
+    const low = Math.max(1, Math.round(predictedFinal * .90))
+    const high = Math.max(low, Math.round(predictedFinal * 1.10))
+    const entryThreshold = Math.max(
+      1,
+      Math.min(myMax, Math.round(predictedFinal * .72))
+    )
+
+    let entry = 'OSSERVA'
+    if (currentPrice <= Math.max(1, Math.round(entryThreshold * .78))) entry = 'NON SCOPRIRTI'
+    else if (currentPrice < entryThreshold) entry = 'PREPARATI'
+    else if (currentPrice <= Math.min(myMax, predictedFinal)) entry = 'ENTRA ORA'
+    else if (currentPrice <= myMax) entry = 'SOLO RILANZI SECCHI'
+    else entry = 'STOP'
+
+    let tactic = 'Aspetta: il prezzo è ancora troppo basso per mostrare interesse.'
+    if (entry === 'PREPARATI') tactic = `Avvicinati solo quando supera circa ${entryThreshold}: evita rilanci inutili prima.`
+    if (entry === 'ENTRA ORA') tactic = 'Entra con decisione: sei nella finestra in cui il prezzo è ancora difendibile.'
+    if (entry === 'SOLO RILANZI SECCHI') tactic = 'Se vuoi chiuderlo, niente micro-rilanci emotivi: resta rigorosamente sotto il tuo MAX.'
+    if (entry === 'STOP') tactic = 'Lascia andare: il prezzo ha superato il limite sostenibile.'
+
+    const valueGap = myMax - predictedFinal
+    const winChance = clampScore(
+      50 +
+      (myMax - rivalCeiling) / Math.max(1, market) * 42 +
+      (budget - averageRivalBudget) / Math.max(1, startingBudget) * 35 -
+      Math.max(0, rivalBids.length - 2) * 5
+    )
+
+    return {
+      predictedFinal,
+      low,
+      high,
+      entryThreshold,
+      entry,
+      tactic,
+      demand,
+      strongest,
+      rivalBids,
+      rivalCeiling,
+      valueGap,
+      winChance,
+      myMax,
+      market,
+    }
+  }
+
   function getAuctionPressure(player: Player, currentPrice: number) {
     const interested = activeRivals
       .map((_, rivalId) => ({
@@ -3849,6 +3932,45 @@ function App() {
     budget < minimumClosingReserve ? 'EMERGENZA' :
     closingAttackBudget >= startingBudget * .12 ? 'FORTE' :
     closingAttackBudget >= totalMissingSlots * 3 ? 'GESTIBILE' : 'STRETTA'
+
+
+  const remainingMarketNeed = roles.reduce((total, role) => {
+    const missing = roleRemaining(role)
+    if (missing <= 0) return total
+    const roleMarkets = availablePlayers
+      .filter((player) => player.role === role)
+      .map((player) => Math.max(1, getMarket(player)))
+      .sort((a, b) => a - b)
+    const expected = roleMarkets.slice(0, missing).reduce((sum, value) => sum + value, 0)
+    return total + Math.max(missing, expected)
+  }, 0)
+
+  const projectedUnusedCredits = Math.max(0, budget - remainingMarketNeed)
+  const unusedCreditRisk = clampScore(
+    totalMissingSlots <= 0
+      ? (budget > 0 ? 100 : 0)
+      : projectedUnusedCredits / Math.max(1, budget) * 100
+  )
+
+  const endgameAttackPerOpenSlot = totalMissingSlots > 0
+    ? Math.max(1, Math.floor(closingAttackBudget / totalMissingSlots))
+    : closingAttackBudget
+
+  let endgameMode = 'NORMALE'
+  if (totalMissingSlots <= 5) endgameMode = 'ENDGAME'
+  if (totalMissingSlots <= 3 && projectedUnusedCredits >= totalMissingSlots * 5) endgameMode = 'SPENDI ORA'
+  if (budget < minimumClosingReserve) endgameMode = 'EMERGENZA'
+
+  let endgameInstruction = 'Mantieni il piano e continua a rispettare i MAX dinamici.'
+  if (endgameMode === 'ENDGAME') {
+    endgameInstruction = `Puoi aumentare l'aggressività: hai circa ${endgameAttackPerOpenSlot} crediti di attacco per slot ancora aperto oltre alla riserva minima.`
+  }
+  if (endgameMode === 'SPENDI ORA') {
+    endgameInstruction = `Rischi di lasciare ${projectedUnusedCredits} crediti inutilizzati: alza i MAX sui veri target e chiudi qualità adesso.`
+  }
+  if (endgameMode === 'EMERGENZA') {
+    endgameInstruction = 'Proteggi un credito per ogni slot residuo e interrompi subito le aste non indispensabili.'
+  }
 
   const wishlistPlayers = useMemo(() => {
     return wishlist
@@ -5581,7 +5703,7 @@ function App() {
                       priorità {scoreOutOf10(predictiveBestCall.callScore)}/10 · interesse rivali {scoreOutOf10(predictiveBestCall.rivalInterest * 10)}/10
                     </small>
                   </div>
-                  <div className="recommendation-score"><span>STOP</span><strong>{predictiveBestCall.intel.max}</strong></div>
+                  <div className="recommendation-score"><span>STIMA</span><strong>{finalPriceForecast(predictiveBestCall.player, getMarket(predictiveBestCall.player)).predictedFinal}</strong></div>
                 </div>
                 <p className="tip" style={{ margin: '7px 0 8px', lineHeight: 1.6 }}>
                   Prezzo corretto {predictiveBestCall.intel.fairPrice} · attacco {predictiveBestCall.intel.attackPrice} · rischio {scoreOutOf10(predictiveBestCall.intel.risk)}/10 · {predictiveBestCall.intel.strongAlternatives} alternative forti.
@@ -5663,6 +5785,19 @@ function App() {
                 ))}
               </div>
             )}
+          </section>
+
+          <section className="section" style={{ padding: '12px' }}>
+            <div className="section-title">⚡ ENDGAME ENGINE</div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '5px' }}>
+              <div className="stat"><span>MODALITÀ</span><strong style={{ fontSize: '9px' }}>{endgameMode}</strong></div>
+              <div className="stat"><span>CREDITI A RISCHIO</span><strong>{projectedUnusedCredits}</strong></div>
+              <div className="stat"><span>RISCHIO SPRECO</span><strong>{scoreOutOf10(unusedCreditRisk)}</strong></div>
+              <div className="stat"><span>ATTACCO/SLOT</span><strong>{endgameAttackPerOpenSlot}</strong></div>
+            </div>
+            <p className="tip" style={{ margin: '8px 0 0', lineHeight: 1.65 }}>
+              <strong>Istruzione:</strong> {endgameInstruction}
+            </p>
           </section>
 
           <section className="section" style={{ padding: '12px' }}>
@@ -5862,6 +5997,30 @@ function App() {
                         </p>
                         <p className="tip" style={{ margin: '5px 0 0', lineHeight: 1.6 }}>
                           Fascia prezzo: <strong>occasione ≤ {now.bargainPrice}</strong> · prezzo corretto ≤ {now.fairPrice} · puoi attaccare fino a {now.attackPrice} · <strong>non superare {now.max}</strong>. Dopo l'acquisto resterebbero {now.budgetAfter} crediti.
+                        </p>
+                      </div>
+                    )
+                  })()}
+
+                  {(() => {
+                    const forecast = finalPriceForecast(selectedPlayer, price)
+                    return (
+                      <div className="main-card" style={{ marginTop: '8px', border: forecast.entry === 'ENTRA ORA' ? '1px solid rgba(66,214,164,.34)' : forecast.entry === 'STOP' ? '1px solid rgba(255,115,135,.34)' : undefined }}>
+                        <small className="small-label">📈 PREVISIONE PREZZO FINALE</small>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '5px', marginTop: '7px' }}>
+                          <div className="stat highlight-stat"><span>STIMA</span><strong>{forecast.predictedFinal}</strong></div>
+                          <div className="stat"><span>FORCHETTA</span><strong style={{ fontSize: '11px' }}>{forecast.low}-{forecast.high}</strong></div>
+                          <div className="stat"><span>ENTRA DA</span><strong>{forecast.entryThreshold}</strong></div>
+                          <div className="stat"><span>VITTORIA</span><strong>{scoreOutOf10(forecast.winChance)}</strong></div>
+                        </div>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '5px', marginTop: '5px' }}>
+                          <div className="stat"><span>MOMENTO</span><strong style={{ fontSize: '9px' }}>{forecast.entry}</strong></div>
+                          <div className="stat"><span>DOMANDA</span><strong>{scoreOutOf10(forecast.demand)}</strong></div>
+                          <div className="stat"><span>MARGINE MAX</span><strong>{forecast.valueGap >= 0 ? '+' : ''}{forecast.valueGap}</strong></div>
+                        </div>
+                        <p className="tip" style={{ margin: '7px 0 0', lineHeight: 1.6 }}>
+                          <strong>{forecast.tactic}</strong>
+                          {forecast.strongest ? ` Rivale più pericoloso: ${forecast.strongest.name}, tetto previsto ${forecast.strongest.predicted}, pericolosità ${scoreOutOf10(forecast.strongest.danger * 10)}/10.` : ' Nessun rivale risulta ancora chiaramente pericoloso su questo target.'}
                         </p>
                       </div>
                     )
@@ -6965,8 +7124,7 @@ function App() {
                         <strong>{scoreOutOf10(analysis.strategyFit)}</strong>
                       </div>
                       <div style={{ padding: '7px', border: '1px solid #273149', borderRadius: '8px' }}>
-                        <span style={{ display: 'block'
-, color: '#78859b', fontSize: '7px' }}>VALUE</span>
+                        <span style={{ display: 'block', color: '#78859b', fontSize: '7px' }}>VALUE</span>
                         <strong>{scoreOutOf10(analysis.value)}</strong>
                       </div>
                     </div>

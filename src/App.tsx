@@ -34,7 +34,7 @@ type RivalSale = {
 
 type LeagueSize = 8 | 10
 type StartingBudget = 500 | 750 | 1000
-type ViewMode = 'war' | 'live' | 'myteam' | 'rivals' | 'history' | 'squad' | 'report' | 'ranking' | 'settings' | 'more'
+type ViewMode = 'war' | 'analysis' | 'compare' | 'live' | 'myteam' | 'rivals' | 'history' | 'squad' | 'report' | 'ranking' | 'settings' | 'more'
 type Strategy = 'balanced' | 'aggressive' | 'value' | 'patient' | 'stars' | 'free'
 type SuggestionMode = 'target' | 'bet' | 'decoy'
 type SuggestionCategory = 'top' | 'starter' | 'bet' | 'low' | 'decoy'
@@ -950,7 +950,7 @@ const APP_THEME_CSS = `
   }
 
   /* =========================================================
-     FINAL ENGINE — PREZZO / TIMING / ENDGAME / RIVALI
+     WAR ROOM REPARTI FOCUS — UN REPARTO ALLA VOLTA
      Più pulita, moderna e leggibile durante l'asta
      ========================================================= */
 
@@ -4578,6 +4578,14 @@ function App() {
   }
 
 
+  const warQuickTarget = predictiveBestCall?.player ?? opportunityCandidates[0]?.player ?? null
+  const warQuickIntel = warQuickTarget ? buyNowIntelligence(warQuickTarget, getMarket(warQuickTarget)) : null
+
+  function openWarTarget(player: Player) {
+    changePlayer(player.name)
+    setPrice(Math.max(1, getMarket(player)))
+  }
+
   function registerPurchase() {
     if (!selectedPlayer) return
     if (roleCount(selectedPlayer.role) >= slotLimits[selectedPlayer.role]) {
@@ -5525,21 +5533,21 @@ function App() {
         <button type="button" style={navStyle(view === 'war')} onClick={() => setView('war')}>
           <span>⌂</span><span className="nav-caption">WAR</span>
         </button>
+        <button type="button" style={navStyle(view === 'analysis')} onClick={() => setView('analysis')}>
+          <span>🧠</span><span className="nav-caption">ANALISI</span>
+        </button>
+        <button type="button" style={navStyle(view === 'compare')} onClick={() => setView('compare')}>
+          <span>⚖</span><span className="nav-caption">CONFRONTO</span>
+        </button>
         <button type="button" style={navStyle(view === 'live')} onClick={() => setView('live')}>
           <span>●</span><span className="nav-caption">ASTA</span>
         </button>
         <button type="button" style={navStyle(view === 'myteam')} onClick={() => setView('myteam')}>
           <span>★</span><span className="nav-caption">MY TEAM</span>
         </button>
-        <button type="button" style={navStyle(view === 'squad')} onClick={() => setView('squad')}>
-          <span>◆</span><span className="nav-caption">ROSA</span>
-        </button>
-        <button type="button" style={navStyle(view === 'rivals')} onClick={() => setView('rivals')}>
-          <span>♟</span><span className="nav-caption">LEGA</span>
-        </button>
         <button
           type="button"
-          style={navStyle(view === 'more' || view === 'history' || view === 'settings')}
+          style={navStyle(view === 'more' || view === 'history' || view === 'settings' || view === 'rivals' || view === 'squad')}
           onClick={() => setView('more')}
         >
           <span>•••</span><span className="nav-caption">ALTRO</span>
@@ -5567,623 +5575,336 @@ function App() {
 
       {view === 'war' && (
         <>
-          <section
-            className="section"
-            style={{
-              position: 'sticky',
-              top: '64px',
-              zIndex: 45,
-              padding: '10px 11px',
-              marginBottom: '10px',
-              background: 'rgba(10,13,18,.88)',
-              backdropFilter: 'blur(18px)',
-              WebkitBackdropFilter: 'blur(18px)',
-            }}
-          >
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: '1.2fr repeat(3,1fr)',
-                gap: '6px',
-                alignItems: 'stretch',
-              }}
-            >
-              <div className="stat highlight-stat" style={{ textAlign: 'left', paddingLeft: '10px' }}>
-                <span>BUDGET RESIDUO</span>
-                <strong style={{ fontSize: '23px' }}>{budget}</strong>
-              </div>
-              <div className="stat">
-                <span>ROSA</span>
-                <strong>{purchases.length}/25</strong>
-              </div>
-              <div className="stat">
-                <span>SLOT</span>
-                <strong>{25 - purchases.length}</strong>
-              </div>
-              <div className="stat">
-                <span>STRATEGIA</span>
-                <strong style={{ fontSize: '10px', lineHeight: 1.15 }}>{currentStrategy.name}</strong>
-              </div>
-            </div>
-          </section>
+          {!warRoleChosen || suggestionRole === 'ALL' ? (
+            <section className="section" style={{ padding: '14px 12px' }}>
+              <div className="section-title">⚔️ WAR ROOM</div>
+              <p className="tip" style={{ margin: '0 0 10px', lineHeight: 1.6 }}>
+                Seleziona il reparto in asta. Da qui in poi vedrai solo giocatori, suggerimenti e decisioni relativi a quel reparto.
+              </p>
 
-          <section className="section" style={{ padding: '11px 12px' }}>
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: '1fr auto',
-                gap: '8px',
-                alignItems: 'center',
-              }}
-            >
-              <div>
-                <div className="section-title" style={{ marginBottom: '3px' }}>AVVISI
-                </div>
-                <strong
-                  style={{
-                    color: smartAlerts.length === 0 ? '#70d6a1' : '#ffd37a',
-                    fontSize: '11px',
-                  }}
-                >
-                  {smartAlerts.length === 0
-                    ? '✓ Nessun avviso importante'
-                    : `⚠ ${smartAlerts.length} ${smartAlerts.length === 1 ? 'avviso' : 'avvisi'}`}
-                </strong>
-              </div>
-
-              {smartAlerts.length > 0 && (
-                <button
-                  type="button"
-                  style={smallChoiceStyle(alertsOpen)}
-                  onClick={() => setAlertsOpen((value) => !value)}
-                >
-                  {alertsOpen ? 'CHIUDI' : 'APRI'}
-                </button>
-              )}
-            </div>
-
-            {alertsOpen && smartAlerts.length > 0 && (
-              <div style={{ display: 'grid', gap: '8px', marginTop: '10px' }}>
-                {smartAlerts.map((alert) => {
-                  const appearance = alertAppearance(alert.level)
-
-                  return (
-                    <div
-                      key={`war-alert-${alert.id}`}
-                      className="main-card"
-                      style={{
-                        border: `1px solid ${appearance.border}`,
-                        background: appearance.background,
-                      }}
-                    >
-                      <div
-                        style={{
-                          display: 'grid',
-                          gridTemplateColumns: '26px 1fr',
-                          gap: '8px',
-                          alignItems: 'start',
-                        }}
-                      >
-                        <span style={{ fontSize: '17px' }}>{appearance.icon}</span>
-                        <div>
-                          <strong style={{ color: appearance.color }}>{alert.title}</strong>
-                          <p style={{ margin: '4px 0 0', color: '#a8b1c2', fontSize: '9px', lineHeight: 1.55 }}>
-                            {alert.text}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
-            )}
-          </section>
-
-          <section className="section" style={{ padding: '12px' }}>
-            <div className="section-title">🧠 REGISTA PREDITTIVO · ASTA LIVE</div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '5px' }}>
-              <div className="stat"><span>FASE</span><strong style={{ fontSize: '11px' }}>{auctionProgressPct}%</strong></div>
-              <div className="stat"><span>MODALITÀ</span><strong style={{ fontSize: '9px' }}>{predictiveMode}</strong></div>
-              <div className="stat"><span>CASSA VS RIVALI</span><strong style={{ fontSize: '11px' }}>{cashEdge >= 0 ? '+' : ''}{Math.round(cashEdge)}</strong></div>
-              <div className="stat"><span>MAX RIVALE MEDIO</span><strong style={{ fontSize: '11px' }}>{Math.round(averageRivalMaxOffer)}</strong></div>
-            </div>
-            <p className="tip" style={{ lineHeight: 1.65, marginBottom: '8px' }}>
-              <strong>Strategia ora:</strong> {predictiveModeText}
-            </p>
-
-            {predictiveBestCall && (
-              <div className="main-card" style={{ border: '1px solid rgba(66,214,164,.28)' }}>
-                <small className="small-label">🎙️ PROSSIMA CHIAMATA AUTOMATICA</small>
-                <div style={{ display: 'grid', gridTemplateColumns: 'auto 1fr auto', gap: '9px', alignItems: 'center', marginTop: '7px' }}>
-                  <PlayerPhoto player={predictiveBestCall.player} size={48} />
-                  <div>
-                    <strong style={{ display: 'block', fontSize: '15px' }}>{isStarred(predictiveBestCall.player) ? '★ ' : ''}{predictiveBestCall.player.name}</strong>
-                    <small>{predictiveBestCall.player.team} · {predictiveBestCall.player.role} · {predictiveCallAction}</small>
-                    <small style={{ display: 'block', marginTop: '3px' }}>
-                      priorità {scoreOutOf10(predictiveBestCall.callScore)}/10 · interesse rivali {scoreOutOf10(predictiveBestCall.rivalInterest * 10)}/10
-                    </small>
-                  </div>
-                  <div className="recommendation-score"><span>STIMA</span><strong>{finalPriceForecast(predictiveBestCall.player, getMarket(predictiveBestCall.player)).predictedFinal}</strong></div>
-                </div>
-                <p className="tip" style={{ margin: '7px 0 8px', lineHeight: 1.6 }}>
-                  Prezzo corretto {predictiveBestCall.intel.fairPrice} · attacco {predictiveBestCall.intel.attackPrice} · rischio {scoreOutOf10(predictiveBestCall.intel.risk)}/10 · {predictiveBestCall.intel.strongAlternatives} alternative forti.
-                </p>
-                <button
-                  type="button"
-                  className="primary-button"
-                  style={{ width: '100%' }}
-                  onClick={() => {
-                    setSelectedName(predictiveBestCall.player.name)
-                    setPlayerSearch(predictiveBestCall.player.name)
-                    setPrice(Math.max(1, getMarket(predictiveBestCall.player)))
-                  }}
-                >
-                  APRI ANALISI COMPLETA
-                </button>
-              </div>
-            )}
-
-            {predictiveCallCandidates.length > 1 && (
-              <div style={{ display: 'grid', gap: '6px', marginTop: '8px' }}>
-                {predictiveCallCandidates.slice(1, 4).map(({ player, intel, callScore }, index) => (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: '8px' }}>
+                {roles.map((role) => (
                   <button
                     type="button"
-                    key={`predictive-backup-${playerKey(player)}`}
-                    className="back-button"
-                    style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', textAlign: 'left' }}
+                    key={`war-focus-${role}`}
+                    className="role-button"
                     onClick={() => {
-                      setSelectedName(player.name)
-                      setPlayerSearch(player.name)
-                      setPrice(Math.max(1, getMarket(player)))
+                      setSuggestionRole(role)
+                      setWarRoleChosen(true)
+                      setSelectedName('')
+                      setPlayerSearch('')
+                      setPrice(1)
                     }}
+                    style={{ minHeight: '76px' }}
                   >
-                    <span>{index + 2}ª · {player.name} · {player.role}</span>
-                    <span>{scoreOutOf10(callScore)}/10 · STOP {intel.max}</span>
+                    <strong style={{ display: 'block', fontSize: '22px' }}>{role}</strong>
+                    <span style={{ display: 'block', marginTop: '3px' }}>{roleNames[role]}</span>
+                    <small style={{ display: 'block', marginTop: '4px' }}>
+                      {roleRemaining(role)} slot · budget {Math.max(0, adaptiveRoleBudget(role) - spentByRole(role))}
+                    </small>
                   </button>
                 ))}
               </div>
-            )}
+            </section>
+          ) : (
+            <>
+              <section className="section" style={{ padding: '10px 12px', position: 'sticky', top: '64px', zIndex: 45 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '8px', alignItems: 'center' }}>
+                  <div>
+                    <small className="small-label">REPARTO IN ASTA</small>
+                    <strong style={{ display: 'block', fontSize: '18px', marginTop: '2px' }}>
+                      {suggestionRole} · {roleNames[suggestionRole]}
+                    </strong>
+                  </div>
+                  <button
+                    type="button"
+                    className="back-button"
+                    onClick={() => {
+                      setSuggestionRole('ALL')
+                      setWarRoleChosen(false)
+                      setSelectedName('')
+                      setPlayerSearch('')
+                      setPrice(1)
+                    }}
+                  >
+                    CAMBIA
+                  </button>
+                </div>
 
-            {predictiveGlobalDecoy && (
-              <div className="main-card" style={{ marginTop: '8px' }}>
-                <small className="small-label">🎣 ESCA PREDITTIVA GLOBALE</small>
-                <strong style={{ display: 'block', marginTop: '5px' }}>{predictiveGlobalDecoy.player.name} · {predictiveGlobalDecoy.player.role}</strong>
-                <p className="tip" style={{ marginBottom: 0, lineHeight: 1.6 }}>
-                  Indice esca {scoreOutOf10(predictiveGlobalDecoy.score)}/10. {strongestRivalNeed ? `Il bisogno rivale più forte osservato è nel ruolo ${strongestRivalNeed.role}.` : 'Usala solo se vuoi drenare cassa ai rivali senza esporre un obiettivo ★.'}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '5px', marginTop: '8px' }}>
+                  <div className="stat highlight-stat"><span>BUDGET</span><strong>{budget}</strong></div>
+                  <div className="stat"><span>SLOT {suggestionRole}</span><strong>{roleRemaining(suggestionRole)}</strong></div>
+                  <div className="stat"><span>BUDGET REP.</span><strong>{Math.max(0, adaptiveRoleBudget(suggestionRole) - spentByRole(suggestionRole))}</strong></div>
+                  <div className="stat"><span>FASE</span><strong style={{ fontSize: '9px' }}>{predictiveMode}</strong></div>
+                </div>
+              </section>
+
+              {(() => {
+                const roleCalls = predictiveCallCandidates.filter((item) => item.player.role === suggestionRole)
+                const roleOpportunities = opportunityCandidates.filter((item) => item.player.role === suggestionRole)
+                const best = roleCalls[0] ?? roleOpportunities[0] ?? null
+                if (!best) return null
+
+                const player = best.player
+                const intel = buyNowIntelligence(player, getMarket(player))
+                const forecast = finalPriceForecast(player, getMarket(player))
+
+                return (
+                  <section className="section" style={{ padding: '11px 12px' }}>
+                    <div className="section-title">🎙️ SUGGERIMENTO {suggestionRole}</div>
+                    <div className="main-card" style={{ border: '1px solid rgba(66,214,164,.28)' }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'auto 1fr auto', gap: '9px', alignItems: 'center' }}>
+                        <PlayerPhoto player={player} size={48} />
+                        <div style={{ minWidth: 0 }}>
+                          <strong style={{ display: 'block', fontSize: '15px' }}>{isStarred(player) ? '★ ' : ''}{player.name}</strong>
+                          <small>{player.team} · mercato {getMarket(player)}</small>
+                          <small style={{ display: 'block', marginTop: '3px' }}>{intel.action} · priorità {intel.priority.toLowerCase()}</small>
+                        </div>
+                        <div className="recommendation-score"><span>STOP</span><strong>{intel.max}</strong></div>
+                      </div>
+
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '5px', marginTop: '7px' }}>
+                        <div className="stat"><span>PREZZO OK</span><strong>{intel.fairPrice}</strong></div>
+                        <div className="stat"><span>ATTACCO</span><strong>{intel.attackPrice}</strong></div>
+                        <div className="stat"><span>STIMA</span><strong>{forecast.predictedFinal}</strong></div>
+                        <div className="stat"><span>ENTRA</span><strong>{forecast.entryThreshold}</strong></div>
+                      </div>
+
+                      <button type="button" className="primary-button" style={{ width: '100%', marginTop: '8px' }} onClick={() => openWarTarget(player)}>
+                        APRI TARGET
+                      </button>
+                    </div>
+
+                    {(roleCalls.length > 1 || roleOpportunities.length > 1) && (
+                      <div style={{ display: 'grid', gap: '5px', marginTop: '7px' }}>
+                        {(roleCalls.length > 1 ? roleCalls.slice(1, 4) : roleOpportunities.slice(1, 4)).map((item, index) => (
+                          <button
+                            type="button"
+                            key={`role-alt-${playerKey(item.player)}`}
+                            className="back-button"
+                            style={{ width: '100%', display: 'flex', justifyContent: 'space-between', gap: '8px', alignItems: 'center' }}
+                            onClick={() => openWarTarget(item.player)}
+                          >
+                            <span>{index + 2}ª scelta · {item.player.name}</span>
+                            <span>MAX {buyNowIntelligence(item.player, getMarket(item.player)).max}</span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </section>
+                )
+              })()}
+
+              <section className="section" style={{ padding: '11px 12px' }}>
+                <div className="section-title">🔎 CERCA {suggestionRole}</div>
+                <input
+                  type="text"
+                  placeholder={`Cerca ${roleNames[suggestionRole].toLowerCase()}...`}
+                  value={playerSearch}
+                  onChange={(event) => handlePlayerSearch(event.target.value)}
+                />
+
+                {playerSearch && !selectedPlayer && (
+                  <div style={{ display: 'grid', gap: '5px', marginTop: '7px' }}>
+                    {searchedPlayers
+                      .filter((player) => player.role === suggestionRole)
+                      .slice(0, 6)
+                      .map((player) => (
+                        <button
+                          type="button"
+                          key={`war-role-search-${playerKey(player)}`}
+                          onClick={() => openWarTarget(player)}
+                          style={{
+                            display: 'grid',
+                            gridTemplateColumns: '1fr auto',
+                            gap: '8px',
+                            padding: '9px',
+                            borderRadius: '11px',
+                            border: '1px solid rgba(64,92,160,.15)',
+                            background: 'rgba(255,255,255,.76)',
+                            color: '#15203a',
+                            textAlign: 'left',
+                          }}
+                        >
+                          <span>
+                            <strong>{isStarred(player) ? '★ ' : ''}{player.name}</strong>
+                            <small style={{ display: 'block' }}>{player.team}</small>
+                          </span>
+                          <strong>{getMarket(player)}</strong>
+                        </button>
+                      ))}
+                  </div>
+                )}
+
+                {selectedPlayer && selectedPlayer.role === suggestionRole && (
+                  <div className="main-card" style={{ marginTop: '8px' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'auto 1fr auto', gap: '9px', alignItems: 'center' }}>
+                      <PlayerPhoto player={selectedPlayer} size={48} />
+                      <div>
+                        <strong style={{ display: 'block', fontSize: '15px' }}>{selectedPlayer.name}</strong>
+                        <small>{selectedPlayer.team} · {selectedPlayer.role}</small>
+                      </div>
+                      <strong>{scoreOutOf10(chirurgoScore(selectedPlayer).total)}</strong>
+                    </div>
+
+                    <label>PREZZO CORRENTE</label>
+                    <input
+                      type="number"
+                      min="1"
+                      value={price}
+                      onChange={(event) => setPrice(Math.max(1, Number(event.target.value) || 1))}
+                    />
+
+                    {(() => {
+                      const intel = buyNowIntelligence(selectedPlayer, price)
+                      const forecast = finalPriceForecast(selectedPlayer, price)
+                      return (
+                        <>
+                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '5px', marginTop: '7px' }}>
+                            <div className="stat highlight-stat"><span>AZIONE</span><strong style={{ fontSize: '9px' }}>{intel.action}</strong></div>
+                            <div className="stat"><span>STOP</span><strong>{intel.max}</strong></div>
+                            <div className="stat"><span>STIMA</span><strong>{forecast.predictedFinal}</strong></div>
+                            <div className="stat"><span>ENTRA</span><strong>{forecast.entryThreshold}</strong></div>
+                          </div>
+                          <p className="tip" style={{ margin: '7px 0 0', lineHeight: 1.55 }}>
+                            {forecast.entry} · {forecast.tactic}
+                          </p>
+                        </>
+                      )
+                    })()}
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px', marginTop: '8px' }}>
+                      <button type="button" className="back-button" onClick={() => setView('analysis')}>ANALISI</button>
+                      <button type="button" className="back-button" onClick={() => toggleComparisonPlayer(selectedPlayer)}>+ CONFRONTO</button>
+                    </div>
+                  </div>
+                )}
+              </section>
+
+              <section className="section" style={{ padding: '11px 12px' }}>
+                <div className="section-title">🚨 ALERT {suggestionRole}</div>
+                <p className="tip" style={{ margin: 0, lineHeight: 1.6 }}>
+                  {auctionMoves.find((move) => move.role === suggestionRole)?.advice ?? endgameInstruction}
                 </p>
-              </div>
-            )}
-          </section>
+                {dominantRival?.primary?.role === suggestionRole && (
+                  <p className="tip" style={{ margin: '5px 0 0', lineHeight: 1.6 }}>
+                    Attenzione a <strong>{dominantRival.name}</strong>: ha bisogno proprio di {suggestionRole} e può alzare i prezzi.
+                  </p>
+                )}
+              </section>
+            </>
+          )}
+        </>
+      )}
 
-          <section className="section" style={{ padding: '12px' }}>
-            <div className="section-title">🔭 RADAR RIVALI PREDITTIVO</div>
+      {view === 'analysis' && (
+        <>
+          <section className="section">
+            <div className="section-title">🧠 ANALISI AVVERSARI</div>
             {rivalPredictions.length === 0 ? (
-              <p className="tip">Registra gli acquisti dei rivali per attivare le previsioni.</p>
+              <p className="tip">Registra gli acquisti dei rivali per attivare l'analisi.</p>
             ) : (
               <div style={{ display: 'grid', gap: '7px' }}>
-                {rivalPredictions.slice(0, 6).map((rival) => (
-                  <div className="main-card" key={`rival-prediction-${rival.rivalId}`}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', gap: '8px', alignItems: 'center' }}>
+                {rivalPredictions.map((rival) => (
+                  <div className="main-card" key={`analysis-rival-${rival.rivalId}`}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', gap: '8px' }}>
                       <div>
                         <strong style={{ display: 'block' }}>{rival.name}</strong>
                         <small>{rival.profile} · {rival.behavior}</small>
                       </div>
                       <div className="recommendation-score"><span>MINACCIA</span><strong>{scoreOutOf10(rival.threat)}</strong></div>
                     </div>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '5px', marginTop: '7px' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '5px', marginTop: '7px' }}>
                       <div className="stat"><span>BUDGET</span><strong>{rival.remaining}</strong></div>
-                      <div className="stat"><span>MAX OFFERTA</span><strong>{rival.maxOffer}</strong></div>
-                      <div className="stat"><span>PROBABILE RUOLO</span><strong>{rival.primary?.role ?? '—'}</strong></div>
+                      <div className="stat"><span>MAX</span><strong>{rival.maxOffer}</strong></div>
+                      <div className="stat"><span>RUOLO</span><strong>{rival.primary?.role ?? '—'}</strong></div>
+                      <div className="stat"><span>AGGR.</span><strong>{scoreOutOf10(rival.aggression * 10)}</strong></div>
                     </div>
                     <p className="tip" style={{ margin: '7px 0 0', lineHeight: 1.6 }}>
-                      <strong>Memoria asta:</strong> {rivalMemory(rival.rivalId).tendency} · pagato medio {rivalMemory(rival.rivalId).avgPaid.toFixed(1)} · scostamento mercato {rivalMemory(rival.rivalId).avgOverMarket >= 0 ? '+' : ''}{rivalMemory(rival.rivalId).avgOverMarket.toFixed(0)}%.
+                      Memoria: {rivalMemory(rival.rivalId).tendency} · scostamento mercato {rivalMemory(rival.rivalId).avgOverMarket >= 0 ? '+' : ''}{rivalMemory(rival.rivalId).avgOverMarket.toFixed(0)}%.
                     </p>
-                    <p className="tip" style={{ margin: '5px 0 0', lineHeight: 1.6 }}>
-                      <strong>Contromossa:</strong> {rival.counter}
-                    </p>
+                    <p className="tip" style={{ margin: '5px 0 0', lineHeight: 1.6 }}><strong>Contromossa:</strong> {rival.counter}</p>
                   </div>
                 ))}
               </div>
             )}
           </section>
 
-          <section className="section" style={{ padding: '12px' }}>
-            <div className="section-title">⚡ ENDGAME ENGINE</div>
+          <section className="section">
+            <div className="section-title">📊 STRATEGIA & CHIUSURA</div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '5px' }}>
-              <div className="stat"><span>MODALITÀ</span><strong style={{ fontSize: '9px' }}>{endgameMode}</strong></div>
-              <div className="stat"><span>CREDITI A RISCHIO</span><strong>{projectedUnusedCredits}</strong></div>
-              <div className="stat"><span>RISCHIO SPRECO</span><strong>{scoreOutOf10(unusedCreditRisk)}</strong></div>
+              <div className="stat"><span>MODALITÀ</span><strong style={{ fontSize: '9px' }}>{predictiveMode}</strong></div>
+              <div className="stat"><span>ENDGAME</span><strong style={{ fontSize: '9px' }}>{endgameMode}</strong></div>
+              <div className="stat"><span>CREDITI RISCHIO</span><strong>{projectedUnusedCredits}</strong></div>
               <div className="stat"><span>ATTACCO/SLOT</span><strong>{endgameAttackPerOpenSlot}</strong></div>
             </div>
-            <p className="tip" style={{ margin: '8px 0 0', lineHeight: 1.65 }}>
-              <strong>Istruzione:</strong> {endgameInstruction}
-            </p>
-          </section>
+            <p className="tip" style={{ lineHeight: 1.6 }}>{predictiveModeText}</p>
+            <p className="tip" style={{ lineHeight: 1.6 }}>{endgameInstruction}</p>
 
-          <section className="section" style={{ padding: '12px' }}>
-            <div className="section-title">🏁 PIANO CHIUSURA ROSA</div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '5px' }}>
-              <div className="stat"><span>SLOT MANCANTI</span><strong>{totalMissingSlots}</strong></div>
-              <div className="stat"><span>RISERVA MINIMA</span><strong>{minimumClosingReserve}</strong></div>
-              <div className="stat"><span>BUDGET ATTACCO</span><strong>{closingAttackBudget}</strong></div>
-              <div className="stat"><span>SALUTE</span><strong style={{ fontSize: '9px' }}>{closingHealth}</strong></div>
-            </div>
-            <div style={{ display: 'grid', gap: '6px', marginTop: '8px' }}>
+            <div style={{ display: 'grid', gap: '6px' }}>
               {closingPlan.map((item) => (
-                <div className="main-card" key={`closing-${item.role}`}>
+                <div className="main-card" key={`analysis-closing-${item.role}`}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', gap: '8px' }}>
-                    <strong>{item.role} · {roleNames[item.role]}</strong>
-                    <strong>{item.missing} slot</strong>
+                    <strong>{item.role}</strong><strong>{item.missing} slot</strong>
                   </div>
-                  <small>Budget reparto residuo {item.budgetRoom} · attaccabile {item.attackRoom}</small>
+                  <small>Budget residuo {item.budgetRoom} · attacco {item.attackRoom}</small>
                   {item.topAffordable && item.missing > 0 && (
                     <small style={{ display: 'block', marginTop: '3px' }}>
-                      Miglior profilo ancora sostenibile: {item.topAffordable.player.name} · score {scoreOutOf10(item.topAffordable.score)}/10 · MAX {item.topAffordable.max}
+                      Miglior profilo sostenibile: {item.topAffordable.player.name} · MAX {item.topAffordable.max}
                     </small>
                   )}
                 </div>
               ))}
             </div>
-          </section>
-
-          <section className="section" style={{ padding: '12px' }}>
-            <div className="section-title">CENTRO COMANDO</div>
-            <p className="tip" style={{ marginTop: '-2px' }}>Due decisioni rapide: chi chiamare e quale esca usare. Scegli il ruolo.</p>
-
-            <div className="main-card" style={{ marginTop: '9px' }}>
-              <small className="small-label">🎙️ CHIAMATA SUGGERITA</small>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '5px', marginTop: '7px' }}>
-                {roles.map((r) => <button type="button" key={`call-role-${r}`} style={smallChoiceStyle(commandCallRole === r)} onClick={() => setCommandCallRole(r)}>{r}</button>)}
-              </div>
-              {nextCallCandidate ? <div style={{ marginTop: '10px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', gap: '8px', alignItems: 'center' }}>
-                  <div><strong style={{ fontSize: '15px' }}>{isStarred(nextCallCandidate.player) ? '★ ' : ''}{nextCallCandidate.player.name}</strong><small style={{ display: 'block' }}>{nextCallCandidate.player.team} · {nextCallCandidate.player.role}</small></div>
-                  <div className="recommendation-score"><span>MAX</span><strong>{calculateDynamicMax(nextCallCandidate.player)}</strong></div>
-                </div>
-                <p className="tip" style={{ marginBottom: 0, lineHeight: 1.65 }}><strong>Perché:</strong> {commandCallWhy(nextCallCandidate.player)}</p>
-                {predictiveBestCall && predictiveBestCall.player.name !== nextCallCandidate.player.name && (
-                  <p className="tip" style={{ margin: '6px 0 0', lineHeight: 1.55 }}><strong>Regista automatico:</strong> senza filtro ruolo preferisce {predictiveBestCall.player.name} ({predictiveBestCall.player.role}) con priorità {scoreOutOf10(predictiveBestCall.callScore)}/10.</p>
-                )}
-              </div> : <p className="tip">Nessun giocatore disponibile nel ruolo.</p>}
-            </div>
-
-            <div className="main-card" style={{ marginTop: '8px' }}>
-              <small className="small-label">🎣 ESCA SUGGERITA</small>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '5px', marginTop: '7px' }}>
-                {roles.map((r) => <button type="button" key={`decoy-role-${r}`} style={smallChoiceStyle(commandDecoyRole === r)} onClick={() => setCommandDecoyRole(r)}>{r}</button>)}
-              </div>
-              {bestDecoyCandidate ? <div style={{ marginTop: '10px' }}>
-                <strong style={{ fontSize: '15px' }}>{bestDecoyCandidate.player.name}</strong><small style={{ display: 'block' }}>{bestDecoyCandidate.player.team} · indice esca {scoreOutOf10(bestDecoyCandidate.score)}/10</small>
-                <p className="tip" style={{ marginBottom: 0, lineHeight: 1.65 }}><strong>Perché:</strong> {commandDecoyWhy(bestDecoyCandidate.player)}</p>
-              </div> : <p className="tip">Nessuna esca adatta nel ruolo: i giocatori con ★ non vengono mai usati come esca.</p>}
-            </div>
-          </section>
-
-          <section className="section" style={{ padding: '12px' }}>
-            <div className="section-title">SUGGERIMENTI RAPIDI</div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5,1fr)', gap: '5px', marginTop: '8px' }}>
-              {(['ALL','P','D','C','A'] as const).map((r) => <button type="button" key={`srole-${r}`} style={smallChoiceStyle(warRoleChosen && suggestionRole === r)} onClick={() => { setSuggestionRole(r); setWarRoleChosen(true); if (!suggestionCategory) setSuggestionCategory('top'); setWarCallChosen(true) }}>{r === 'ALL' ? 'TUTTI' : r}</button>)}
-            </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5,1fr)', gap: '5px', marginTop: '6px' }}>
-              {([['top','TOP'],['starter','TIT.'],['bet','SCOM.'],['low','LOW'],['decoy','ESCA']] as [SuggestionCategory,string][]).map(([c,label]) => <button type="button" key={`scat-${c}`} style={{ ...smallChoiceStyle(suggestionCategory === c), fontSize: '7px', paddingLeft: '3px', paddingRight: '3px' }} onClick={() => { setSuggestionCategory(c); setWarCallChosen(true); if (!warRoleChosen) setWarRoleChosen(true) }}>{label}</button>)}
-            </div>
-            {(warRoleChosen || warCallChosen || suggestionCategory) && (
-              <button type="button" className="back-button" onClick={resetWarChoiceFlow} style={{ width: '100%', marginTop: '7px' }}>
-                ↺ RESET SUGGERIMENTI
-              </button>
-            )}
-            {suggestionCategory && <div style={{ display: 'grid', gap: '7px', marginTop: '10px' }}>
-              {suggestionCandidates.length === 0 ? <p className="tip">Nessun profilo disponibile.</p> : suggestionCandidates.map(({player},index) => <div className="main-card" key={`fast-sug-${playerKey(player)}`} style={{ border: isStarred(player) ? '2px solid #ffb703' : undefined }}>
-                <div style={{ display: 'grid', gridTemplateColumns: 'auto 1fr auto', gap: '8px', alignItems: 'center' }}><PlayerPhoto player={player} size={42}/><div><small>{index+1}° · {player.role} · {player.team}</small><strong style={{ display:'block' }}>{isStarred(player) ? '★ ' : ''}{player.name}</strong></div><div className="recommendation-score"><span>MAX</span><strong>{calculateDynamicMax(player)}</strong></div></div>
-                <p className="tip" style={{ margin:'7px 0 0', lineHeight:1.55 }}><strong>Perché:</strong> {specificSuggestionExplanation(player,suggestionCategory)}</p>
-              </div>)}
-            </div>}
-          </section>
-
-          <section className="section">
-            <div className="section-title">🚨 OPPORTUNITÀ LIVE · TOP 5</div>
-            <p className="tip" style={{ marginTop: 0 }}>
-              Priorità calcolata insieme su qualità, prezzo, bisogno di reparto, scarsità, pressione rivali, disponibilità e struttura del budget.
-            </p>
-            <div style={{ display: 'grid', gap: '7px' }}>
-              {opportunityCandidates.map(({ player, intel }, index) => (
-                <button
-                  type="button"
-                  key={`opportunity-${playerKey(player)}`}
-                  onClick={() => {
-                    setSelectedName(player.name)
-                    setPlayerSearch(player.name)
-                    setPrice(Math.max(1, getMarket(player)))
-                  }}
-                  style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'auto 1fr auto',
-                    gap: '9px',
-                    alignItems: 'center',
-                    padding: '10px',
-                    borderRadius: '13px',
-                    border: index === 0 ? '1px solid rgba(66,214,164,.38)' : '1px solid rgba(255,255,255,.08)',
-                    background: index === 0 ? 'rgba(66,214,164,.07)' : 'rgba(255,255,255,.025)',
-                    color: 'inherit',
-                    textAlign: 'left',
-                    cursor: 'pointer',
-                  }}
-                >
-                  <PlayerPhoto player={player} size={44} />
-                  <span style={{ minWidth: 0 }}>
-                    <strong style={{ display: 'block' }}>{index + 1}. {isStarred(player) ? '★ ' : ''}{player.name}</strong>
-                    <small>{player.team} · {player.role} · mercato {intel.market} · MAX {intel.max}</small>
-                    <small style={{ display: 'block', marginTop: '3px' }}>
-                      {intel.action} · priorità {intel.priority.toLowerCase()} · rischio {scoreOutOf10(intel.risk)}/10
-                    </small>
-                  </span>
-                  <strong>{scoreOutOf10(intel.actionScore)}</strong>
-                </button>
-              ))}
-            </div>
-          </section>
-
-          <section className="section">
-            <div style={{ display: 'flex', justifyContent: 'space-between', gap: '8px', alignItems: 'center' }}>
-              <div className="section-title" style={{ marginBottom: 0 }}>CERCA E VALUTA</div>
-              {(playerSearch || selectedPlayer || comparisonNames.length > 0) && (
-                <button type="button" className="back-button" onClick={resetDecisionDesk}>↺ RESET ANALISI</button>
-              )}
-            </div>
-            <div className="target-card" style={{ marginTop: '9px' }}>
-              <input type="text" placeholder="Nome o squadra..." value={playerSearch} onChange={(event) => handlePlayerSearch(event.target.value)} />
-              {(playerSearch || selectedPlayer) && (
-                <button type="button" className="back-button" onClick={resetSearchEvaluate} style={{ width: '100%', marginTop: '7px' }}>
-                  ↺ RESET RICERCA
-                </button>
-              )}
-              {playerSearch && !selectedPlayer && <div style={{ display: 'grid', gap: '5px', marginTop: '7px' }}>
-                {searchedPlayers.slice(0, 8).map((player) => <button type="button" key={`quick-${playerKey(player)}`} onClick={() => changePlayer(player.name)} style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '8px', padding: '9px', borderRadius: '11px', border: '1px solid rgba(64,92,160,.15)', background: 'rgba(255,255,255,.76)', color: '#15203a', textAlign: 'left' }}><span><strong>{isStarred(player) ? '★ ' : ''}{player.name}</strong><small style={{ display: 'block' }}>{player.team} · {player.role}</small></span><strong>{getMarket(player)}</strong></button>)}
-              </div>}
-
-              {selectedPlayer && (() => {
-                const stats = playerStats(selectedPlayer)
-                const upd = dataUpdateFor(selectedPlayer)
-                const wish = wishlistItemFor(selectedPlayer)
-                const injuryLabel = upd?.injuryStatus === 'injured' ? '🔴 INFORTUNATO' : upd?.injuryStatus === 'doubt' ? '🟠 IN DUBBIO' : upd?.injuryStatus === 'recovering' ? '🟡 RECUPERO' : '🟢 DISPONIBILE'
-                return <div style={{ marginTop: '10px' }}>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'auto 1fr auto', gap: '10px', alignItems: 'center' }}>
-                    <PlayerPhoto player={selectedPlayer} size={64} card />
-                    <div><small>{selectedPlayer.role} · {selectedPlayer.team}</small><strong style={{ display: 'block', fontSize: '18px' }}>{wish?.starred ? '★ ' : ''}{selectedPlayer.name}</strong><small>{injuryLabel}</small></div>
-                    <div className="recommendation-score"><span>RATING</span><strong>{Math.round(calculateTargetScore(selectedPlayer))}</strong></div>
-                  </div>
-
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '5px', marginTop: '9px' }}>
-                    <div className="stat"><span>MERCATO</span><strong>{getMarket(selectedPlayer)}</strong></div>
-                    <div className="stat highlight-stat"><span>MAX</span><strong>{calculateDynamicMax(selectedPlayer)}</strong></div>
-                    <div className="stat"><span>TIT.</span><strong>{estimatedStarterPct(selectedPlayer)}%</strong></div>
-                    <div className="stat"><span>FIT</span><strong>{scoreOutOf10(calculateStrategyFit(selectedPlayer))}</strong></div>
-                  </div>
-
-                  {(() => {
-                    const intelligence = chirurgoScore(selectedPlayer)
-                    return (
-                      <div className="main-card" style={{ marginTop: '8px' }}>
-                        <small className="small-label">🧠 CHIRURGO INTELLIGENCE LIVE</small>
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '5px', marginTop: '7px' }}>
-                          <div className="stat highlight-stat"><span>SCORE</span><strong>{scoreOutOf10(intelligence.total)}</strong></div>
-                          <div className="stat"><span>FORMA</span><strong>{scoreOutOf10(intelligence.liveForm)}</strong></div>
-                          <div className="stat"><span>DISP.</span><strong>{scoreOutOf10(intelligence.availability)}</strong></div>
-                          <div className="stat"><span>VALUE</span><strong>{scoreOutOf10(intelligence.value)}</strong></div>
-                        </div>
-                        <p className="tip" style={{ margin: '7px 0 0' }}>
-                          Il punteggio combina qualità, titolarità, prezzo, strategia, statistiche live e disponibilità fisica. I suggerimenti rapidi usano ora anche questi dati.
-                        </p>
-                      </div>
-                    )
-                  })()}
-
-                  {(() => {
-                    const now = buyNowIntelligence(selectedPlayer, price)
-                    return (
-                      <div className="main-card" style={{ marginTop: '8px', border: now.action === 'CHIUDI ORA' || now.action === 'COMPRA' ? '1px solid rgba(66,214,164,.38)' : now.action === 'STOP' ? '1px solid rgba(255,115,135,.38)' : undefined }}>
-                        <small className="small-label">🧠 CENTRALE DECISIONALE ASTA</small>
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '5px', marginTop: '7px' }}>
-                          <div className="stat"><span>AZIONE</span><strong style={{ fontSize: '11px' }}>{now.action}</strong></div>
-                          <div className="stat"><span>PRIORITÀ</span><strong style={{ fontSize: '11px' }}>{now.priority}</strong></div>
-                          <div className="stat"><span>SCORE</span><strong>{scoreOutOf10(now.actionScore)}</strong></div>
-                          <div className="stat"><span>PREZZO OK</span><strong>{now.fairPrice}</strong></div>
-                          <div className="stat"><span>ATTACCO</span><strong>{now.attackPrice}</strong></div>
-                          <div className="stat"><span>STOP</span><strong>{now.max}</strong></div>
-                        </div>
-                        <p className="tip" style={{ margin: '7px 0 0', lineHeight: 1.6 }}>
-                          Rischio {scoreOutOf10(now.risk)}/10 · scarsità {scoreOutOf10(now.scarcity)}/10 · pressione {now.pressure.level} ({now.pressure.rivals} rivali) · alternative forti {now.strongAlternatives}.
-                          {now.reasons.length > 0 ? ` Motivi: ${now.reasons.join(' · ')}.` : ''}
-                        </p>
-                        <p className="tip" style={{ margin: '5px 0 0', lineHeight: 1.6 }}>
-                          Fascia prezzo: <strong>occasione ≤ {now.bargainPrice}</strong> · prezzo corretto ≤ {now.fairPrice} · puoi attaccare fino a {now.attackPrice} · <strong>non superare {now.max}</strong>. Dopo l'acquisto resterebbero {now.budgetAfter} crediti.
-                        </p>
-                      </div>
-                    )
-                  })()}
-
-                  {(() => {
-                    const forecast = finalPriceForecast(selectedPlayer, price)
-                    return (
-                      <div className="main-card" style={{ marginTop: '8px', border: forecast.entry === 'ENTRA ORA' ? '1px solid rgba(66,214,164,.34)' : forecast.entry === 'STOP' ? '1px solid rgba(255,115,135,.34)' : undefined }}>
-                        <small className="small-label">📈 PREVISIONE PREZZO FINALE</small>
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '5px', marginTop: '7px' }}>
-                          <div className="stat highlight-stat"><span>STIMA</span><strong>{forecast.predictedFinal}</strong></div>
-                          <div className="stat"><span>FORCHETTA</span><strong style={{ fontSize: '11px' }}>{forecast.low}-{forecast.high}</strong></div>
-                          <div className="stat"><span>ENTRA DA</span><strong>{forecast.entryThreshold}</strong></div>
-                          <div className="stat"><span>VITTORIA</span><strong>{scoreOutOf10(forecast.winChance)}</strong></div>
-                        </div>
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '5px', marginTop: '5px' }}>
-                          <div className="stat"><span>MOMENTO</span><strong style={{ fontSize: '9px' }}>{forecast.entry}</strong></div>
-                          <div className="stat"><span>DOMANDA</span><strong>{scoreOutOf10(forecast.demand)}</strong></div>
-                          <div className="stat"><span>MARGINE MAX</span><strong>{forecast.valueGap >= 0 ? '+' : ''}{forecast.valueGap}</strong></div>
-                        </div>
-                        <p className="tip" style={{ margin: '7px 0 0', lineHeight: 1.6 }}>
-                          <strong>{forecast.tactic}</strong>
-                          {forecast.strongest ? ` Rivale più pericoloso: ${forecast.strongest.name}, tetto previsto ${forecast.strongest.predicted}, pericolosità ${scoreOutOf10(forecast.strongest.danger * 10)}/10.` : ' Nessun rivale risulta ancora chiaramente pericoloso su questo target.'}
-                        </p>
-                      </div>
-                    )
-                  })()}
-
-                  {(() => {
-                    const simulation = simulatePurchaseImpact(selectedPlayer, price)
-                    const bluff = bluffWindow(selectedPlayer)
-                    return (
-                      <>
-                        <div className="main-card" style={{ marginTop: '8px' }}>
-                          <small className="small-label">🔮 SE LO COMPRO A {price}</small>
-                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '5px', marginTop: '7px' }}>
-                            <div className="stat"><span>BUDGET DOPO</span><strong>{simulation.futureBudget}</strong></div>
-                            <div className="stat"><span>SLOT DOPO</span><strong>{simulation.futureSlots}</strong></div>
-                            <div className="stat"><span>LIBERI</span><strong>{simulation.freeBudget}</strong></div>
-                            <div className="stat"><span>MEDIA/SLOT</span><strong>{simulation.avgFreePerSlot.toFixed(1)}</strong></div>
-                          </div>
-                          <p className="tip" style={{ margin: '7px 0 0', lineHeight: 1.6 }}>
-                            <strong>{simulation.verdict}</strong> · resterebbero {simulation.premiumAffordable} profili premium e {simulation.strongAffordable} profili forti compatibili con la cassa residua.
-                          </p>
-                          {simulation.futureTargets.length > 0 && (
-                            <p className="tip" style={{ margin: '5px 0 0', lineHeight: 1.6 }}>
-                              Dopo questo acquisto potresti ancora puntare: {simulation.futureTargets.slice(0, 3).map((item) => `${item.candidate.name} (MAX ${item.max})`).join(' · ')}.
-                            </p>
-                          )}
-                        </div>
-
-                        <div className="main-card" style={{ marginTop: '8px' }}>
-                          <small className="small-label">🎭 BLUFF / RILANZO INTELLIGENTE</small>
-                          <p className="tip" style={{ margin: '6px 0 0', lineHeight: 1.6 }}>
-                            Rilancio-esca prudente fino a <strong>{bluff.safeBluff}</strong>.
-                            {bluff.leader ? ` Il rivale più esposto sembra ${rivalNames[bluff.leader.rivalId]}, con tetto stimato ${bluff.leader.predicted}.` : ' Non ci sono ancora segnali sufficienti di pressione rivale.'}
-                          </p>
-                          {bluff.interested.length > 0 && (
-                            <p className="tip" style={{ margin: '5px 0 0', lineHeight: 1.6 }}>
-                              Tetti previsti: {bluff.interested.slice(0, 3).map((item) => `${rivalNames[item.rivalId]} ${item.predicted}`).join(' · ')}.
-                            </p>
-                          )}
-                        </div>
-                      </>
-                    )
-                  })()}
-
-                  <div className="main-card" style={{ marginTop: '8px' }}>
-                    <small className="small-label">🏥 INFORTUNI</small>
-                    <strong style={{ display: 'block', marginTop: '4px' }}>{injuryLabel}</strong>
-                    <p className="tip" style={{ margin: '4px 0 0' }}>{upd?.injury ?? 'Nessun infortunio segnalato nel feed aggiornato.'}{upd?.recoveryTime ? ` · ${upd.recoveryTime}` : ''}{upd?.expectedReturn ? ` · Rientro: ${upd.expectedReturn}` : ''}</p>
-                  </div>
-
-                  <div className="main-card" style={{ marginTop: '8px' }}>
-                    <small className="small-label">📊 STATISTICHE 2026/27</small>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5,1fr)', gap: '5px', marginTop: '7px' }}>
-                      <div className="stat"><span>PRES.</span><strong>{formatLiveStat(stats.appearances)}</strong></div>
-                      <div className="stat"><span>MV</span><strong>{formatLiveStat(stats.averageRating, 2)}</strong></div>
-                      <div className="stat"><span>FM</span><strong>{formatLiveStat(stats.fantasyAverage, 2)}</strong></div>
-                      <div className="stat"><span>GOL</span><strong>{formatLiveStat(stats.goals)}</strong></div>
-                      <div className="stat"><span>ASSIST</span><strong>{formatLiveStat(stats.assists)}</strong></div>
-                    </div>
-                  </div>
-
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '7px', marginTop: '8px' }}>
-                    <div className="main-card"><small className="small-label">RIGORI</small><strong style={{ display: 'block' }}>{selectedPlayer.penalties === true ? 'RIGORISTA' : selectedPlayer.penalties === false ? 'NO' : 'N/D'}</strong></div>
-                    <div className="main-card"><small className="small-label">PIAZZATI</small><strong style={{ display: 'block' }}>{selectedPlayer.setPieces === true ? 'SÌ' : selectedPlayer.setPieces === false ? 'NO' : 'N/D'}</strong></div>
-                  </div>
-
-                  <div className="main-card" style={{ marginTop: '8px', border: wish?.starred ? '2px solid #ffb703' : undefined }}>
-                    <small className="small-label">🧠 VERDETTO</small>
-                    <p className="tip" style={{ margin: '5px 0 0', lineHeight: 1.65 }}>{evaluationComment(selectedPlayer)}</p>
-                    {wish?.starred && <p className="tip" style={{ margin: '6px 0 0' }}><strong>★ Piano obiettivo:</strong> il motore protegge questo nome nei suggerimenti, evita di usarlo come esca e concede un piccolo margine aggiuntivo sul MAX solo se il budget strutturale lo permette.</p>}
-                  </div>
-
-                  <button
-                    type="button"
-                    className={comparisonNames.includes(selectedPlayer.name) ? 'undo-button' : 'primary-button'}
-                    disabled={!comparisonNames.includes(selectedPlayer.name) && comparisonNames.length >= 3}
-                    onClick={() => toggleComparisonPlayer(selectedPlayer)}
-                    style={{ width: '100%', marginTop: '8px', opacity: !comparisonNames.includes(selectedPlayer.name) && comparisonNames.length >= 3 ? .5 : 1 }}
-                  >
-                    {comparisonNames.includes(selectedPlayer.name) ? '✓ RIMUOVI DAL CONFRONTO' : comparisonNames.length >= 3 ? 'CONFRONTO PIENO · MAX 3' : '⚖️ AGGIUNGI AL CONFRONTO'}
-                  </button>
-                  <p className="tip" style={{ margin: '5px 0 0', textAlign: 'center' }}>
-                    {comparisonNames.length}/3 selezionati · aggiungi un altro giocatore dalla ricerca per confrontarli.
-                  </p>
-
-                  <label>PREZZO CORRENTE</label>
-                  <div className="price-row"><input type="number" min="0" value={price} onChange={(event) => setPrice(Math.max(0, Number(event.target.value) || 0))} /><button type="button" onClick={() => setPrice((v) => Math.max(0, v - 1))}>−1</button><button type="button" onClick={() => setPrice((v) => v + 1)}>+1</button></div>
-                  <div className="decision-grid"><div><span>MAX LIVE</span><strong>{dynamicMaxBid}</strong></div><div className={`decision-box ${decision?.className ?? ''}`}><span>DECISIONE</span><strong>{decision?.label ?? '—'}</strong></div></div>
-                  <p className="tip">{decision?.message}</p>
-                  <button type="button" className="primary-button" onClick={registerPurchase}>REGISTRA ACQUISTO</button>
-                  {message && <div className="message">{message}</div>}
-                </div>
-              })()}
-            </div>
-
-            {comparisonPlayers.length > 0 && (() => {
-              const ranked = [...comparisonPlayers].sort(
-                (a, b) => buyNowIntelligence(b, getMarket(b)).actionScore - buyNowIntelligence(a, getMarket(a)).actionScore
-              )
-              const winner = ranked[0]
-              const sameRole = comparisonPlayers.every((player) => player.role === comparisonPlayers[0]?.role)
-              return (
-                <div className="main-card" style={{ marginTop: '10px', border: '1px solid rgba(169,140,255,.24)' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', gap: '8px', alignItems: 'center' }}>
-                    <div>
-                      <small className="small-label">⚖️ CONFRONTO CHIRURGO</small>
-                      <strong style={{ display: 'block', marginTop: '3px' }}>{comparisonPlayers.length}/3 GIOCATORI</strong>
-                    </div>
-                    <button type="button" className="back-button" onClick={resetComparison}>↺ RESET CONFRONTO</button>
-                  </div>
-
-                  {comparisonPlayers.length === 1 && (
-                    <p className="tip" style={{ margin: '8px 0 0' }}>Ora cerca un secondo giocatore e premi “AGGIUNGI AL CONFRONTO”. Puoi confrontarne fino a 3.</p>
-                  )}
-
-                  {comparisonPlayers.length >= 2 && (
-                    <>
-                      <div style={{ display: 'grid', gridTemplateColumns: `repeat(${comparisonPlayers.length}, minmax(0,1fr))`, gap: '6px', marginTop: '9px' }}>
-                        {comparisonPlayers.map((player) => {
-                          const intel = chirurgoScore(player)
-                          const stats = playerStats(player)
-                          const upd = dataUpdateFor(player)
-                          const availabilityLabel = upd?.injuryStatus === 'injured' ? 'INF.' : upd?.injuryStatus === 'doubt' ? 'DUBBIO' : upd?.injuryStatus === 'recovering' ? 'REC.' : upd?.injuryStatus === 'suspended' ? 'SQUAL.' : 'OK'
-                          return (
-                            <div key={`compare-${playerKey(player)}`} style={{ minWidth: 0, padding: '8px', border: player.name === winner.name ? '1px solid rgba(66,214,164,.45)' : '1px solid rgba(255,255,255,.08)', borderRadius: '13px', background: player.name === winner.name ? 'rgba(66,214,164,.07)' : 'rgba(255,255,255,.02)' }}>
-                              <div style={{ display: 'grid', placeItems: 'center', gap: '4px', textAlign: 'center' }}>
-                                <PlayerPhoto player={player} size={52} card />
-                                <strong style={{ fontSize: '11px', lineHeight: 1.15, overflowWrap: 'anywhere' }}>{player.name}</strong>
-                                <small>{player.role} · {player.team}</small>
-                              </div>
-                              <div style={{ display: 'grid', gap: '4px', marginTop: '7px', fontSize: '9px' }}>
-                                <div><span>SCORE </span><strong>{scoreOutOf10(intel.total)}</strong></div>
-                                <div><span>MAX </span><strong>{calculateDynamicMax(player)}</strong></div>
-                                <div><span>TIT. </span><strong>{estimatedStarterPct(player)}%</strong></div>
-                                <div><span>FM </span><strong>{formatLiveStat(stats.fantasyAverage, 2)}</strong></div>
-                                <div><span>G+A </span><strong>{(stats.goals ?? 0) + (stats.assists ?? 0)}</strong></div>
-                                <div><span>DISP. </span><strong>{availabilityLabel}</strong></div>
-                                <div><span>VALUE </span><strong>{scoreOutOf10(intel.value)}</strong></div>
-                                <div><span>AZIONE </span><strong>{buyNowIntelligence(player, getMarket(player)).action}</strong></div>
-                                <div><span>PRIOR. </span><strong>{buyNowIntelligence(player, getMarket(player)).priority}</strong></div>
-                                <div><span>RISCHIO </span><strong>{scoreOutOf10(buyNowIntelligence(player, getMarket(player)).risk)}</strong></div>
-                              </div>
-                              <button type="button" className="back-button" onClick={() => toggleComparisonPlayer(player)} style={{ width: '100%', marginTop: '7px', padding: '0 5px' }}>RIMUOVI</button>
-                            </div>
-                          )
-                        })}
-                      </div>
-
-                      <div className="adaptive-status" style={{ marginTop: '9px' }}>
-                        <small className="small-label">🏆 VERDETTO CONFRONTO</small>
-                        <strong style={{ display: 'block', marginTop: '4px' }}>{winner.name}</strong>
-                        <p className="tip" style={{ margin: '4px 0 0', lineHeight: 1.6 }}>
-                          È il profilo con la miglior priorità d'acquisto adesso: {scoreOutOf10(buyNowIntelligence(winner, getMarket(winner)).actionScore)}/10. Azione consigliata: {buyNowIntelligence(winner, getMarket(winner)).action}; prezzo corretto {buyNowIntelligence(winner, getMarket(winner)).fairPrice}, STOP {buyNowIntelligence(winner, getMarket(winner)).max}, rischio {scoreOutOf10(buyNowIntelligence(winner, getMarket(winner)).risk)}/10.
-                          {!sameRole ? ' Stai confrontando ruoli diversi: il verdetto pesa anche urgenza del reparto, budget e scarsità.' : ' Stesso ruolo: il verdetto privilegia chi conviene realmente comprare, non solo chi ha il punteggio individuale più alto.'}
-                        </p>
-                      </div>
-                    </>
-                  )}
-                </div>
-              )
-            })()}
           </section>
         </>
+      )}
+
+      {view === 'compare' && (
+        <section className="section">
+          <div style={{ display: 'flex', justifyContent: 'space-between', gap: '8px', alignItems: 'center' }}>
+            <div className="section-title" style={{ marginBottom: 0 }}>⚖️ CONFRONTO GIOCATORI</div>
+            {comparisonNames.length > 0 && <button type="button" className="back-button" onClick={resetComparison}>↺ RESET</button>}
+          </div>
+          <p className="tip">Aggiungi fino a 3 giocatori dalla War Room.</p>
+
+          {comparisonPlayers.length === 0 && <p className="tip">Nessun giocatore selezionato.</p>}
+
+          {comparisonPlayers.length > 0 && (
+            <div style={{ display: 'grid', gap: '7px' }}>
+              {[...comparisonPlayers]
+                .sort((a, b) => buyNowIntelligence(b, getMarket(b)).actionScore - buyNowIntelligence(a, getMarket(a)).actionScore)
+                .map((player, index) => {
+                  const intel = chirurgoScore(player)
+                  const buy = buyNowIntelligence(player, getMarket(player))
+                  const forecast = finalPriceForecast(player, getMarket(player))
+                  return (
+                    <div className="main-card" key={`compare-page-${playerKey(player)}`} style={{ border: index === 0 ? '1px solid rgba(66,214,164,.32)' : undefined }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'auto 1fr auto', gap: '9px', alignItems: 'center' }}>
+                        <PlayerPhoto player={player} size={48} />
+                        <div>
+                          <strong style={{ display: 'block' }}>{index === 0 ? '🏆 ' : ''}{player.name}</strong>
+                          <small>{player.team} · {player.role}</small>
+                        </div>
+                        <strong>{scoreOutOf10(buy.actionScore)}</strong>
+                      </div>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '5px', marginTop: '7px' }}>
+                        <div className="stat"><span>AZIONE</span><strong style={{ fontSize: '9px' }}>{buy.action}</strong></div>
+                        <div className="stat"><span>STOP</span><strong>{buy.max}</strong></div>
+                        <div className="stat"><span>STIMA</span><strong>{forecast.predictedFinal}</strong></div>
+                        <div className="stat"><span>RISCHIO</span><strong>{scoreOutOf10(buy.risk)}</strong></div>
+                        <div className="stat"><span>FORMA</span><strong>{scoreOutOf10(intel.liveForm)}</strong></div>
+                        <div className="stat"><span>DISP.</span><strong>{scoreOutOf10(intel.availability)}</strong></div>
+                        <div className="stat"><span>VALUE</span><strong>{scoreOutOf10(intel.value)}</strong></div>
+                        <div className="stat"><span>TIT.</span><strong>{estimatedStarterPct(player)}%</strong></div>
+                      </div>
+                      <button type="button" className="back-button" style={{ width: '100%', marginTop: '7px' }} onClick={() => toggleComparisonPlayer(player)}>RIMUOVI</button>
+                    </div>
+                  )
+                })}
+            </div>
+          )}
+        </section>
       )}
 
       {view === 'live' && (
@@ -7234,6 +6955,13 @@ function App() {
 
           <section className="section">
             <div className="section-title">STRATEGIA ASTA</div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px', marginBottom: '10px' }}>
+              <button type="button" className="back-button" onClick={() => setView('rivals')}>RIVALI DETTAGLIO</button>
+              <button type="button" className="back-button" onClick={() => setView('history')}>STORICO ASTA</button>
+              <button type="button" className="back-button" onClick={() => setView('squad')}>ROSA COMPLETA</button>
+              <button type="button" className="back-button" onClick={() => setView('settings')}>IMPOSTAZIONI</button>
+            </div>
+
             <div className="main-card">
               <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '8px', alignItems: 'center' }}>
                 <div>
@@ -7502,7 +7230,8 @@ function App() {
                         </div>
                         <p className="tip" style={{ margin: '5px 0 0' }}>{change.detail}</p>
                       </div>
-                    ))}
+     
+               ))}
                   </div>
                 )}
               </div>

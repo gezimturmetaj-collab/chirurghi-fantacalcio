@@ -950,7 +950,7 @@ const APP_THEME_CSS = `
   }
 
   /* =========================================================
-     MEGA UPGRADE — ASTA PRO / OBSIDIAN ICE
+     MEGA UPGRADE — REGISTA PREDITTIVO / ASTA PRO
      Più pulita, moderna e leggibile durante l'asta
      ========================================================= */
 
@@ -2457,6 +2457,74 @@ function App() {
 
     return Math.round(score * 10) / 10
   }
+
+  function rivalRolePressure(rivalId: number, currentRole: Role) {
+    const missing = Math.max(0, slotLimits[currentRole] - rivalRoleCount(rivalId, currentRole))
+    if (missing <= 0) return 0
+
+    const need = (missing / slotLimits[currentRole]) * 100
+    const maxPower = Math.min(100, (rivalMaxOffer(rivalId) / Math.max(1, startingBudget * .18)) * 100)
+    const intel = rivalIntelligence(rivalId)
+    const roleTemp = roleMarketTemperature(currentRole)
+    const heat = roleTemp.sample >= 2 ? Math.max(0, Math.min(100, 50 + roleTemp.pct * 1.4)) : 50
+
+    return clampScore(
+      need * .48 +
+      maxPower * .24 +
+      intel.aggression * 10 * .18 +
+      heat * .10
+    )
+  }
+
+  function rivalPrediction(rivalId: number) {
+    const intel = rivalIntelligence(rivalId)
+    const rolePressures = roles
+      .map((currentRole) => ({
+        role: currentRole,
+        pressure: rivalRolePressure(rivalId, currentRole),
+        missing: Math.max(0, slotLimits[currentRole] - rivalRoleCount(rivalId, currentRole)),
+      }))
+      .filter((item) => item.missing > 0)
+      .sort((a, b) => b.pressure - a.pressure)
+
+    const primary = rolePressures[0] ?? null
+    const secondary = rolePressures[1] ?? null
+    const remaining = rivalBudget(rivalId)
+    const maxOffer = rivalMaxOffer(rivalId)
+    const slots = rivalSlotsRemaining(rivalId)
+
+    let behavior = 'ATTENDISTA'
+    if (intel.aggression >= 7.2 && maxOffer >= startingBudget * .16) behavior = 'RILANCERÀ FORTE'
+    else if (intel.profile === 'VALUE') behavior = 'CERCHERÀ OCCASIONI'
+    else if (intel.profile === 'SPENDACCIONE') behavior = 'PUÒ BRUCIARE BUDGET'
+    else if (intel.profile === 'RISPARMIATORE') behavior = 'CONSERVERÀ CASSA'
+    else if (slots <= 8) behavior = 'DOVRÀ ACCELERARE'
+
+    let counter = 'Non inseguirlo sui rilanci emotivi.'
+    if (primary?.pressure && primary.pressure >= 78) {
+      counter = `Ha forte bisogno di ${primary.role}: usa quel reparto per farlo spendere oppure anticipalo sui tuoi target.`
+    } else if (intel.profile === 'VALUE') {
+      counter = 'Evita di regalargli low-cost puliti: alza il prezzo sui profili value che non sono tuoi obiettivi.'
+    } else if (intel.profile === 'RISPARMIATORE') {
+      counter = 'Non lasciargli arrivare alla fase finale con troppa cassa: usa esche appetibili prima.'
+    }
+
+    return {
+      rivalId,
+      name: rivalNames[rivalId],
+      profile: intel.profile,
+      aggression: intel.aggression,
+      threat: intel.threatScore,
+      remaining,
+      maxOffer,
+      slots,
+      primary,
+      secondary,
+      behavior,
+      counter,
+    }
+  }
+
   function getAuctionPressure(player: Player, currentPrice: number) {
     const interested = activeRivals
       .map((_, rivalId) => ({
@@ -3543,6 +3611,84 @@ function App() {
     dataUpdates,
     wishlist,
   ])
+
+
+  const rivalPredictions = activeRivals
+    .map((_, rivalId) => rivalPrediction(rivalId))
+    .sort((a, b) => b.threat - a.threat)
+
+  const averageRivalBudget = rivalPredictions.length > 0
+    ? rivalPredictions.reduce((total, rival) => total + rival.remaining, 0) / rivalPredictions.length
+    : startingBudget
+
+  const averageRivalMaxOffer = rivalPredictions.length > 0
+    ? rivalPredictions.reduce((total, rival) => total + rival.maxOffer, 0) / rivalPredictions.length
+    : startingBudget
+
+  const auctionProgressPct = Math.round((purchases.length / 25) * 100)
+  const remainingSlotShare = Math.max(1, 25 - purchases.length) / 25
+  const remainingBudgetShare = startingBudget > 0 ? budget / startingBudget : 0
+  const cashEdge = budget - averageRivalBudget
+
+  const predictiveCallCandidates = availablePlayers
+    .filter((player) => roleRemaining(player.role) > 0)
+    .map((player) => {
+      const market = Math.max(1, getMarket(player))
+      const intel = buyNowIntelligence(player, market)
+      const move = auctionMoves.find((item) => item.role === player.role)
+      const rivalInterest = activeRivals.length > 0
+        ? activeRivals.reduce(
+            (total, _, rivalId) => total + rivalPlayerDanger(rivalId, player, market),
+            0
+          ) / activeRivals.length
+        : 1
+      const callScore = clampScore(
+        intel.actionScore * .64 +
+        (move?.urgency ?? 5) * 10 * .16 +
+        rivalInterest * 10 * .12 +
+        (isStarred(player) ? 100 : wishlistItemFor(player) ? 72 : 45) * .08
+      )
+      return { player, intel, callScore, rivalInterest, move }
+    })
+    .sort((a, b) => b.callScore - a.callScore)
+    .slice(0, 5)
+
+  const predictiveBestCall = predictiveCallCandidates[0] ?? null
+
+  const predictiveGlobalDecoy = availablePlayers
+    .filter((player) => !isStarred(player) && roleRemaining(player.role) > 0)
+    .map((player) => ({ player, score: calculateDecoyScore(player) }))
+    .sort((a, b) => b.score - a.score)[0] ?? null
+
+  const dominantRival = rivalPredictions[0] ?? null
+  const strongestRivalNeed = dominantRival?.primary ?? null
+
+  let predictiveMode = 'CONTROLLO'
+  if (purchases.length >= 20) predictiveMode = 'CHIUSURA'
+  else if (remainingBudgetShare >= remainingSlotShare + .18 || cashEdge >= startingBudget * .12) predictiveMode = 'ATTACCO'
+  else if (remainingBudgetShare + .10 < remainingSlotShare) predictiveMode = 'VALUE'
+  else if (dominantRival && dominantRival.threat >= 8) predictiveMode = 'ANTI-RIVALE'
+
+  let predictiveModeText = 'Mantieni flessibilità: compra solo entro prezzo corretto e osserva i rivali.'
+  if (predictiveMode === 'ATTACCO') predictiveModeText = 'Hai potere di cassa: anticipa i target forti prima che i rivali possano riallinearsi.'
+  if (predictiveMode === 'VALUE') predictiveModeText = 'La cassa va protetta: cerca titolari sostenibili e sfrutta le occasioni sotto mercato.'
+  if (predictiveMode === 'ANTI-RIVALE') predictiveModeText = dominantRival
+    ? `${dominantRival.name} è la minaccia principale: evita guerre inutili, ma colpisci i reparti dove ha più bisogno.`
+    : predictiveModeText
+  if (predictiveMode === 'CHIUSURA') predictiveModeText = 'Fase finale: completa gli slot senza lasciare crediti inutilizzati e proteggi almeno 1 credito per ogni posto residuo.'
+
+  let predictiveCallAction = 'CHIAMA TARGET'
+  if (predictiveBestCall) {
+    if (predictiveBestCall.intel.action === 'STOP') predictiveCallAction = 'NON CHIAMARE'
+    else if (predictiveBestCall.intel.actionScore >= 82) predictiveCallAction = 'CHIAMA E PROVA A CHIUDERE'
+    else if (
+      predictiveGlobalDecoy &&
+      strongestRivalNeed &&
+      predictiveGlobalDecoy.player.role === strongestRivalNeed.role &&
+      predictiveGlobalDecoy.score >= 72
+    ) predictiveCallAction = 'USA ESCA PRIMA'
+    else if (predictiveBestCall.intel.actionScore < 66) predictiveCallAction = 'TESTA IL MERCATO'
+  }
 
   const wishlistPlayers = useMemo(() => {
     return wishlist
@@ -5252,6 +5398,111 @@ function App() {
           </section>
 
           <section className="section" style={{ padding: '12px' }}>
+            <div className="section-title">🧠 REGISTA PREDITTIVO · ASTA LIVE</div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '5px' }}>
+              <div className="stat"><span>FASE</span><strong style={{ fontSize: '11px' }}>{auctionProgressPct}%</strong></div>
+              <div className="stat"><span>MODALITÀ</span><strong style={{ fontSize: '9px' }}>{predictiveMode}</strong></div>
+              <div className="stat"><span>CASSA VS RIVALI</span><strong style={{ fontSize: '11px' }}>{cashEdge >= 0 ? '+' : ''}{Math.round(cashEdge)}</strong></div>
+              <div className="stat"><span>MAX RIVALE MEDIO</span><strong style={{ fontSize: '11px' }}>{Math.round(averageRivalMaxOffer)}</strong></div>
+            </div>
+            <p className="tip" style={{ lineHeight: 1.65, marginBottom: '8px' }}>
+              <strong>Strategia ora:</strong> {predictiveModeText}
+            </p>
+
+            {predictiveBestCall && (
+              <div className="main-card" style={{ border: '1px solid rgba(66,214,164,.28)' }}>
+                <small className="small-label">🎙️ PROSSIMA CHIAMATA AUTOMATICA</small>
+                <div style={{ display: 'grid', gridTemplateColumns: 'auto 1fr auto', gap: '9px', alignItems: 'center', marginTop: '7px' }}>
+                  <PlayerPhoto player={predictiveBestCall.player} size={48} />
+                  <div>
+                    <strong style={{ display: 'block', fontSize: '15px' }}>{isStarred(predictiveBestCall.player) ? '★ ' : ''}{predictiveBestCall.player.name}</strong>
+                    <small>{predictiveBestCall.player.team} · {predictiveBestCall.player.role} · {predictiveCallAction}</small>
+                    <small style={{ display: 'block', marginTop: '3px' }}>
+                      priorità {scoreOutOf10(predictiveBestCall.callScore)}/10 · interesse rivali {scoreOutOf10(predictiveBestCall.rivalInterest * 10)}/10
+                    </small>
+                  </div>
+                  <div className="recommendation-score"><span>STOP</span><strong>{predictiveBestCall.intel.max}</strong></div>
+                </div>
+                <p className="tip" style={{ margin: '7px 0 8px', lineHeight: 1.6 }}>
+                  Prezzo corretto {predictiveBestCall.intel.fairPrice} · attacco {predictiveBestCall.intel.attackPrice} · rischio {scoreOutOf10(predictiveBestCall.intel.risk)}/10 · {predictiveBestCall.intel.strongAlternatives} alternative forti.
+                </p>
+                <button
+                  type="button"
+                  className="primary-button"
+                  style={{ width: '100%' }}
+                  onClick={() => {
+                    setSelectedName(predictiveBestCall.player.name)
+                    setPlayerSearch(predictiveBestCall.player.name)
+                    setPrice(Math.max(1, getMarket(predictiveBestCall.player)))
+                  }}
+                >
+                  APRI ANALISI COMPLETA
+                </button>
+              </div>
+            )}
+
+            {predictiveCallCandidates.length > 1 && (
+              <div style={{ display: 'grid', gap: '6px', marginTop: '8px' }}>
+                {predictiveCallCandidates.slice(1, 4).map(({ player, intel, callScore }, index) => (
+                  <button
+                    type="button"
+                    key={`predictive-backup-${playerKey(player)}`}
+                    className="back-button"
+                    style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', textAlign: 'left' }}
+                    onClick={() => {
+                      setSelectedName(player.name)
+                      setPlayerSearch(player.name)
+                      setPrice(Math.max(1, getMarket(player)))
+                    }}
+                  >
+                    <span>{index + 2}ª · {player.name} · {player.role}</span>
+                    <span>{scoreOutOf10(callScore)}/10 · STOP {intel.max}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {predictiveGlobalDecoy && (
+              <div className="main-card" style={{ marginTop: '8px' }}>
+                <small className="small-label">🎣 ESCA PREDITTIVA GLOBALE</small>
+                <strong style={{ display: 'block', marginTop: '5px' }}>{predictiveGlobalDecoy.player.name} · {predictiveGlobalDecoy.player.role}</strong>
+                <p className="tip" style={{ marginBottom: 0, lineHeight: 1.6 }}>
+                  Indice esca {scoreOutOf10(predictiveGlobalDecoy.score)}/10. {strongestRivalNeed ? `Il bisogno rivale più forte osservato è nel ruolo ${strongestRivalNeed.role}.` : 'Usala solo se vuoi drenare cassa ai rivali senza esporre un obiettivo ★.'}
+                </p>
+              </div>
+            )}
+          </section>
+
+          <section className="section" style={{ padding: '12px' }}>
+            <div className="section-title">🔭 RADAR RIVALI PREDITTIVO</div>
+            {rivalPredictions.length === 0 ? (
+              <p className="tip">Registra gli acquisti dei rivali per attivare le previsioni.</p>
+            ) : (
+              <div style={{ display: 'grid', gap: '7px' }}>
+                {rivalPredictions.slice(0, 6).map((rival) => (
+                  <div className="main-card" key={`rival-prediction-${rival.rivalId}`}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', gap: '8px', alignItems: 'center' }}>
+                      <div>
+                        <strong style={{ display: 'block' }}>{rival.name}</strong>
+                        <small>{rival.profile} · {rival.behavior}</small>
+                      </div>
+                      <div className="recommendation-score"><span>MINACCIA</span><strong>{scoreOutOf10(rival.threat)}</strong></div>
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '5px', marginTop: '7px' }}>
+                      <div className="stat"><span>BUDGET</span><strong>{rival.remaining}</strong></div>
+                      <div className="stat"><span>MAX OFFERTA</span><strong>{rival.maxOffer}</strong></div>
+                      <div className="stat"><span>PROBABILE RUOLO</span><strong>{rival.primary?.role ?? '—'}</strong></div>
+                    </div>
+                    <p className="tip" style={{ margin: '7px 0 0', lineHeight: 1.6 }}>
+                      <strong>Contromossa:</strong> {rival.counter}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
+
+          <section className="section" style={{ padding: '12px' }}>
             <div className="section-title">CENTRO COMANDO</div>
             <p className="tip" style={{ marginTop: '-2px' }}>Due decisioni rapide: chi chiamare e quale esca usare. Scegli il ruolo.</p>
 
@@ -5266,6 +5517,9 @@ function App() {
                   <div className="recommendation-score"><span>MAX</span><strong>{calculateDynamicMax(nextCallCandidate.player)}</strong></div>
                 </div>
                 <p className="tip" style={{ marginBottom: 0, lineHeight: 1.65 }}><strong>Perché:</strong> {commandCallWhy(nextCallCandidate.player)}</p>
+                {predictiveBestCall && predictiveBestCall.player.name !== nextCallCandidate.player.name && (
+                  <p className="tip" style={{ margin: '6px 0 0', lineHeight: 1.55 }}><strong>Regista automatico:</strong> senza filtro ruolo preferisce {predictiveBestCall.player.name} ({predictiveBestCall.player.role}) con priorità {scoreOutOf10(predictiveBestCall.callScore)}/10.</p>
+                )}
               </div> : <p className="tip">Nessun giocatore disponibile nel ruolo.</p>}
             </div>
 
@@ -6759,7 +7013,8 @@ function App() {
                 {[
                   ['LISTONE', 'players'],
                   ['FANTACALCIO', 'fantacalcio'],
-                  ['STATISTICHE', 'stats'],
+    
+              ['STATISTICHE', 'stats'],
                   ['INFORTUNI', 'injuries'],
                   ['FORMAZIONI', 'lineups'],
                   ['MERCATO', 'market'],
@@ -7075,8 +7330,7 @@ function App() {
                 gridTemplateColumns: '1fr 1fr',
                 gap: '8px',
                 marginTop: '10px',
-  
-            }}>
+              }}>
                 <div style={{ padding: '9px', border: '1px solid #273149', borderRadius: '9px' }}>
                   <span style={{ display: 'block', color: '#78859b', fontSize: '7px' }}>
                     PARTECIPANTI

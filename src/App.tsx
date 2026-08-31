@@ -950,7 +950,7 @@ const APP_THEME_CSS = `
   }
 
   /* =========================================================
-     MEGA UPGRADE — REGISTA PREDITTIVO / ASTA PRO
+     MEGA UPGRADE — MEMORIA RIVALI / SIMULATORE / CHIUSURA
      Più pulita, moderna e leggibile durante l'asta
      ========================================================= */
 
@@ -2525,6 +2525,82 @@ function App() {
     }
   }
 
+
+  function rivalMemory(rivalId: number) {
+    const sales = rivalSales.filter((sale) => sale.rivalId === rivalId)
+    const byRole = roles.map((role) => {
+      const roleSales = sales.filter((sale) => sale.player.role === role)
+      const spent = roleSales.reduce((total, sale) => total + sale.price, 0)
+      const avg = roleSales.length > 0 ? spent / roleSales.length : 0
+      const overMarket = roleSales.length > 0
+        ? roleSales.reduce((total, sale) => {
+            const market = Math.max(1, getMarket(sale.player))
+            return total + ((sale.price - market) / market) * 100
+          }, 0) / roleSales.length
+        : 0
+      return { role, count: roleSales.length, spent, avg, overMarket }
+    })
+
+    const hottestRole = [...byRole].sort((a, b) => b.overMarket - a.overMarket)[0]
+    const favoriteRole = [...byRole].sort((a, b) => b.spent - a.spent)[0]
+    const avgPaid = sales.length > 0
+      ? sales.reduce((total, sale) => total + sale.price, 0) / sales.length
+      : 0
+    const avgOverMarket = sales.length > 0
+      ? sales.reduce((total, sale) => {
+          const market = Math.max(1, getMarket(sale.player))
+          return total + ((sale.price - market) / market) * 100
+        }, 0) / sales.length
+      : 0
+
+    let tendency = 'DATI INSUFFICIENTI'
+    if (sales.length >= 2) {
+      if (avgOverMarket >= 18) tendency = 'RILANCIATORE'
+      else if (avgOverMarket <= -8) tendency = 'CACCIATORE VALUE'
+      else tendency = 'PREZZO DI MERCATO'
+    }
+
+    return {
+      salesCount: sales.length,
+      avgPaid,
+      avgOverMarket,
+      hottestRole,
+      favoriteRole,
+      tendency,
+      byRole,
+    }
+  }
+
+  function predictedRivalBid(rivalId: number, player: Player) {
+    const memory = rivalMemory(rivalId)
+    const prediction = rivalPrediction(rivalId)
+    const market = Math.max(1, getMarket(player))
+    const roleData = memory.byRole.find((item) => item.role === player.role)
+    const rolePremium = roleData && roleData.count > 0 ? roleData.overMarket : memory.avgOverMarket
+    const needBoost = prediction.primary?.role === player.role ? 1.14 : prediction.secondary?.role === player.role ? 1.07 : 1
+    const aggressionBoost = 1 + Math.max(0, prediction.aggression - 5) * .035
+    const learnedBoost = 1 + Math.max(-.18, Math.min(.35, rolePremium / 100))
+    const raw = Math.round(market * needBoost * aggressionBoost * learnedBoost)
+    return Math.max(1, Math.min(prediction.maxOffer, raw))
+  }
+
+  function bluffWindow(player: Player) {
+    const market = Math.max(1, getMarket(player))
+    const interested = activeRivals
+      .map((_, rivalId) => ({
+        rivalId,
+        predicted: predictedRivalBid(rivalId, player),
+        danger: rivalPlayerDanger(rivalId, player, market),
+      }))
+      .filter((item) => item.predicted > market)
+      .sort((a, b) => b.predicted - a.predicted)
+
+    const leader = interested[0] ?? null
+    const ceiling = leader ? Math.max(market, leader.predicted - 1) : market
+    const safeBluff = Math.max(1, Math.min(calculateDynamicMax(player), ceiling))
+    return { leader, safeBluff, interested }
+  }
+
   function getAuctionPressure(player: Player, currentPrice: number) {
     const interested = activeRivals
       .map((_, rivalId) => ({
@@ -3033,6 +3109,59 @@ function App() {
       pressure,
       temperature,
       reasons,
+    }
+  }
+
+
+  function simulatePurchase(player: Player, simulatedPrice: number) {
+    const priceNow = Math.max(1, simulatedPrice)
+    const futureBudget = Math.max(0, budget - priceNow)
+    const futureRoleRemaining = Math.max(0, roleRemaining(player.role) - 1)
+    const futureSlots = Math.max(0, roles.reduce((total, role) => total + roleRemaining(role), 0) - 1)
+    const mandatoryReserve = futureSlots
+    const freeBudget = Math.max(0, futureBudget - mandatoryReserve)
+    const avgFreePerSlot = futureSlots > 0 ? freeBudget / futureSlots : freeBudget
+
+    const roleNeedsAfter = roles.map((role) => ({
+      role,
+      missing: role === player.role ? futureRoleRemaining : roleRemaining(role),
+    }))
+
+    const criticalRoles = roleNeedsAfter
+      .filter((item) => item.missing > 0)
+      .sort((a, b) => b.missing - a.missing)
+
+    const futureTargets = availablePlayers
+      .filter((candidate) => candidate.name !== player.name)
+      .filter((candidate) => roleNeedsAfter.some((item) => item.role === candidate.role && item.missing > 0))
+      .map((candidate) => ({
+        candidate,
+        max: calculateDynamicMax(candidate),
+        score: chirurgoScore(candidate).total,
+      }))
+      .filter((item) => item.max <= Math.max(1, freeBudget))
+      .sort((a, b) => b.score - a.score)
+
+    const premiumAffordable = futureTargets.filter((item) => item.score >= 82).length
+    const strongAffordable = futureTargets.filter((item) => item.score >= 72).length
+
+    let verdict = 'SOSTENIBILE'
+    if (futureBudget < mandatoryReserve) verdict = 'BLOCCA LA ROSA'
+    else if (avgFreePerSlot < 3) verdict = 'MOLTO STRETTO'
+    else if (premiumAffordable === 0 && futureSlots >= 4) verdict = 'LIMITA I TOP FUTURI'
+    else if (freeBudget >= startingBudget * .20) verdict = 'MARGINE BUONO'
+
+    return {
+      futureBudget,
+      futureSlots,
+      mandatoryReserve,
+      freeBudget,
+      avgFreePerSlot,
+      criticalRoles,
+      premiumAffordable,
+      strongAffordable,
+      futureTargets: futureTargets.slice(0, 5),
+      verdict,
     }
   }
 
@@ -3689,6 +3818,37 @@ function App() {
     ) predictiveCallAction = 'USA ESCA PRIMA'
     else if (predictiveBestCall.intel.actionScore < 66) predictiveCallAction = 'TESTA IL MERCATO'
   }
+
+
+  const closingPlan = roles.map((role) => {
+    const missing = roleRemaining(role)
+    const budgetRoom = Math.max(0, adaptiveTargetForRole(role) - roleSpent(role))
+    const minReserve = missing
+    const attackRoom = Math.max(0, budgetRoom - minReserve)
+    const availableRole = availablePlayers
+      .filter((player) => player.role === role)
+      .map((player) => ({ player, score: chirurgoScore(player).total, max: calculateDynamicMax(player) }))
+      .sort((a, b) => b.score - a.score)
+
+    const topAffordable = availableRole.find((item) => item.max <= Math.max(1, budget))
+    return {
+      role,
+      missing,
+      budgetRoom,
+      minReserve,
+      attackRoom,
+      topAffordable,
+    }
+  })
+
+  const totalMissingSlots = closingPlan.reduce((total, item) => total + item.missing, 0)
+  const minimumClosingReserve = totalMissingSlots
+  const closingAttackBudget = Math.max(0, budget - minimumClosingReserve)
+  const closingHealth =
+    totalMissingSlots === 0 ? 'ROSA COMPLETA' :
+    budget < minimumClosingReserve ? 'EMERGENZA' :
+    closingAttackBudget >= startingBudget * .12 ? 'FORTE' :
+    closingAttackBudget >= totalMissingSlots * 3 ? 'GESTIBILE' : 'STRETTA'
 
   const wishlistPlayers = useMemo(() => {
     return wishlist
@@ -5494,12 +5654,41 @@ function App() {
                       <div className="stat"><span>PROBABILE RUOLO</span><strong>{rival.primary?.role ?? '—'}</strong></div>
                     </div>
                     <p className="tip" style={{ margin: '7px 0 0', lineHeight: 1.6 }}>
+                      <strong>Memoria asta:</strong> {rivalMemory(rival.rivalId).tendency} · pagato medio {rivalMemory(rival.rivalId).avgPaid.toFixed(1)} · scostamento mercato {rivalMemory(rival.rivalId).avgOverMarket >= 0 ? '+' : ''}{rivalMemory(rival.rivalId).avgOverMarket.toFixed(0)}%.
+                    </p>
+                    <p className="tip" style={{ margin: '5px 0 0', lineHeight: 1.6 }}>
                       <strong>Contromossa:</strong> {rival.counter}
                     </p>
                   </div>
                 ))}
               </div>
             )}
+          </section>
+
+          <section className="section" style={{ padding: '12px' }}>
+            <div className="section-title">🏁 PIANO CHIUSURA ROSA</div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '5px' }}>
+              <div className="stat"><span>SLOT MANCANTI</span><strong>{totalMissingSlots}</strong></div>
+              <div className="stat"><span>RISERVA MINIMA</span><strong>{minimumClosingReserve}</strong></div>
+              <div className="stat"><span>BUDGET ATTACCO</span><strong>{closingAttackBudget}</strong></div>
+              <div className="stat"><span>SALUTE</span><strong style={{ fontSize: '9px' }}>{closingHealth}</strong></div>
+            </div>
+            <div style={{ display: 'grid', gap: '6px', marginTop: '8px' }}>
+              {closingPlan.map((item) => (
+                <div className="main-card" key={`closing-${item.role}`}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', gap: '8px' }}>
+                    <strong>{item.role} · {roleNames[item.role]}</strong>
+                    <strong>{item.missing} slot</strong>
+                  </div>
+                  <small>Budget reparto residuo {item.budgetRoom} · attaccabile {item.attackRoom}</small>
+                  {item.topAffordable && item.missing > 0 && (
+                    <small style={{ display: 'block', marginTop: '3px' }}>
+                      Miglior profilo ancora sostenibile: {item.topAffordable.player.name} · score {scoreOutOf10(item.topAffordable.score)}/10 · MAX {item.topAffordable.max}
+                    </small>
+                  )}
+                </div>
+              ))}
+            </div>
           </section>
 
           <section className="section" style={{ padding: '12px' }}>
@@ -5675,6 +5864,45 @@ function App() {
                           Fascia prezzo: <strong>occasione ≤ {now.bargainPrice}</strong> · prezzo corretto ≤ {now.fairPrice} · puoi attaccare fino a {now.attackPrice} · <strong>non superare {now.max}</strong>. Dopo l'acquisto resterebbero {now.budgetAfter} crediti.
                         </p>
                       </div>
+                    )
+                  })()}
+
+                  {(() => {
+                    const simulation = simulatePurchase(selectedPlayer, price)
+                    const bluff = bluffWindow(selectedPlayer)
+                    return (
+                      <>
+                        <div className="main-card" style={{ marginTop: '8px' }}>
+                          <small className="small-label">🔮 SE LO COMPRO A {price}</small>
+                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '5px', marginTop: '7px' }}>
+                            <div className="stat"><span>BUDGET DOPO</span><strong>{simulation.futureBudget}</strong></div>
+                            <div className="stat"><span>SLOT DOPO</span><strong>{simulation.futureSlots}</strong></div>
+                            <div className="stat"><span>LIBERI</span><strong>{simulation.freeBudget}</strong></div>
+                            <div className="stat"><span>MEDIA/SLOT</span><strong>{simulation.avgFreePerSlot.toFixed(1)}</strong></div>
+                          </div>
+                          <p className="tip" style={{ margin: '7px 0 0', lineHeight: 1.6 }}>
+                            <strong>{simulation.verdict}</strong> · resterebbero {simulation.premiumAffordable} profili premium e {simulation.strongAffordable} profili forti compatibili con la cassa residua.
+                          </p>
+                          {simulation.futureTargets.length > 0 && (
+                            <p className="tip" style={{ margin: '5px 0 0', lineHeight: 1.6 }}>
+                              Dopo questo acquisto potresti ancora puntare: {simulation.futureTargets.slice(0, 3).map((item) => `${item.candidate.name} (MAX ${item.max})`).join(' · ')}.
+                            </p>
+                          )}
+                        </div>
+
+                        <div className="main-card" style={{ marginTop: '8px' }}>
+                          <small className="small-label">🎭 BLUFF / RILANZO INTELLIGENTE</small>
+                          <p className="tip" style={{ margin: '6px 0 0', lineHeight: 1.6 }}>
+                            Rilancio-esca prudente fino a <strong>{bluff.safeBluff}</strong>.
+                            {bluff.leader ? ` Il rivale più esposto sembra ${rivalNames[bluff.leader.rivalId]}, con tetto stimato ${bluff.leader.predicted}.` : ' Non ci sono ancora segnali sufficienti di pressione rivale.'}
+                          </p>
+                          {bluff.interested.length > 0 && (
+                            <p className="tip" style={{ margin: '5px 0 0', lineHeight: 1.6 }}>
+                              Tetti previsti: {bluff.interested.slice(0, 3).map((item) => `${rivalNames[item.rivalId]} ${item.predicted}`).join(' · ')}.
+                            </p>
+                          )}
+                        </div>
+                      </>
                     )
                   })()}
 
@@ -7013,8 +7241,7 @@ function App() {
                 {[
                   ['LISTONE', 'players'],
                   ['FANTACALCIO', 'fantacalcio'],
-    
-              ['STATISTICHE', 'stats'],
+                  ['STATISTICHE', 'stats'],
                   ['INFORTUNI', 'injuries'],
                   ['FORMAZIONI', 'lineups'],
                   ['MERCATO', 'market'],

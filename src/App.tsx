@@ -7405,8 +7405,7 @@ function App() {
                       </div>
                       <div style={{ padding: '9px', border: '1px solid #273149', borderRadius: '9px' }}>
                         <span style={{ color: '#78859b', fontSize: '7px', fontWeight: 900 }}>SLOT DOPO</span>
-                        <strong style={{ display: 'block', marginTop: '4px' }}>{liveSimulation.
-afterSlots}</strong>
+                        <strong style={{ display: 'block', marginTop: '4px' }}>{liveSimulation.afterSlots}</strong>
                       </div>
                       <div style={{ padding: '9px', border: '1px solid #273149', borderRadius: '9px' }}>
                         <span style={{ color: '#78859b', fontSize: '7px', fontWeight: 900 }}>CR/SLOT DOPO</span>

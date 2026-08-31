@@ -950,7 +950,7 @@ const APP_THEME_CSS = `
   }
 
   /* =========================================================
-     PERFORMANCE FIX — MEMO HOT PATHS / WAR RESPONSIVE
+     FINAL SPEED + USABILITY — DEBOUNCE / QUICK PRICE / CLEAN SEARCH
      Più pulita, moderna e leggibile durante l'asta
      ========================================================= */
 
@@ -1732,6 +1732,7 @@ function App() {
   const [warCallChosen, setWarCallChosen] = useState(false)
   const [selectedName, setSelectedName] = useState('')
   const [playerSearch, setPlayerSearch] = useState('')
+  const [debouncedPlayerSearch, setDebouncedPlayerSearch] = useState('')
   const [comparisonNames, setComparisonNames] = useState<string[]>([])
   const [price, setPrice] = useState(1)
   const [purchases, setPurchases] = useState<Purchase[]>(saved.purchases ?? [])
@@ -2953,8 +2954,13 @@ function App() {
 
 
 
+  useEffect(() => {
+    const timer = window.setTimeout(() => setDebouncedPlayerSearch(playerSearch), 140)
+    return () => window.clearTimeout(timer)
+  }, [playerSearch])
+
   const searchedPlayers = useMemo(() => {
-    const search = playerSearch.trim().toLowerCase()
+    const search = debouncedPlayerSearch.trim().toLowerCase()
     if (!search) return []
     return availablePlayers
       .filter(
@@ -2963,7 +2969,7 @@ function App() {
           player.team.toLowerCase().includes(search)
       )
       .slice(0, 18)
-  }, [availablePlayers, playerSearch])
+  }, [availablePlayers, debouncedPlayerSearch])
 
   const selectedPlayer =
     availablePlayers.find((player) => player.name === selectedName) ?? null
@@ -5931,6 +5937,12 @@ function App() {
                   onChange={(event) => handlePlayerSearch(event.target.value)}
                 />
 
+                {playerSearch && (
+                  <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '5px' }}>
+                    <button type="button" className="back-button" onClick={() => { setPlayerSearch(''); setDebouncedPlayerSearch(''); setSelectedName('') }}>× PULISCI</button>
+                  </div>
+                )}
+
                 {playerSearch && !selectedPlayer && (
                   <div style={{ display: 'grid', gap: '5px', marginTop: '7px' }}>
                     {searchedPlayers
@@ -5975,12 +5987,16 @@ function App() {
                     </div>
 
                     <label>PREZZO CORRENTE</label>
-                    <input
-                      type="number"
-                      min="1"
-                      value={price}
-                      onChange={(event) => setPrice(Math.max(1, Number(event.target.value) || 1))}
-                    />
+                    <div style={{ display: 'grid', gridTemplateColumns: '44px 1fr 44px', gap: '6px' }}>
+                      <button type="button" className="back-button" onClick={() => setPrice((value) => Math.max(1, value - 1))}>−</button>
+                      <input
+                        type="number"
+                        min="1"
+                        value={price}
+                        onChange={(event) => setPrice(Math.max(1, Number(event.target.value) || 1))}
+                      />
+                      <button type="button" className="back-button" onClick={() => setPrice((value) => value + 1)}>+</button>
+                    </div>
 
                     {(() => {
                       const decision = unifiedAuctionDecision(selectedPlayer, price)
@@ -6027,8 +6043,9 @@ function App() {
 
                     <div className="main-card" style={{ marginTop: '8px' }}>
                       <small className="small-label">REGISTRA ESITO SENZA USCIRE DALLA WAR</small>
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px', marginTop: '7px' }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 54px 1fr', gap: '6px', marginTop: '7px' }}>
                         <button type="button" className="primary-button" onClick={registerPurchase}>✓ MIO A {price}</button>
+                        <button type="button" className="back-button" onClick={() => setPrice((value) => value + 5)}>+5</button>
                         <select value={selectedRivalId} onChange={(event) => setSelectedRivalId(Number(event.target.value))}>
                           {rivalNames.slice(0, leagueSize - 1).map((name, index) => (
                             <option key={`war-rival-${index}`} value={index}>{name}</option>
@@ -7220,7 +7237,8 @@ function App() {
                             }}
                           >
                             <span>
-                              <strong style={{ display: 'block', fontSize: '10px' }}>
+                              <strong style={{ display:
+ 'block', fontSize: '10px' }}>
                                 {purchase.player.name}
                               </strong>
                               <small style={{ color: '#78859b' }}>
@@ -7241,8 +7259,7 @@ function App() {
                                   color: '#ff9a9a',
                                   fontSize: '9px',
                                   fontWeight: 800,
-            
-                      cursor: 'pointer',
+                                  cursor: 'pointer',
                                 }}
                                 aria-label={`Rimuovi acquisto ${purchase.player.name}`}
                               >

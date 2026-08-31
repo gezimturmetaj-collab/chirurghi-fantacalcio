@@ -1732,6 +1732,7 @@ function App() {
   const [warCallChosen, setWarCallChosen] = useState(false)
   const [selectedName, setSelectedName] = useState('')
   const [playerSearch, setPlayerSearch] = useState('')
+  const [comparisonNames, setComparisonNames] = useState<string[]>([])
   const [price, setPrice] = useState(1)
   const [purchases, setPurchases] = useState<Purchase[]>(saved.purchases ?? [])
   const [rivalSales, setRivalSales] = useState<RivalSale[]>(saved.rivalSales ?? [])
@@ -2725,6 +2726,11 @@ function App() {
 
   const selectedPlayer =
     availablePlayers.find((player) => player.name === selectedName) ?? null
+
+  const comparisonPlayers = comparisonNames.flatMap((name) => {
+    const player = availablePlayers.find((item) => item.name === name)
+    return player ? [player] : []
+  })
 
 
   function estimatedStarterPct(player: Player) {
@@ -3964,6 +3970,20 @@ function App() {
     setMessage('')
   }
 
+  function toggleComparisonPlayer(player: Player) {
+    setComparisonNames((current) => {
+      if (current.includes(player.name)) {
+        return current.filter((name) => name !== player.name)
+      }
+      if (current.length >= 3) return current
+      return [...current, player.name]
+    })
+  }
+
+  function resetComparison() {
+    setComparisonNames([])
+  }
+
 
   function registerPurchase() {
     if (!selectedPlayer) return
@@ -5195,6 +5215,19 @@ function App() {
                     {wish?.starred && <p className="tip" style={{ margin: '6px 0 0' }}><strong>★ Piano obiettivo:</strong> il motore protegge questo nome nei suggerimenti, evita di usarlo come esca e concede un piccolo margine aggiuntivo sul MAX solo se il budget strutturale lo permette.</p>}
                   </div>
 
+                  <button
+                    type="button"
+                    className={comparisonNames.includes(selectedPlayer.name) ? 'undo-button' : 'primary-button'}
+                    disabled={!comparisonNames.includes(selectedPlayer.name) && comparisonNames.length >= 3}
+                    onClick={() => toggleComparisonPlayer(selectedPlayer)}
+                    style={{ width: '100%', marginTop: '8px', opacity: !comparisonNames.includes(selectedPlayer.name) && comparisonNames.length >= 3 ? .5 : 1 }}
+                  >
+                    {comparisonNames.includes(selectedPlayer.name) ? '✓ RIMUOVI DAL CONFRONTO' : comparisonNames.length >= 3 ? 'CONFRONTO PIENO · MAX 3' : '⚖️ AGGIUNGI AL CONFRONTO'}
+                  </button>
+                  <p className="tip" style={{ margin: '5px 0 0', textAlign: 'center' }}>
+                    {comparisonNames.length}/3 selezionati · aggiungi un altro giocatore dalla ricerca per confrontarli.
+                  </p>
+
                   <label>PREZZO CORRENTE</label>
                   <div className="price-row"><input type="number" min="0" value={price} onChange={(event) => setPrice(Math.max(0, Number(event.target.value) || 0))} /><button type="button" onClick={() => setPrice((v) => Math.max(0, v - 1))}>−1</button><button type="button" onClick={() => setPrice((v) => v + 1)}>+1</button></div>
                   <div className="decision-grid"><div><span>MAX LIVE</span><strong>{dynamicMaxBid}</strong></div><div className={`decision-box ${decision?.className ?? ''}`}><span>DECISIONE</span><strong>{decision?.label ?? '—'}</strong></div></div>
@@ -5204,6 +5237,68 @@ function App() {
                 </div>
               })()}
             </div>
+
+            {comparisonPlayers.length > 0 && (() => {
+              const ranked = [...comparisonPlayers].sort((a, b) => chirurgoScore(b).total - chirurgoScore(a).total)
+              const winner = ranked[0]
+              const sameRole = comparisonPlayers.every((player) => player.role === comparisonPlayers[0]?.role)
+              return (
+                <div className="main-card" style={{ marginTop: '10px', border: '1px solid rgba(169,140,255,.24)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', gap: '8px', alignItems: 'center' }}>
+                    <div>
+                      <small className="small-label">⚖️ CONFRONTO CHIRURGO</small>
+                      <strong style={{ display: 'block', marginTop: '3px' }}>{comparisonPlayers.length}/3 GIOCATORI</strong>
+                    </div>
+                    <button type="button" className="back-button" onClick={resetComparison}>↺ RESET CONFRONTO</button>
+                  </div>
+
+                  {comparisonPlayers.length === 1 && (
+                    <p className="tip" style={{ margin: '8px 0 0' }}>Ora cerca un secondo giocatore e premi “AGGIUNGI AL CONFRONTO”. Puoi confrontarne fino a 3.</p>
+                  )}
+
+                  {comparisonPlayers.length >= 2 && (
+                    <>
+                      <div style={{ display: 'grid', gridTemplateColumns: `repeat(${comparisonPlayers.length}, minmax(0,1fr))`, gap: '6px', marginTop: '9px' }}>
+                        {comparisonPlayers.map((player) => {
+                          const intel = chirurgoScore(player)
+                          const stats = playerStats(player)
+                          const upd = dataUpdateFor(player)
+                          const availabilityLabel = upd?.injuryStatus === 'injured' ? 'INF.' : upd?.injuryStatus === 'doubt' ? 'DUBBIO' : upd?.injuryStatus === 'recovering' ? 'REC.' : upd?.injuryStatus === 'suspended' ? 'SQUAL.' : 'OK'
+                          return (
+                            <div key={`compare-${playerKey(player)}`} style={{ minWidth: 0, padding: '8px', border: player.name === winner.name ? '1px solid rgba(66,214,164,.45)' : '1px solid rgba(255,255,255,.08)', borderRadius: '13px', background: player.name === winner.name ? 'rgba(66,214,164,.07)' : 'rgba(255,255,255,.02)' }}>
+                              <div style={{ display: 'grid', placeItems: 'center', gap: '4px', textAlign: 'center' }}>
+                                <PlayerPhoto player={player} size={52} card />
+                                <strong style={{ fontSize: '11px', lineHeight: 1.15, overflowWrap: 'anywhere' }}>{player.name}</strong>
+                                <small>{player.role} · {player.team}</small>
+                              </div>
+                              <div style={{ display: 'grid', gap: '4px', marginTop: '7px', fontSize: '9px' }}>
+                                <div><span>SCORE </span><strong>{scoreOutOf10(intel.total)}</strong></div>
+                                <div><span>MAX </span><strong>{calculateDynamicMax(player)}</strong></div>
+                                <div><span>TIT. </span><strong>{estimatedStarterPct(player)}%</strong></div>
+                                <div><span>FM </span><strong>{formatLiveStat(stats.fantasyAverage, 2)}</strong></div>
+                                <div><span>G+A </span><strong>{(stats.goals ?? 0) + (stats.assists ?? 0)}</strong></div>
+                                <div><span>DISP. </span><strong>{availabilityLabel}</strong></div>
+                                <div><span>VALUE </span><strong>{scoreOutOf10(intel.value)}</strong></div>
+                              </div>
+                              <button type="button" className="back-button" onClick={() => toggleComparisonPlayer(player)} style={{ width: '100%', marginTop: '7px', padding: '0 5px' }}>RIMUOVI</button>
+                            </div>
+                          )
+                        })}
+                      </div>
+
+                      <div className="adaptive-status" style={{ marginTop: '9px' }}>
+                        <small className="small-label">🏆 VERDETTO CONFRONTO</small>
+                        <strong style={{ display: 'block', marginTop: '4px' }}>{winner.name}</strong>
+                        <p className="tip" style={{ margin: '4px 0 0', lineHeight: 1.6 }}>
+                          È il profilo con il miglior Chirurgo Score nel confronto attuale: {scoreOutOf10(chirurgoScore(winner).total)}/10, MAX {calculateDynamicMax(winner)} e titolarità stimata {estimatedStarterPct(winner)}%.
+                          {!sameRole ? ' Attenzione: stai confrontando ruoli diversi, quindi il verdetto considera anche bisogno di reparto, strategia e budget.' : ' Essendo giocatori dello stesso ruolo, il confronto è particolarmente utile per decidere su chi investire.'}
+                        </p>
+                      </div>
+                    </>
+                  )}
+                </div>
+              )
+            })()}
           </section>
         </>
       )}

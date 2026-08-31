@@ -1,0 +1,17 @@
+{
+  "season": "2026-27",
+  "schemaVersion": "2.0",
+  "modelVersion": "2.0.0",
+  "updatedAt": "2026-08-31T00:00:00+02:00",
+  "datasets": {
+    "players": {"updatedAt": null, "source": null},
+    "fantacalcio": {"updatedAt": null, "source": null},
+    "market": {"updatedAt": null, "source": null},
+    "stats": {"updatedAt": null, "source": null},
+    "advancedStats": {"updatedAt": null, "source": null},
+    "injuries": {"updatedAt": null, "source": null},
+    "lineups": {"updatedAt": null, "source": null},
+    "fixtures": {"updatedAt": null, "source": null},
+    "editorial": {"updatedAt": null, "source": null}
+  }
+}

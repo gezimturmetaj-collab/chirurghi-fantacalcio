@@ -1,6 +1,10 @@
 import { useEffect, useMemo, useState } from 'react'
 import './App.css'
 import { players, type Player as BasePlayer, type Role } from './data/players'
+import { DataManager } from './services/dataManager'
+import { UpdateManager, freshnessFor, loadManifest } from './services/updateManager'
+import { createUserBackup, downloadJson, migrateLegacyStorage, restoreUserBackup, saveAuctionMirror } from './services/storageManager'
+import type { DatasetName, UserBackup } from './data/schema'
 
 type Player = BasePlayer & {
   bonus?: number | null
@@ -39,6 +43,7 @@ type WishlistItem = {
   playerKey: string
   priority: number
   comment?: string
+  starred?: boolean
 }
 
 type PlayerUpdateData = {
@@ -62,6 +67,7 @@ type PlayerUpdateData = {
   recoveryTime?: string | null
   lastUpdated?: string | null
   appearances?: number | null
+  averageRating?: number | null
   starts?: number | null
   minutes?: number | null
   goals?: number | null
@@ -113,7 +119,7 @@ const BASE_BUDGET = 500
 const STORAGE_KEY = 'fantacalcio-auction-state-v1'
 const DATA_UPDATE_KEY = 'fantacalcio-data-update-v1'
 const DATA_UPDATE_META_KEY = 'fantacalcio-data-update-meta-v1'
-const UPDATE_ENDPOINT = '/data/fantacalcio-update.json'
+const UPDATE_ENDPOINT = 'https://celebrated-fox-b05fdb.netlify.app/.netlify/functions/fantacalcio-update'
 
 type SavedAuction = {
   setupComplete?: boolean
@@ -392,15 +398,15 @@ function PlayerPhoto({
 const APP_THEME_CSS = `
   :root {
     color-scheme: dark;
-    --app-bg: #070b14;
-    --app-bg-2: #0b1220;
-    --surface: rgba(17, 25, 40, .92);
-    --surface-2: rgba(22, 32, 50, .88);
-    --surface-3: #121c2d;
-    --line: rgba(148, 163, 184, .14);
-    --line-strong: rgba(148, 163, 184, .24);
+    --app-bg: #111827;
+    --app-bg-2: #172033;
+    --surface: rgba(29, 41, 61, .94);
+    --surface-2: rgba(37, 51, 74, .92);
+    --surface-3: #22304a;
+    --line: rgba(166, 190, 224, .20);
+    --line-strong: rgba(166, 190, 224, .34);
     --text: #f8fafc;
-    --muted: #8b9ab0;
+    --muted: #aab9cf;
     --green: #32d583;
     --green-soft: rgba(50, 213, 131, .12);
     --blue: #4da3ff;
@@ -428,7 +434,7 @@ const APP_THEME_CSS = `
     background:
       radial-gradient(circle at 50% -10%, rgba(77,163,255,.13), transparent 34%),
       radial-gradient(circle at 100% 24%, rgba(155,140,255,.08), transparent 28%),
-      linear-gradient(180deg, #080d17 0%, #070b14 45%, #060910 100%);
+      linear-gradient(180deg, #17233a 0%, #111827 48%, #0f172a 100%);
     color: var(--text);
     -webkit-font-smoothing: antialiased;
   }
@@ -460,7 +466,7 @@ const APP_THEME_CSS = `
     border-radius: var(--radius-xl) !important;
     background:
       radial-gradient(circle at 100% 0%, rgba(77,163,255,.20), transparent 42%),
-      linear-gradient(145deg, rgba(18,29,48,.96), rgba(11,17,29,.98)) !important;
+      linear-gradient(145deg, rgba(39,55,82,.97), rgba(24,35,55,.98)) !important;
     box-shadow: var(--shadow);
   }
 
@@ -516,7 +522,7 @@ const APP_THEME_CSS = `
     padding: 15px !important;
     border: 1px solid var(--line) !important;
     border-radius: var(--radius-xl) !important;
-    background: linear-gradient(145deg, rgba(17,25,40,.93), rgba(12,18,30,.96)) !important;
+    background: linear-gradient(145deg, rgba(31,45,68,.96), rgba(23,34,53,.97)) !important;
     box-shadow: 0 10px 32px rgba(0,0,0,.17);
   }
 
@@ -1641,10 +1647,58 @@ const APP_THEME_CSS = `
     to { transform: rotate(360deg); }
   }
 
+
+  /* FINAL DESIGN — LIGHT VIBRANT */
+  :root {
+    color-scheme: light;
+    --app-bg: #f4f8ff;
+    --app-bg-2: #eef4ff;
+    --surface: rgba(255,255,255,.94);
+    --surface-2: rgba(249,251,255,.96);
+    --surface-3: #ffffff;
+    --line: rgba(49,76,135,.13);
+    --line-strong: rgba(49,76,135,.22);
+    --text: #14213d;
+    --muted: #64748b;
+  }
+  html { background: #f4f8ff !important; }
+  body { background: radial-gradient(circle at 8% 0%,rgba(0,194,255,.18),transparent 28%), radial-gradient(circle at 96% 10%,rgba(139,92,246,.16),transparent 30%), radial-gradient(circle at 50% 100%,rgba(255,183,3,.12),transparent 30%), linear-gradient(180deg,#f8fbff,#eef5ff) !important; color:#14213d !important; }
+  .app { color:#14213d !important; }
+  .topbar { background: linear-gradient(135deg,#ffffff 0%,#eef8ff 48%,#f5efff 100%) !important; border-color:rgba(58,102,190,.16) !important; box-shadow:0 16px 42px rgba(58,91,150,.12) !important; }
+  .topbar h1 { background:linear-gradient(90deg,#087fdb,#6d42df,#e93f93) !important; -webkit-background-clip:text !important; background-clip:text !important; color:transparent !important; }
+  .eyebrow { color:#087fdb !important; }
+  .section { background:rgba(255,255,255,.91) !important; border-color:rgba(58,91,150,.12) !important; box-shadow:0 10px 30px rgba(70,94,140,.09) !important; }
+  .section:nth-of-type(3n+1){border-top:3px solid #25b8e8 !important}.section:nth-of-type(3n+2){border-top:3px solid #8b5cf6 !important}.section:nth-of-type(3n){border-top:3px solid #ffb703 !important}
+  .section-title,.main-card strong,.target-card strong,.purchase-player strong { color:#14213d !important; }
+  .main-card,.target-card,.recommendation-main,.role-budget-card,.purchase-row,.recommendation-item,.roster-summary>div { background:linear-gradient(145deg,rgba(255,255,255,.98),rgba(245,249,255,.96)) !important; border-color:rgba(58,91,150,.12) !important; box-shadow:none !important; }
+  .stat,.decision-grid>div,.dynamic-info-grid>div,.adaptive-comparison>div { background:#f4f8ff !important; border-color:rgba(58,91,150,.12) !important; }
+  .stat span,.small-label,label { color:#64748b !important; }
+  .stat strong { color:#172554 !important; }
+  .highlight-stat { background:linear-gradient(135deg,#dffbf0,#e9fff6) !important; border-color:rgba(16,185,129,.22) !important; }
+  .highlight-stat strong { color:#07875e !important; }
+  .recommendation-score { background:linear-gradient(135deg,#efe8ff,#e8f1ff) !important; border-color:rgba(124,58,237,.20) !important; }
+  .recommendation-score strong { color:#6d28d9 !important; }
+  .tip,.description,.recommendation-reason { color:#5d6b82 !important; }
+  input,select,textarea { background:#ffffff !important; color:#14213d !important; border-color:rgba(58,91,150,.18) !important; }
+  input::placeholder,textarea::placeholder { color:#94a3b8 !important; }
+  input:focus,select:focus,textarea:focus { border-color:#22aee8 !important; box-shadow:0 0 0 3px rgba(34,174,232,.12) !important; }
+  .primary-button,.suggested-target-button { background:linear-gradient(135deg,#13c7e8,#3478f6,#7c3aed) !important; color:white !important; box-shadow:0 10px 24px rgba(52,120,246,.20) !important; }
+  .app-nav { background:rgba(255,255,255,.94) !important; border-color:rgba(58,91,150,.13) !important; box-shadow:0 12px 34px rgba(70,94,140,.14) !important; }
+  .app-nav button { color:#52617a !important; }
+  .app-nav button[style*="rgba"] { color:#14213d !important; }
+  .setup-badge,.purchase-role { background:#eaf4ff !important; color:#1769c2 !important; border-color:rgba(23,105,194,.16) !important; }
+  .message { background:#edf2ff !important; color:#3949ab !important; }
+  .back-button { background:#f4f7fb !important; color:#52617a !important; }
+
 `
 
 function App() {
-  const saved = useMemo(() => loadSavedAuction(), [])
+  const saved = useMemo(() => {
+    migrateLegacyStorage()
+    return loadSavedAuction()
+  }, [])
+  const phase1DataManager = useMemo(() => new DataManager(players), [])
+  const phase1UpdateManager = useMemo(() => new UpdateManager(phase1DataManager), [phase1DataManager])
 
   const [view, setView] = useState<ViewMode>('war')
   const [setupComplete, setSetupComplete] = useState(saved.setupComplete ?? false)
@@ -1661,6 +1715,8 @@ function App() {
   const [alertsOpen, setAlertsOpen] = useState(false)
   const [comparisonOpen, setComparisonOpen] = useState(false)
   const [chirurgoOpen, setChirurgoOpen] = useState(true)
+  const [commandCallRole, setCommandCallRole] = useState<Role>('A')
+  const [commandDecoyRole, setCommandDecoyRole] = useState<Role>('A')
   const [simulatorOpen, setSimulatorOpen] = useState(false)
   const [expandedSuggestionKey, setExpandedSuggestionKey] = useState<string | null>(null)
   const [wishlist, setWishlist] = useState<WishlistItem[]>(saved.wishlist ?? [])
@@ -1676,6 +1732,8 @@ function App() {
   const [updateStatus, setUpdateStatus] = useState<'idle' | 'updating' | 'success' | 'error'>('idle')
   const [updateError, setUpdateError] = useState('')
   const [updateChangesOpen, setUpdateChangesOpen] = useState(false)
+  const [dataManifest, setDataManifest] = useState(() => loadManifest())
+  const [phase1ChangeCount, setPhase1ChangeCount] = useState(() => phase1UpdateManager.getLastChanges().length)
   const [warRoleChosen, setWarRoleChosen] = useState(false)
   const [warCallChosen, setWarCallChosen] = useState(false)
   const [selectedName, setSelectedName] = useState('')
@@ -1716,6 +1774,7 @@ function App() {
     try {
       const serialized = JSON.stringify(state)
       localStorage.setItem(STORAGE_KEY, serialized)
+      saveAuctionMirror(state)
 
       const verification = localStorage.getItem(STORAGE_KEY)
       if (verification !== serialized) throw new Error('Verifica salvataggio fallita')
@@ -1739,6 +1798,10 @@ function App() {
   ])
 
   useEffect(() => {
+    phase1UpdateManager.loadManifestFromUrl().then(setDataManifest).catch(() => undefined)
+  }, [phase1UpdateManager])
+
+  useEffect(() => {
     if (view === 'report') {
       setView('squad')
       setSquadReportOpen(true)
@@ -1756,6 +1819,28 @@ function App() {
       window.removeEventListener('online', handleOnline)
       window.removeEventListener('offline', handleOffline)
     }
+  }, [])
+
+  // FASE 2A: aggiornamento dati automatico in background.
+  // Controlla all'apertura e poi ogni ora senza ricaricare la War Room durante l'asta.
+  useEffect(() => {
+    const ONE_HOUR = 60 * 60 * 1000
+    const check = () => {
+      if (!navigator.onLine) return
+      try {
+        const raw = localStorage.getItem(DATA_UPDATE_META_KEY)
+        const meta = raw ? JSON.parse(raw) as UpdateMeta : null
+        const downloaded = meta?.downloadedAt ? new Date(meta.downloadedAt).getTime() : 0
+        if (!downloaded || Date.now() - downloaded >= ONE_HOUR) {
+          void runDataUpdate({ silent: true, reload: false })
+        }
+      } catch {
+        void runDataUpdate({ silent: true, reload: false })
+      }
+    }
+    const timer = window.setInterval(check, ONE_HOUR)
+    window.setTimeout(check, 1500)
+    return () => window.clearInterval(timer)
   }, [])
 
   const multiplier = startingBudget / BASE_BUDGET
@@ -2073,7 +2158,8 @@ function App() {
   }
 
   function calculateDynamicMax(player: Player) {
-    const dbMax = scaledDbMax(player) * strategyMaxMultiplier(player)
+    const starMultiplier = wishlistItemFor(player)?.starred ? 1.08 : 1
+    const dbMax = scaledDbMax(player) * strategyMaxMultiplier(player) * starMultiplier
     return Math.max(
       0,
       Math.floor(Math.min(dbMax, calculateStructuralMax(player)))
@@ -2718,6 +2804,7 @@ function App() {
     const update = dataUpdateFor(player)
     return {
       appearances: update?.appearances ?? null,
+      averageRating: update?.averageRating ?? null,
       starts: update?.starts ?? null,
       minutes: update?.minutes ?? null,
       goals: update?.goals ?? null,
@@ -2795,15 +2882,43 @@ function App() {
     return { action, max, market, score, pressure, reasons }
   }
 
-  const opportunityRadar = availablePlayers
-    .map((player) => ({ player, score: opportunityScore(player) }))
-    .sort((a, b) => b.score - a.score)
-    .slice(0, 5)
+  function commandCallScore(player: Player) {
+    return specificSuggestionScore(player, 'top') + (isStarred(player) ? 28 : 0)
+  }
 
-  const nextCallCandidate = opportunityRadar[0] ?? null
+  const nextCallCandidate = availablePlayers
+    .filter((player) => player.role === commandCallRole)
+    .map((player) => ({ player, score: commandCallScore(player) }))
+    .sort((a, b) => b.score - a.score)[0] ?? null
+
   const bestDecoyCandidate = availablePlayers
+    .filter((player) => player.role === commandDecoyRole)
+    .filter((player) => !isStarred(player))
     .map((player) => ({ player, score: calculateDecoyScore(player) }))
     .sort((a, b) => b.score - a.score)[0] ?? null
+
+  function commandCallWhy(player: Player) {
+    const wish = wishlistItemFor(player)
+    const roleLeft = roleRemaining(player.role)
+    const market = getMarket(player)
+    const max = calculateDynamicMax(player)
+    const starter = estimatedStarterPct(player)
+    const parts = [
+      wish?.starred ? '★ È uno dei tuoi obiettivi prioritari' : `È il profilo ${player.role} più coerente con la situazione attuale`,
+      `${roleLeft} slot del ruolo ancora liberi`,
+      `titolarità stimata ${starter}%`,
+      `mercato ${market} e MAX sostenibile ${max}`,
+    ]
+    if (player.penalties) parts.push('ha priorità anche per i rigori')
+    if (player.setPieces) parts.push('porta calci piazzati')
+    return `${parts.join(' · ')}. Chiamarlo ora serve a controllare il timing: se il prezzo resta nella fascia sostenibile puoi attaccare; se sale troppo, fai spendere gli altri senza compromettere il budget protetto per gli obiettivi con ★.`
+  }
+
+  function commandDecoyWhy(player: Player) {
+    const temp = roleMarketTemperature(player.role)
+    const market = getMarket(player)
+    return `Non è marcato ★ e quindi può essere sacrificato come leva d'asta. Ha mercato ${market}; ${temp.sample >= 2 ? `il reparto è ${temp.label.toLowerCase()} (${temp.pct > 0 ? '+' : ''}${temp.pct}%)` : 'il reparto ha ancora pochi prezzi registrati'}. L'obiettivo è far uscire crediti ai rivali interessati al ruolo, conservando il tuo budget per i giocatori prioritari.`
+  }
 
   function formatLiveStat(value: number | null | undefined, digits = 0) {
     if (value === null || value === undefined || Number.isNaN(value)) return '—'
@@ -3276,13 +3391,16 @@ function App() {
     return wishlist.find((item) => item.playerKey === playerKey(player))
   }
 
+  function isStarred(player: Player) {
+    return wishlistItemFor(player)?.starred === true
+  }
+
   function wishlistPriorityBonus(player: Player) {
     const item = wishlistItemFor(player)
     if (!item) return 0
-
-    // Priorità 1 è la più alta. La wishlist orienta i suggerimenti,
-    // ma non cancella qualità, categoria e compatibilità con la rosa.
-    return Math.max(3, 17 - (Math.max(1, Math.min(20, item.priority)) - 1) * 0.75)
+    const priorityBonus = Math.max(3, 17 - (Math.max(1, Math.min(20, item.priority)) - 1) * 0.75)
+    // La stella è un obiettivo d'asta: pesa in tutti i suggerimenti senza superare i limiti strutturali.
+    return priorityBonus + (item.starred ? 24 : 0)
   }
 
   function specificSuggestionScore(player: Player, category: SuggestionCategory) {
@@ -3301,7 +3419,9 @@ function App() {
     const wish = wishlistItemFor(player)
 
     if (wish) {
-      reasons.unshift(`È nella tua MY TEAM con priorità ${wish.priority}: il motore lo considera esplicitamente tra i tuoi obiettivi.`)
+      reasons.unshift(wish.starred
+        ? `★ OBIETTIVO PRIORITARIO: è marcato con la stella. Il piano d'asta protegge budget e timing per aumentare le probabilità di prenderlo senza sforare il MAX sostenibile.`
+        : `È nella tua MY TEAM con priorità ${wish.priority}: il motore lo considera esplicitamente tra i tuoi obiettivi.`)
     }
 
     const categoryIntro =
@@ -3438,6 +3558,12 @@ function App() {
     )
   }
 
+  function toggleWishlistStar(key: string) {
+    setWishlist((current) =>
+      current.map((item) => item.playerKey === key ? { ...item, starred: !item.starred } : item)
+    )
+  }
+
   function myTeamComment(player: Player) {
     return wishlistItemFor(player)?.comment?.trim() || ''
   }
@@ -3507,16 +3633,21 @@ function App() {
     }
   }
 
-  async function runDataUpdate() {
+  async function runDataUpdate(options: { silent?: boolean; reload?: boolean } = {}) {
+    const silent = options.silent === true
+    const shouldReload = options.reload !== false
     if (!navigator.onLine) {
+      if (silent) return
       setUpdateStatus('error')
       setUpdateError('Nessuna connessione. L’app continua a usare l’ultimo database e la versione già salvati sul dispositivo.')
       return
     }
 
-    setUpdateStatus('updating')
-    setUpdateError('')
-    setUpdateChangesOpen(false)
+    if (!silent) {
+      setUpdateStatus('updating')
+      setUpdateError('')
+      setUpdateChangesOpen(false)
+    }
 
     try {
       const response = await fetch(`${UPDATE_ENDPOINT}?t=${Date.now()}`, {
@@ -3526,7 +3657,14 @@ function App() {
       })
 
       if (!response.ok) {
-        throw new Error(`Server aggiornamenti non disponibile (${response.status}).`)
+        let detail = ''
+        try {
+          const errorPayload = await response.json() as { error?: string }
+          detail = errorPayload?.error ? ` ${errorPayload.error}` : ''
+        } catch {
+          detail = ''
+        }
+        throw new Error(`Server aggiornamenti non disponibile (${response.status}).${detail}`)
       }
 
       const payload = (await response.json()) as UpdatePayload
@@ -3553,6 +3691,16 @@ function App() {
         playerCount: normalized.length,
       }
 
+      const phase1Result = phase1UpdateManager.applyLegacyPayload({
+        version: payload.version,
+        generatedAt: payload.generatedAt,
+        sourceLabel: payload.sourceLabel,
+        players: normalized,
+        changes: payload.changes,
+      })
+      setDataManifest(phase1Result.manifest)
+      setPhase1ChangeCount(phase1Result.changes.length)
+
       localStorage.setItem(DATA_UPDATE_KEY, JSON.stringify(normalized))
       localStorage.setItem(DATA_UPDATE_META_KEY, JSON.stringify(meta))
 
@@ -3560,8 +3708,9 @@ function App() {
       setUpdateMeta(meta)
       setUpdateChanges(payload.changes ?? [])
 
+      if (!silent) setUpdateStatus('success')
+      if (!shouldReload) return
       await refreshApplicationVersion()
-      setUpdateStatus('success')
 
       window.setTimeout(() => {
         const url = new URL(window.location.href)
@@ -3569,13 +3718,40 @@ function App() {
         window.location.replace(url.toString())
       }, 700)
     } catch (error) {
-      setUpdateStatus('error')
-      setUpdateError(
-        error instanceof Error
-          ? error.message
-          : 'Aggiornamento non riuscito. Rimangono attivi l’ultimo database e l’ultima versione locale.'
-      )
+      if (!silent) {
+        setUpdateStatus('error')
+        setUpdateError(
+          error instanceof Error
+            ? error.message
+            : 'Aggiornamento non riuscito. Rimangono attivi l’ultimo database e l’ultima versione locale.'
+        )
+      }
     }
+  }
+
+  function exportPhase1Backup() {
+    const backup = createUserBackup()
+    const date = new Date().toISOString().slice(0, 10)
+    downloadJson(`fantawarroom-backup-${date}.json`, backup)
+  }
+
+  function importPhase1Backup() {
+    const input = document.createElement('input')
+    input.type = 'file'
+    input.accept = 'application/json,.json'
+    input.onchange = async () => {
+      const file = input.files?.[0]
+      if (!file) return
+      try {
+        const backup = JSON.parse(await file.text()) as UserBackup
+        restoreUserBackup(backup)
+        window.alert('Backup ripristinato. L’app verrà ricaricata.')
+        window.location.reload()
+      } catch {
+        window.alert('Backup non valido o illeggibile.')
+      }
+    }
+    input.click()
   }
 
   function clearDownloadedData() {
@@ -4726,11 +4902,6 @@ function App() {
     const purchase = purchases[index]
     if (!purchase) return
 
-    const confirmed = window.confirm(
-      `Annullare l'acquisto di ${purchase.player.name} a ${purchase.price}?`
-    )
-    if (!confirmed) return
-
     setPurchases((current) =>
       current.filter((_, purchaseIndex) => purchaseIndex !== index)
     )
@@ -4741,12 +4912,6 @@ function App() {
   function undoRivalPurchase(index: number) {
     const sale = rivalSales[index]
     if (!sale) return
-
-    const rivalName = activeRivals[sale.rivalId] ?? `Rivale ${sale.rivalId + 1}`
-    const confirmed = window.confirm(
-      `Annullare ${sale.player.name} assegnato a ${rivalName} per ${sale.price}?`
-    )
-    if (!confirmed) return
 
     setRivalSales((current) =>
       current.filter((_, saleIndex) => saleIndex !== index)
@@ -5000,210 +5165,6 @@ function App() {
                 alignItems: 'center',
               }}
             >
-              <div className="section-title" style={{ marginBottom: 0 }}>LA MIA ROSA
-              </div>
-              <button
-                type="button"
-                style={smallChoiceStyle(warRosterOpen)}
-                onClick={() => setWarRosterOpen((value) => !value)}
-              >
-                {warRosterOpen ? 'CHIUDI' : 'VEDI ROSA'}
-              </button>
-            </div>
-
-            <div className="roster-summary" style={{ marginTop: '9px' }}>
-              {roles.map((item) => (
-                <div key={`war-roster-${item}`}>
-                  <span>{item}</span>
-                  <strong>{roleCount(item)}/{slotLimits[item]}</strong>
-                  <small>{roleRemaining(item)} liberi</small>
-                </div>
-              ))}
-            </div>
-
-            {warRosterOpen && (
-              <div style={{ marginTop: '10px' }}>
-                {purchases.length === 0 ? (
-                  <div className="main-card">
-                    <strong>Rosa ancora vuota</strong>
-                    <p className="tip">Gli acquisti compariranno qui durante l’asta.</p>
-                  </div>
-                ) : (
-                  <div className="purchases">
-                    {purchases.map((purchase, index) => (
-                      <div
-                        className="purchase-row"
-                        key={`war-purchase-${purchase.player.name}-${index}`}
-                      >
-                        <span className="purchase-role">{purchase.player.role}</span>
-                        <PlayerPhoto player={purchase.player} size={34} />
-                        <div className="purchase-player">
-                          <strong>{purchase.player.name}</strong>
-                          <small>{purchase.player.team}</small>
-                        </div>
-                        <div className="purchase-price">
-                          <small>PREZZO</small>
-                          <strong>{purchase.price}</strong>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {purchases.length > 0 && (
-                  <button
-                    type="button"
-                    className="undo-button"
-                    onClick={undoLastPurchase}
-                  >
-                    ↶ ANNULLA ULTIMO ACQUISTO
-                  </button>
-                )}
-              </div>
-            )}
-          </section>
-
-          <section className="section" style={{ padding: '11px 12px' }}>
-            <div className="section-title">STRATEGIA</div>
-
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: '1fr auto',
-                gap: '8px',
-                alignItems: 'end',
-              }}
-            >
-              <div>
-                <label style={{ marginTop: 0 }}>ATTIVA</label>
-                <select
-                  value={strategy}
-                  onChange={(event) => setStrategy(event.target.value as Strategy)}
-                >
-                  {(Object.keys(strategies) as Strategy[]).map((item) => (
-                    <option key={`war-strategy-${item}`} value={item}>
-                      {strategies[item].name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <button
-                type="button"
-                style={smallChoiceStyle(strategyDetailsOpen)}
-                onClick={() => setStrategyDetailsOpen((value) => !value)}
-              >
-                {strategyDetailsOpen ? 'CHIUDI' : 'DETTAGLI'}
-              </button>
-            </div>
-
-            <div
-              style={{
-                marginTop: '8px',
-                display: 'flex',
-                justifyContent: 'space-between',
-                gap: '8px',
-                alignItems: 'center',
-              }}
-            >
-              <small style={{ color: '#7f93ad' }}>
-                {strategy === 'free'
-                  ? '∞ Nessun vincolo strategico nei suggerimenti'
-                  : `P ${plannedRoleBudget('P')} · D ${plannedRoleBudget('D')} · C ${plannedRoleBudget('C')} · A ${plannedRoleBudget('A')}`}
-              </small>
-              <span className="setup-badge">{strategyStatus.label}</span>
-            </div>
-
-            {strategyDetailsOpen && (
-              <div style={{ marginTop: '11px' }}>
-                <p className="tip">{currentStrategy.description}</p>
-
-                <div style={{ overflowX: 'auto', marginTop: '8px' }}>
-                  <div style={{ minWidth: '510px', display: 'grid', gap: '5px' }}>
-                    {(Object.keys(strategies) as Strategy[]).map((item) => {
-                      const plan = strategies[item]
-                      return (
-                        <button
-                          type="button"
-                          key={`strategy-budget-preview-${item}`}
-                          onClick={() => setStrategy(item)}
-                          style={{
-                            display: 'grid',
-                            gridTemplateColumns: '150px repeat(4,1fr)',
-                            gap: '5px',
-                            alignItems: 'center',
-                            padding: '8px',
-                            border: strategy === item ? '1px solid rgba(77,163,255,.45)' : '1px solid rgba(148,163,184,.12)',
-                            borderRadius: '11px',
-                            background: strategy === item ? 'rgba(77,163,255,.10)' : 'rgba(11,18,31,.6)',
-                            color: '#fff',
-                            textAlign: 'left',
-                            cursor: 'pointer',
-                          }}
-                        >
-                          <strong style={{ fontSize: '8px' }}>{plan.name}</strong>
-                          {roles.map((r) => (
-                            <span key={`${item}-${r}`} style={{ textAlign: 'center', fontSize: '8px', color: '#9fb0c6' }}>
-                              {item === 'free' ? `${r} FREE` : `${r} ${scaleValue(plan.budgets[r])}`}
-                            </span>
-                          ))}
-                        </button>
-                      )
-                    })}
-                  </div>
-                </div>
-
-                <div className={`adaptive-status ${strategyStatus.className}`} style={{ marginTop: '10px' }}>
-                  <div>
-                    <span>{currentStrategy.name}</span>
-                    <strong>{strategyStatus.label}</strong>
-                  </div>
-                  <p>{strategyStatus.text}</p>
-                </div>
-
-                {strategy !== 'free' && (
-                  <div className="role-budget-grid" style={{ marginTop: '10px' }}>
-                    {roles.map((item) => (
-                      <div className="role-budget-card" key={`adaptive-${item}`}>
-                        <div className="role-budget-header">
-                          <span>{item}</span>
-                          <strong>{Math.round(adaptiveRoleBudget(item))}</strong>
-                        </div>
-                        <div className="role-budget-details">
-                          <span>Piano {plannedRoleBudget(item)}</span>
-                          <span>Speso {spentByRole(item)}</span>
-                        </div>
-                        <div className="adaptive-comparison">
-                          <div>
-                            <span>RESIDUO ORIG.</span>
-                            <strong>{Math.round(originalRoleRemaining(item))}</strong>
-                          </div>
-                          <div>
-                            <span>NUOVO BUDGET</span>
-                            <strong>{Math.round(adaptiveRoleBudget(item))}</strong>
-                          </div>
-                        </div>
-                        <div className="role-budget-bottom">
-                          <span>{roleRemaining(item)} slot</span>
-                          <strong>{adaptiveAverage(item).toFixed(1)} cr/slot</strong>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-          </section>
-
-          <section className="section" style={{ padding: '11px 12px' }}>
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: '1fr auto',
-                gap: '8px',
-                alignItems: 'center',
-              }}
-            >
               <div>
                 <div className="section-title" style={{ marginBottom: '3px' }}>AVVISI
                 </div>
@@ -5267,533 +5228,115 @@ function App() {
             )}
           </section>
 
-          <section className="section" style={{ padding: '11px 12px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', gap: '8px', alignItems: 'center' }}>
-              <div><div className="section-title" style={{ marginBottom: '2px' }}>CENTRO COMANDO</div><small style={{ color: '#7f93ad' }}>Opportunity Radar · prossima chiamata · mercato live</small></div>
-              <button type="button" style={smallChoiceStyle(chirurgoOpen)} onClick={() => setChirurgoOpen((v) => !v)}>{chirurgoOpen ? 'CHIUDI' : 'APRI'}</button>
-            </div>
-            {chirurgoOpen && <div style={{ marginTop: '9px', display: 'grid', gap: '7px' }}>
-              {nextCallCandidate && <div className="main-card" style={{ border: '1px solid rgba(77,163,255,.24)' }}>
-                <small style={{ color: '#88c3ff' }}>🎙️ PROSSIMA CHIAMATA</small>
-                <strong style={{ display: 'block', marginTop: '3px' }}>{nextCallCandidate.player.name} · {nextCallCandidate.player.team}</strong>
-                <p className="tip" style={{ marginBottom: 0 }}>Opportunity {nextCallCandidate.score}/100 · mercato {getMarket(nextCallCandidate.player)} · MAX {calculateGameTheoryMax(nextCallCandidate.player, Math.max(1, getMarket(nextCallCandidate.player)))}.</p>
-              </div>}
-              {bestDecoyCandidate && <div className="main-card"><small style={{ color: '#ffd37a' }}>🎣 ESCA CONSIGLIATA</small><strong style={{ display: 'block', marginTop: '3px' }}>{bestDecoyCandidate.player.name}</strong><p className="tip" style={{ marginBottom: 0 }}>Indice esca {scoreOutOf10(bestDecoyCandidate.score)}/10 · utile per assorbire budget ai rivali che devono ancora completare il ruolo.</p></div>}
-              <div className="main-card">
-                <small className="small-label">🔥 OPPORTUNITY RADAR</small>
-                <div style={{ display: 'grid', gap: '5px', marginTop: '6px' }}>{opportunityRadar.map(({ player, score }) => <button type="button" key={`radar-${playerKey(player)}`} onClick={() => { setSelectedName(player.name); setPlayerSearch(player.name) }} style={{ display: 'grid', gridTemplateColumns: '28px 1fr auto', gap: '7px', alignItems: 'center', padding: '7px', border: '1px solid rgba(148,163,184,.12)', borderRadius: '9px', background: 'rgba(11,18,31,.65)', color: '#fff', textAlign: 'left' }}><span>{player.role}</span><span><strong>{player.name}</strong><small style={{ display: 'block', color: '#7f93ad' }}>{player.team} · mercato {getMarket(player)}</small></span><strong>{score}</strong></button>)}</div>
+          <section className="section" style={{ padding: '12px' }}>
+            <div className="section-title">CENTRO COMANDO</div>
+            <p className="tip" style={{ marginTop: '-2px' }}>Due decisioni rapide: chi chiamare e quale esca usare. Scegli il ruolo.</p>
+
+            <div className="main-card" style={{ marginTop: '9px' }}>
+              <small className="small-label">🎙️ CHIAMATA SUGGERITA</small>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '5px', marginTop: '7px' }}>
+                {roles.map((r) => <button type="button" key={`call-role-${r}`} style={smallChoiceStyle(commandCallRole === r)} onClick={() => setCommandCallRole(r)}>{r}</button>)}
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '5px' }}>{roles.map((r) => { const temp = roleMarketTemperature(r); return <div className="stat" key={`temp-${r}`}><span>{r} · {temp.label}</span><strong>{temp.sample >= 2 ? `${temp.pct > 0 ? '+' : ''}${temp.pct}%` : '—'}</strong></div> })}</div>
-            </div>}
+              {nextCallCandidate ? <div style={{ marginTop: '10px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', gap: '8px', alignItems: 'center' }}>
+                  <div><strong style={{ fontSize: '15px' }}>{isStarred(nextCallCandidate.player) ? '★ ' : ''}{nextCallCandidate.player.name}</strong><small style={{ display: 'block' }}>{nextCallCandidate.player.team} · {nextCallCandidate.player.role}</small></div>
+                  <div className="recommendation-score"><span>MAX</span><strong>{calculateDynamicMax(nextCallCandidate.player)}</strong></div>
+                </div>
+                <p className="tip" style={{ marginBottom: 0, lineHeight: 1.65 }}><strong>Perché:</strong> {commandCallWhy(nextCallCandidate.player)}</p>
+              </div> : <p className="tip">Nessun giocatore disponibile nel ruolo.</p>}
+            </div>
+
+            <div className="main-card" style={{ marginTop: '8px' }}>
+              <small className="small-label">🎣 ESCA SUGGERITA</small>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '5px', marginTop: '7px' }}>
+                {roles.map((r) => <button type="button" key={`decoy-role-${r}`} style={smallChoiceStyle(commandDecoyRole === r)} onClick={() => setCommandDecoyRole(r)}>{r}</button>)}
+              </div>
+              {bestDecoyCandidate ? <div style={{ marginTop: '10px' }}>
+                <strong style={{ fontSize: '15px' }}>{bestDecoyCandidate.player.name}</strong><small style={{ display: 'block' }}>{bestDecoyCandidate.player.team} · indice esca {scoreOutOf10(bestDecoyCandidate.score)}/10</small>
+                <p className="tip" style={{ marginBottom: 0, lineHeight: 1.65 }}><strong>Perché:</strong> {commandDecoyWhy(bestDecoyCandidate.player)}</p>
+              </div> : <p className="tip">Nessuna esca adatta nel ruolo: i giocatori con ★ non vengono mai usati come esca.</p>}
+            </div>
           </section>
 
           <section className="section" style={{ padding: '12px' }}>
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: '1fr auto',
-                gap: '8px',
-                alignItems: 'center',
-              }}
-            >
-              <div className="section-title" style={{ marginBottom: 0 }}>SUGGERIMENTI
-              </div>
-
-              {(warRoleChosen || warCallChosen) && (
-                <button type="button" style={smallChoiceStyle(false)} onClick={() => {
-                  resetWarChoiceFlow()
-                  setComparisonOpen(false)
-                  setExpandedSuggestionKey(null)
-                }}>
-                  ↻ RESET
-                </button>
-              )}
+            <div className="section-title">SUGGERIMENTI RAPIDI</div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5,1fr)', gap: '5px', marginTop: '8px' }}>
+              {(['ALL','P','D','C','A'] as const).map((r) => <button type="button" key={`srole-${r}`} style={smallChoiceStyle(warRoleChosen && suggestionRole === r)} onClick={() => { setSuggestionRole(r); setWarRoleChosen(true); if (!suggestionCategory) setSuggestionCategory('top'); setWarCallChosen(true) }}>{r === 'ALL' ? 'TUTTI' : r}</button>)}
             </div>
-
-            {strategy === 'free' && (
-              <small
-                style={{
-                  display: 'block',
-                  marginTop: '7px',
-                  color: '#76edaa',
-                  fontWeight: 900,
-                }}
-              >
-                ∞ FREE · nessun vincolo strategico
-              </small>
-            )}
-
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(5,1fr)',
-                gap: '5px',
-                marginTop: '11px',
-              }}
-            >
-              {(['ALL', 'P', 'D', 'C', 'A'] as const).map((item) => (
-                <button
-                  type="button"
-                  key={`suggest-role-${item}`}
-                  style={smallChoiceStyle(warRoleChosen && suggestionRole === item)}
-                  onClick={() => {
-                    setSuggestionRole(item)
-                    setWarRoleChosen(true)
-                    setWarCallChosen(false)
-                    setSuggestionCategory(null)
-                    setComparisonOpen(false)
-                    setExpandedSuggestionKey(null)
-                  }}
-                >
-                  {item === 'ALL' ? 'TUTTI' : item}
-                </button>
-              ))}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5,1fr)', gap: '5px', marginTop: '6px' }}>
+              {([['top','TOP'],['starter','TIT.'],['bet','SCOM.'],['low','LOW'],['decoy','ESCA']] as [SuggestionCategory,string][]).map(([c,label]) => <button type="button" key={`scat-${c}`} style={{ ...smallChoiceStyle(suggestionCategory === c), fontSize: '7px', paddingLeft: '3px', paddingRight: '3px' }} onClick={() => { setSuggestionCategory(c); setWarCallChosen(true); if (!warRoleChosen) setWarRoleChosen(true) }}>{label}</button>)}
             </div>
-
-            {warRoleChosen && (
-              <div
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(5,minmax(0,1fr))',
-                  gap: '5px',
-                  marginTop: '7px',
-                }}
-              >
-                {([
-                  ['top', 'TOP'],
-                  ['starter', 'TITOLARE'],
-                  ['bet', 'SCOMM.'],
-                  ['low', 'LOW'],
-                  ['decoy', 'ESCA'],
-                ] as [SuggestionCategory, string][]).map(([item, label]) => (
-                  <button
-                    type="button"
-                    key={`suggest-type-${item}`}
-                    style={{
-                      ...smallChoiceStyle(warCallChosen && suggestionCategory === item),
-                      paddingLeft: '4px',
-                      paddingRight: '4px',
-                      fontSize: '7px',
-                    }}
-                    onClick={() => {
-                      setSuggestionCategory(item)
-                      setWarCallChosen(true)
-                      setSuggestionMode(item === 'bet' ? 'bet' : item === 'decoy' ? 'decoy' : 'target')
-                      setComparisonOpen(false)
-                      setExpandedSuggestionKey(null)
-                    }}
-                  >
-                    {label}
-                  </button>
-                ))}
-              </div>
-            )}
-
-            {!warRoleChosen && (
-              <p className="tip" style={{ margin: '10px 0 0' }}>
-                Scegli un reparto per iniziare.
-              </p>
-            )}
-
-            {warRoleChosen && !warCallChosen && (
-              <p className="tip" style={{ margin: '10px 0 0' }}>
-                Ora scegli il tipo di giocatore che vuoi cercare.
-              </p>
-            )}
-
-            {warRoleChosen && warCallChosen && suggestionCategory && (
-              <div style={{ marginTop: '12px' }}>
-                <div className="section-title" style={{ marginBottom: '8px' }}>
-                  <span>TOP 3</span>SUGGERIMENTO SPECIFICO
-                </div>
-
-                {suggestionCandidates.length === 0 ? (
-                  <div className="main-card"><strong>Nessun profilo disponibile</strong></div>
-                ) : (
-                  <>
-                    <div style={{ display: 'grid', gap: '8px' }}>
-                      {suggestionCandidates.map(({ player, score }, index) => {
-                        const key = `${player.name}|${player.team}`
-                        const isOpen = expandedSuggestionKey === key
-                        const analysis = squadSpecificAnalysis(player)
-
-                        return (
-                          <div className="main-card" key={`suggestion-card-${key}`} style={{ padding: '10px' }}>
-                            <div
-                              style={{
-                                display: 'grid',
-                                gridTemplateColumns: 'auto 1fr auto',
-                                gap: '9px',
-                                alignItems: 'center',
-                              }}
-                            >
-                              <PlayerPhoto player={player} size={50} card />
-                              <div style={{ minWidth: 0 }}>
-                                <small style={{ color: '#7f93ad' }}>
-                                  #{index + 1} · {player.role} · {player.team}
-                                  {wishlistItemFor(player) && (
-                                    <span style={{ marginLeft: '6px', color: '#ff95c8', fontWeight: 950 }}>
-                                      ★ MY TEAM P{wishlistItemFor(player)?.priority}
-                                    </span>
-                                  )}
-                                </small>
-                                <strong
-                                  style={{
-                                    display: 'block',
-                                    fontSize: '14px',
-                                    overflow: 'hidden',
-                                    textOverflow: 'ellipsis',
-                                    whiteSpace: 'nowrap',
-                                  }}
-                                >
-                                  {player.name}
-                                </strong>
-                                <small style={{ color: '#9fb0c6' }}>
-                                  Tit. {estimatedStarterPct(player)}% · Mercato {getMarket(player)}
-                                </small>
-                              </div>
-                              <div className="recommendation-score" style={{ minWidth: '67px' }}>
-                                <span>SPECIFICO</span>
-                                <strong>{scoreOutOf10(Math.min(100, score))}/10</strong>
-                              </div>
-                            </div>
-
-                            <div
-                              style={{
-                                marginTop: '8px',
-                                padding: '8px 9px',
-                                borderRadius: '10px',
-                                border: '1px solid rgba(155,140,255,.18)',
-                                background: 'rgba(155,140,255,.07)',
-                              }}
-                            >
-                              <small style={{ color: '#c0b8ff', fontWeight: 900 }}>🎯 PERCHÉ</small>
-                              <p className="tip" style={{ margin: '4px 0 0' }}>
-                                {specificSuggestionHeadline(player, suggestionCategory)}
-                              </p>
-                            </div>
-
-                            <div
-                              style={{
-                                display: 'grid',
-                                gridTemplateColumns: '1fr 1fr',
-                                gap: '6px',
-                                marginTop: '8px',
-                              }}
-                            >
-                              <button
-                                type="button"
-                                style={smallChoiceStyle(isOpen)}
-                                onClick={() => setExpandedSuggestionKey(isOpen ? null : key)}
-                              >
-                                {isOpen ? 'CHIUDI ANALISI' : 'VEDI ANALISI'}
-                              </button>
-                              <button
-                                type="button"
-                                className="suggested-target-button"
-                                style={{ width: '100%', margin: 0 }}
-                                onClick={() => changePlayer(player.name)}
-                              >
-                                VALUTA
-                              </button>
-                            </div>
-
-                            {isOpen && (
-                              <div style={{ marginTop: '10px' }}>
-                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '5px' }}>
-                                  <div className="stat"><span>TITOLARITÀ</span><strong>{estimatedStarterPct(player)}%</strong></div>
-                                  <div className="stat"><span>MERCATO</span><strong>{getMarket(player)}</strong></div>
-                                  <div className="stat"><span>MAX LIVE</span><strong>{calculateDynamicMax(player)}</strong></div>
-                                  <div className="stat"><span>MV 25/26</span><strong>{player.averageRating2526 ?? '—'}</strong></div>
-                                </div>
-
-                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '7px', marginTop: '8px' }}>
-                                  <div style={{ padding: '9px', borderRadius: '11px', background: 'rgba(50,213,131,.08)', border: '1px solid rgba(50,213,131,.18)' }}>
-                                    <small style={{ color: '#76edaa' }}>PRO</small>
-                                    <p className="tip" style={{ margin: '4px 0 0' }}>{playerPro(player)}</p>
-                                  </div>
-                                  <div style={{ padding: '9px', borderRadius: '11px', background: 'rgba(255,107,122,.07)', border: '1px solid rgba(255,107,122,.17)' }}>
-                                    <small style={{ color: '#ff9ca6' }}>CONTRO</small>
-                                    <p className="tip" style={{ margin: '4px 0 0' }}>{playerContra(player)}</p>
-                                  </div>
-                                </div>
-
-                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px', marginTop: '8px' }}>
-                                  <span className="setup-badge">{player.penalties ? '✓ RIGORISTA' : '— RIGORI'}</span>
-                                  <span className="setup-badge">{player.setPieces ? '✓ PIAZZATI' : '— PIAZZATI'}</span>
-                                  <span className="setup-badge">CLUB {analysis.teamShare}%</span>
-                                  {(player.role === 'D' || player.role === 'P') && (
-                                    <span className="setup-badge">MOD {Math.round(analysis.modifier)}/100</span>
-                                  )}
-                                  {analysis.bug >= 100 && <span className="setup-badge">⚡ RUOLO BUG</span>}
-                                </div>
-
-                                <div
-                                  style={{
-                                    marginTop: '9px',
-                                    padding: '10px',
-                                    borderRadius: '11px',
-                                    border: '1px solid rgba(155,140,255,.22)',
-                                    background: 'rgba(155,140,255,.08)',
-                                  }}
-                                >
-                                  <small style={{ color: '#c0b8ff', fontWeight: 950 }}>
-                                    ANALISI SPECIFICA DELLA TUA ROSA
-                                  </small>
-                                  <p className="tip" style={{ margin: '6px 0 0', lineHeight: 1.6 }}>
-                                    {specificSuggestionExplanation(player, suggestionCategory)}
-                                  </p>
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                        )
-                      })}
-                    </div>
-
-                    <button
-                      type="button"
-                      style={{ ...smallChoiceStyle(comparisonOpen), width: '100%', marginTop: '9px' }}
-                      onClick={() => setComparisonOpen((value) => !value)}
-                    >
-                      {comparisonOpen ? '✕ CHIUDI CONFRONTO' : '⚖️ CONFRONTA I 3'}
-                    </button>
-
-                    {comparisonOpen && (
-                      <div className="main-card" style={{ marginTop: '8px', overflowX: 'auto' }}>
-                        <div style={{ minWidth: '560px' }}>
-                          <div
-                            style={{
-                              display: 'grid',
-                              gridTemplateColumns: '150px repeat(3,1fr)',
-                              gap: '6px',
-                              alignItems: 'stretch',
-                              paddingBottom: '9px',
-                              borderBottom: '1px solid rgba(77,163,255,.20)',
-                            }}
-                          >
-                            <span style={{ color: '#7f93ad', fontSize: '7px', fontWeight: 900, alignSelf: 'end' }}>
-                              GIOCATORE
-                            </span>
-
-                            {suggestionCandidates.map(({ player }) => (
-                              <div
-                                key={`compare-player-${player.name}-${player.team}`}
-                                style={{
-                                  display: 'grid',
-                                  justifyItems: 'center',
-                                  gap: '4px',
-                                  padding: '7px 5px',
-                                  border: '1px solid rgba(148,163,184,.14)',
-                                  borderRadius: '11px',
-                                  background: 'rgba(11,18,31,.72)',
-                                  textAlign: 'center',
-                                }}
-                              >
-                                <PlayerPhoto player={player} size={38} />
-                                <strong style={{ fontSize: '9px', lineHeight: 1.15 }}>{player.name}</strong>
-                                <small style={{ color: '#7f93ad', fontSize: '7px' }}>
-                                  {player.team} · {player.role}
-                                </small>
-                              </div>
-                            ))}
-
-                            {Array.from({ length: Math.max(0, 3 - suggestionCandidates.length) }).map((_, i) => (
-                              <span key={`empty-player-${i}`} />
-                            ))}
-                          </div>
-
-                          {[
-                            ['SPECIFICO ROSA', (p: Player) => `${scoreOutOf10(Math.min(100, specificSuggestionScore(p, suggestionCategory)))}/10`],
-                            ['VALUTAZIONE BASE', (p: Player) => `${scoreOutOf10(calculateTargetScore(p))}/10`],
-                            ['CLUB NELLA ROSA', (p: Player) => `${squadSpecificAnalysis(p).teamShare}%`],
-                            ['TITOLARITÀ STIM.', (p: Player) => `${estimatedStarterPct(p)}%`],
-                            ['MERCATO', (p: Player) => getMarket(p)],
-                            ['MAX LIVE', (p: Player) => calculateDynamicMax(p)],
-                            ['FIT STRATEGIA', (p: Player) => `${scoreOutOf10(calculateStrategyFit(p))}/10`],
-                            ['RIGORISTA', (p: Player) => p.penalties ? 'SÌ' : 'NO'],
-                            ['PIAZZATI', (p: Player) => p.setPieces ? 'SÌ' : 'NO'],
-                            ['MV 25/26', (p: Player) => p.averageRating2526 ?? '—'],
-                          ].map(([label, getter]) => (
-                            <div
-                              key={`suggest-compare-${label}`}
-                              style={{
-                                display: 'grid',
-                                gridTemplateColumns: '150px repeat(3,1fr)',
-                                gap: '6px',
-                                padding: '8px 0',
-                                borderBottom: '1px solid rgba(148,163,184,.12)',
-                              }}
-                            >
-                              <span style={{ color: '#7f93ad', fontSize: '7px', fontWeight: 900 }}>
-                                {String(label)}
-                              </span>
-                              {suggestionCandidates.map(({ player }) => (
-                                <strong key={`${String(label)}-${player.name}`} style={{ textAlign: 'center', fontSize: '9px' }}>
-                                  {(getter as (p: Player) => string | number)(player)}
-                                </strong>
-                              ))}
-                              {Array.from({ length: Math.max(0, 3 - suggestionCandidates.length) }).map((_, i) => (
-                                <span key={`empty-${String(label)}-${i}`} />
-                              ))}
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </>
-                )}
-              </div>
-            )}
+            {suggestionCategory && <div style={{ display: 'grid', gap: '7px', marginTop: '10px' }}>
+              {suggestionCandidates.length === 0 ? <p className="tip">Nessun profilo disponibile.</p> : suggestionCandidates.map(({player,score},index) => <div className="main-card" key={`fast-sug-${playerKey(player)}`} style={{ border: isStarred(player) ? '2px solid #ffb703' : undefined }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'auto 1fr auto', gap: '8px', alignItems: 'center' }}><PlayerPhoto player={player} size={42}/><div><small>{index+1}° · {player.role} · {player.team}</small><strong style={{ display:'block' }}>{isStarred(player) ? '★ ' : ''}{player.name}</strong></div><div className="recommendation-score"><span>MAX</span><strong>{calculateDynamicMax(player)}</strong></div></div>
+                <p className="tip" style={{ margin:'7px 0 0', lineHeight:1.55 }}><strong>Perché:</strong> {specificSuggestionExplanation(player,suggestionCategory)}</p>
+              </div>)}
+            </div>}
           </section>
 
           <section className="section">
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '8px', alignItems: 'center' }}>
-              <div className="section-title" style={{ marginBottom: 0 }}>CERCA E VALUTA
-              </div>
-              {(playerSearch || selectedName) && (
-                <button type="button" style={smallChoiceStyle(false)} onClick={resetSearchEvaluate}>↻ RESET</button>
-              )}
-            </div>
+            <div className="section-title">CERCA E VALUTA</div>
+            <div className="target-card" style={{ marginTop: '9px' }}>
+              <input type="text" placeholder="Nome o squadra..." value={playerSearch} onChange={(event) => handlePlayerSearch(event.target.value)} />
+              {playerSearch && !selectedPlayer && <div style={{ display: 'grid', gap: '5px', marginTop: '7px' }}>
+                {searchedPlayers.slice(0, 8).map((player) => <button type="button" key={`quick-${playerKey(player)}`} onClick={() => changePlayer(player.name)} style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '8px', padding: '9px', borderRadius: '11px', border: '1px solid rgba(64,92,160,.15)', background: 'rgba(255,255,255,.76)', color: '#15203a', textAlign: 'left' }}><span><strong>{isStarred(player) ? '★ ' : ''}{player.name}</strong><small style={{ display: 'block' }}>{player.team} · {player.role}</small></span><strong>{getMarket(player)}</strong></button>)}
+              </div>}
 
-            <div className="target-card" style={{ marginTop: '10px' }}>
-              <input
-                type="text"
-                placeholder="Cerca per nome o squadra..."
-                value={playerSearch}
-                onChange={(event) => handlePlayerSearch(event.target.value)}
-              />
-
-              {playerSearch && !selectedPlayer && (
-                <div style={{ display: 'grid', gap: '6px', marginTop: '9px' }}>
-                  {searchedPlayers.length === 0 ? (
-                    <p className="tip">Nessun giocatore disponibile trovato.</p>
-                  ) : (
-                    searchedPlayers.map((player) => (
-                      <button
-                        type="button"
-                        key={`quick-search-${player.name}-${player.team}`}
-                        onClick={() => changePlayer(player.name)}
-                        style={{
-                          display: 'grid',
-                          gridTemplateColumns: 'auto 1fr auto',
-                          gap: '9px',
-                          alignItems: 'center',
-                          padding: '9px',
-                          border: '1px solid rgba(148,163,184,.14)',
-                          borderRadius: '12px',
-                          background: 'rgba(11,18,31,.72)',
-                          color: '#fff',
-                          textAlign: 'left',
-                          cursor: 'pointer',
-                        }}
-                      >
-                        <PlayerPhoto player={player} size={36} />
-                        <div><strong>{player.name}</strong><small style={{ display: 'block', color: '#7f93ad' }}>{player.team} · {player.role}</small></div>
-                        <strong>{getMarket(player)}</strong>
-                      </button>
-                    ))
-                  )}
-                </div>
-              )}
-
-              {selectedPlayer && (
-                <div style={{ marginTop: '12px' }}>
-                  <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-                    <PlayerPhoto player={selectedPlayer} size={72} card />
-                    <div>
-                      <small style={{ color: '#7f93ad' }}>{selectedPlayer.role} · {selectedPlayer.team} · {selectedPlayer.tier}</small>
-                      <strong style={{ display: 'block', fontSize: '17px' }}>{selectedPlayer.name}</strong>
-                      <small>{selectedPlayer.profile ?? selectedPlayer.use ?? 'Profilo giocatore'}</small>
-                    </div>
+              {selectedPlayer && (() => {
+                const stats = playerStats(selectedPlayer)
+                const upd = dataUpdateFor(selectedPlayer)
+                const wish = wishlistItemFor(selectedPlayer)
+                const injuryLabel = upd?.injuryStatus === 'injured' ? '🔴 INFORTUNATO' : upd?.injuryStatus === 'doubt' ? '🟠 IN DUBBIO' : upd?.injuryStatus === 'recovering' ? '🟡 RECUPERO' : '🟢 DISPONIBILE'
+                return <div style={{ marginTop: '10px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'auto 1fr auto', gap: '10px', alignItems: 'center' }}>
+                    <PlayerPhoto player={selectedPlayer} size={64} card />
+                    <div><small>{selectedPlayer.role} · {selectedPlayer.team}</small><strong style={{ display: 'block', fontSize: '18px' }}>{wish?.starred ? '★ ' : ''}{selectedPlayer.name}</strong><small>{injuryLabel}</small></div>
+                    <div className="recommendation-score"><span>RATING</span><strong>{Math.round(calculateTargetScore(selectedPlayer))}</strong></div>
                   </div>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '5px', marginTop: '10px' }}>
-                    <div className="stat"><span>VALUTAZIONE</span><strong>{scoreOutOf10(calculateTargetScore(selectedPlayer))}/10</strong></div>
-                    <div className="stat"><span>TITOLARITÀ STIM.</span><strong>{estimatedStarterPct(selectedPlayer)}%</strong></div>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '5px', marginTop: '9px' }}>
                     <div className="stat"><span>MERCATO</span><strong>{getMarket(selectedPlayer)}</strong></div>
-                    <div className="stat highlight-stat"><span>MAX LIVE</span><strong>{dynamicMaxBid}</strong></div>
+                    <div className="stat highlight-stat"><span>MAX</span><strong>{calculateDynamicMax(selectedPlayer)}</strong></div>
+                    <div className="stat"><span>TIT.</span><strong>{estimatedStarterPct(selectedPlayer)}%</strong></div>
+                    <div className="stat"><span>FIT</span><strong>{scoreOutOf10(calculateStrategyFit(selectedPlayer))}</strong></div>
                   </div>
 
-                  {(() => {
-                    const ai = chirurgoAdvice(selectedPlayer, price)
-                    const sim = simulatePurchase(selectedPlayer, price)
-                    const stats = playerStats(selectedPlayer)
-                    return (
-                      <>
-                        <div className="main-card" style={{ marginTop: '9px', border: '1px solid rgba(112,214,161,.28)', background: 'rgba(40,180,120,.07)' }}>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', gap: '8px', alignItems: 'center' }}>
-                            <div><small style={{ color: '#76edaa' }}>🧠 CHIRURGO AI</small><strong style={{ display: 'block', fontSize: '16px' }}>{ai.action}</strong></div>
-                            <div style={{ textAlign: 'right' }}><small>CHIRURGO SCORE</small><strong style={{ display: 'block', fontSize: '20px' }}>{ai.score.total}/100</strong></div>
-                          </div>
-                          <p className="tip" style={{ margin: '7px 0 0' }}>MAX consigliato ora <strong>{ai.max}</strong> · {ai.reasons.join(' · ')}.</p>
-                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5,1fr)', gap: '4px', marginTop: '8px' }}>
-                            {[['BONUS', ai.score.bonus], ['TIT.', ai.score.starter], ['AFFID.', ai.score.reliability], ['VALUE', ai.score.value], ['UPSIDE', ai.score.upside]].map(([label, value]) => <div className="stat" key={String(label)}><span>{label}</span><strong>{value}</strong></div>)}
-                          </div>
-                        </div>
+                  <div className="main-card" style={{ marginTop: '8px' }}>
+                    <small className="small-label">🏥 INFORTUNI</small>
+                    <strong style={{ display: 'block', marginTop: '4px' }}>{injuryLabel}</strong>
+                    <p className="tip" style={{ margin: '4px 0 0' }}>{upd?.injury ?? 'Nessun infortunio segnalato nel feed aggiornato.'}{upd?.recoveryTime ? ` · ${upd.recoveryTime}` : ''}{upd?.expectedReturn ? ` · Rientro: ${upd.expectedReturn}` : ''}</p>
+                  </div>
 
-                        <button type="button" style={{ ...smallChoiceStyle(simulatorOpen), width: '100%', marginTop: '8px' }} onClick={() => setSimulatorOpen((value) => !value)}>🔮 SE LO COMPRO A {price}</button>
-                        {simulatorOpen && <div className="main-card" style={{ marginTop: '6px' }}>
-                          <strong>{sim.sustainable ? '✅ ACQUISTO SOSTENIBILE' : '⚠️ ACQUISTO RISCHIOSO'}</strong>
-                          <p className="tip">Budget dopo l’acquisto: {sim.remainingBudget} · slot residui: {sim.remainingSlots} · crediti realmente spendibili oltre le riserve: {sim.spendable} · rosa prevista: {sim.projected}/100.</p>
-                        </div>}
-
-                        <div className="main-card" style={{ marginTop: '8px' }}>
-                          <small className="small-label">DATI LIVE / STATISTICHE</small>
-                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '5px', marginTop: '7px' }}>
-                            <div className="stat"><span>PRES.</span><strong>{formatLiveStat(stats.appearances)}</strong></div>
-                            <div className="stat"><span>MINUTI</span><strong>{formatLiveStat(stats.minutes)}</strong></div>
-                            <div className="stat"><span>GOL</span><strong>{formatLiveStat(stats.goals)}</strong></div>
-                            <div className="stat"><span>ASSIST</span><strong>{formatLiveStat(stats.assists)}</strong></div>
-                            <div className="stat"><span>FM</span><strong>{formatLiveStat(stats.fantasyAverage, 2)}</strong></div>
-                            <div className="stat"><span>xG</span><strong>{formatLiveStat(stats.xg, 2)}</strong></div>
-                            <div className="stat"><span>xA</span><strong>{formatLiveStat(stats.xa, 2)}</strong></div>
-                            <div className="stat"><span>INF. GG</span><strong>{formatLiveStat(stats.injuryDays)}</strong></div>
-                          </div>
-                        </div>
-                      </>
-                    )
-                  })()}
-
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: '7px', marginTop: '8px' }}>
-                    <div className="main-card"><span className="small-label">MEDIA VOTO 25/26</span><strong style={{ display: 'block' }}>{selectedPlayer.averageRating2526 ?? '—'}</strong></div>
-                    <div className="main-card"><span className="small-label">FIT STRATEGIA</span><strong style={{ display: 'block' }}>{scoreOutOf10(calculateStrategyFit(selectedPlayer))}/10</strong></div>
-                    <div className="main-card"><span className="small-label">RIGORISTA</span><strong style={{ display: 'block' }}>{selectedPlayer.penalties ? 'SÌ' : 'NO'}</strong></div>
-                    <div className="main-card"><span className="small-label">CALCI PIAZZATI</span><strong style={{ display: 'block' }}>{selectedPlayer.setPieces ? 'SÌ' : 'NO'}</strong></div>
+                  <div className="main-card" style={{ marginTop: '8px' }}>
+                    <small className="small-label">📊 STATISTICHE 2026/27</small>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5,1fr)', gap: '5px', marginTop: '7px' }}>
+                      <div className="stat"><span>PRES.</span><strong>{formatLiveStat(stats.appearances)}</strong></div>
+                      <div className="stat"><span>MV</span><strong>{formatLiveStat(stats.averageRating, 2)}</strong></div>
+                      <div className="stat"><span>FM</span><strong>{formatLiveStat(stats.fantasyAverage, 2)}</strong></div>
+                      <div className="stat"><span>GOL</span><strong>{formatLiveStat(stats.goals)}</strong></div>
+                      <div className="stat"><span>ASSIST</span><strong>{formatLiveStat(stats.assists)}</strong></div>
+                    </div>
                   </div>
 
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '7px', marginTop: '8px' }}>
-                    <div style={{ padding: '10px', borderRadius: '12px', background: 'rgba(50,213,131,.08)', border: '1px solid rgba(50,213,131,.18)' }}>
-                      <small style={{ color: '#76edaa' }}>PRO</small>
-                      <p className="tip" style={{ marginBottom: 0 }}>{playerPro(selectedPlayer)}</p>
-                    </div>
-                    <div style={{ padding: '10px', borderRadius: '12px', background: 'rgba(255,107,122,.07)', border: '1px solid rgba(255,107,122,.17)' }}>
-                      <small style={{ color: '#ff9ca6' }}>CONTRO</small>
-                      <p className="tip" style={{ marginBottom: 0 }}>{playerContra(selectedPlayer)}</p>
-                    </div>
+                    <div className="main-card"><small className="small-label">RIGORI</small><strong style={{ display: 'block' }}>{selectedPlayer.penalties === true ? 'RIGORISTA' : selectedPlayer.penalties === false ? 'NO' : 'N/D'}</strong></div>
+                    <div className="main-card"><small className="small-label">PIAZZATI</small><strong style={{ display: 'block' }}>{selectedPlayer.setPieces === true ? 'SÌ' : selectedPlayer.setPieces === false ? 'NO' : 'N/D'}</strong></div>
                   </div>
 
-                  <div style={{ marginTop: '9px', padding: '11px', borderRadius: '12px', background: 'rgba(77,163,255,.09)', border: '1px solid rgba(77,163,255,.20)' }}>
-                    <small style={{ color: '#88c3ff' }}>COMMENTO ALLA VALUTAZIONE</small>
-                    <p className="tip" style={{ marginBottom: 0 }}>🧠 {evaluationComment(selectedPlayer)}</p>
+                  <div className="main-card" style={{ marginTop: '8px', border: wish?.starred ? '2px solid #ffb703' : undefined }}>
+                    <small className="small-label">🧠 VERDETTO</small>
+                    <p className="tip" style={{ margin: '5px 0 0', lineHeight: 1.65 }}>{evaluationComment(selectedPlayer)}</p>
+                    {wish?.starred && <p className="tip" style={{ margin: '6px 0 0' }}><strong>★ Piano obiettivo:</strong> il motore protegge questo nome nei suggerimenti, evita di usarlo come esca e concede un piccolo margine aggiuntivo sul MAX solo se il budget strutturale lo permette.</p>}
                   </div>
 
-                  <label>Prezzo corrente</label>
-                  <div className="price-row">
-                    <input type="number" min="0" value={price} onChange={(event) => setPrice(Math.max(0, Number(event.target.value) || 0))} />
-                    <button type="button" onClick={() => setPrice((current) => Math.max(0, current - 1))}>−1</button>
-                    <button type="button" onClick={() => setPrice((current) => current + 1)}>+1</button>
-                  </div>
-
-                  <div className="decision-grid">
-                    <div><span>MAX LIVE</span><strong>{dynamicMaxBid}</strong></div>
-                    <div className={`decision-box ${decision?.className ?? ''}`}><span>DECISIONE</span><strong>{decision?.label ?? '—'}</strong></div>
-                  </div>
+                  <label>PREZZO CORRENTE</label>
+                  <div className="price-row"><input type="number" min="0" value={price} onChange={(event) => setPrice(Math.max(0, Number(event.target.value) || 0))} /><button type="button" onClick={() => setPrice((v) => Math.max(0, v - 1))}>−1</button><button type="button" onClick={() => setPrice((v) => v + 1)}>+1</button></div>
+                  <div className="decision-grid"><div><span>MAX LIVE</span><strong>{dynamicMaxBid}</strong></div><div className={`decision-box ${decision?.className ?? ''}`}><span>DECISIONE</span><strong>{decision?.label ?? '—'}</strong></div></div>
                   <p className="tip">{decision?.message}</p>
                   <button type="button" className="primary-button" onClick={registerPurchase}>REGISTRA ACQUISTO</button>
                   {message && <div className="message">{message}</div>}
                 </div>
-              )}
+              })()}
             </div>
           </section>
         </>
@@ -6332,22 +5875,10 @@ function App() {
                               )}
                             </div>
 
-                            <button
-                              type="button"
-                              className="undo-button"
-                              style={{
-                                width: '37px',
-                                minWidth: '37px',
-                                height: '37px',
-                                padding: 0,
-                                fontSize: '18px',
-                                margin: 0,
-                              }}
-                              onClick={() => removeFromWishlist(item.playerKey)}
-                              aria-label={`Rimuovi ${player.name}`}
-                            >
-                              −
-                            </button>
+                            <div style={{ display: 'flex', gap: '5px' }}>
+                              <button type="button" onClick={() => toggleWishlistStar(item.playerKey)} aria-label={`Stella ${player.name}`} style={{ width: '39px', minWidth: '39px', height: '39px', padding: 0, margin: 0, borderRadius: '12px', border: item.starred ? '2px solid #ffb703' : '1px solid rgba(64,92,160,.18)', background: item.starred ? '#fff1ad' : 'rgba(255,255,255,.75)', color: item.starred ? '#e58b00' : '#8390aa', fontSize: '20px' }}>{item.starred ? '★' : '☆'}</button>
+                              <button type="button" className="undo-button" style={{ width: '37px', minWidth: '37px', height: '37px', padding: 0, fontSize: '18px', margin: 0 }} onClick={() => removeFromWishlist(item.playerKey)} aria-label={`Rimuovi ${player.name}`}>−</button>
+                            </div>
                           </div>
 
                           <div
@@ -6417,10 +5948,7 @@ function App() {
           <section className="section">
             <div className="section-title">COME INFLUENZA I SUGGERIMENTI</div>
             <p className="tip" style={{ marginBottom: 0, lineHeight: 1.65 }}>
-              Un giocatore presente in MY TEAM riceve un bonus di priorità nel motore
-              “Suggerimento specifico”. La priorità 1 pesa di più; il limite dipende dal ruolo, ma la lista
-              non forza un nome sbagliato: qualità, categoria scelta, stato della rosa,
-              titolarità, incastri e compatibilità restano comunque determinanti.
+              La ☆ trasforma un giocatore in ★ OBIETTIVO PRIORITARIO. La stella condiziona chiamate, suggerimenti, MAX sostenibile e strategia d'asta: l'app prova a conservare budget e timing per prenderlo. Un giocatore con ★ non viene mai proposto come esca. La priorità numerica continua a ordinare gli altri nomi della MY TEAM.
             </p>
           </section>
         </>
@@ -6818,7 +6346,27 @@ function App() {
                                 {purchase.player.team}
                               </small>
                             </span>
-                            <strong>{purchase.price}</strong>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                              <strong>{purchase.price}</strong>
+                              <button
+                                type="button"
+                                onClick={() => undoMyPurchase(purchases.indexOf(purchase))}
+                                style={{
+                                  minHeight: '44px',
+                                  padding: '8px 10px',
+                                  borderRadius: '9px',
+                                  border: '1px solid rgba(255,107,107,.45)',
+                                  background: 'rgba(255,107,107,.10)',
+                                  color: '#ff9a9a',
+                                  fontSize: '9px',
+                                  fontWeight: 800,
+                                  cursor: 'pointer',
+                                }}
+                                aria-label={`Rimuovi acquisto ${purchase.player.name}`}
+                              >
+                                RIMUOVI
+                              </button>
+                            </div>
                           </div>
                         ))}
                       </div>
@@ -6839,6 +6387,27 @@ function App() {
               <h1>ALTRO</h1>
             </div>
           </header>
+
+          <section className="section">
+            <div className="section-title">STRATEGIA ASTA</div>
+            <div className="main-card">
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '8px', alignItems: 'center' }}>
+                <div>
+                  <small style={{ color: 'var(--muted)', fontWeight: 900 }}>STRATEGIA ATTIVA</small>
+                  <strong style={{ display: 'block', marginTop: '3px', color: 'var(--blue)' }}>{currentStrategy.name}</strong>
+                </div>
+                <span className="setup-badge">MODIFICABILE</span>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: '7px', marginTop: '10px' }}>
+                {(Object.keys(strategies) as Strategy[]).map((item) => (
+                  <button key={`more-strategy-${item}`} type="button" style={smallChoiceStyle(strategy === item)} onClick={() => setStrategy(item)}>
+                    {strategies[item].name}
+                  </button>
+                ))}
+              </div>
+              <p className="tip" style={{ marginBottom: 0 }}>{currentStrategy.description} Suggerimenti, priorità ★ e MAX vengono ricalcolati subito.</p>
+            </div>
+          </section>
 
           <section className="section">
             <div className="section-title">AGGIORNAMENTO DATI</div>
@@ -6938,7 +6507,7 @@ function App() {
                 className="primary-button"
                 style={{ width: '100%', marginTop: '12px' }}
                 disabled={!isOnline || updateStatus === 'updating'}
-                onClick={runDataUpdate}
+                onClick={() => runDataUpdate()}
               >
                 {updateStatus === 'updating' ? '↻ AGGIORNAMENTO…' : '↻ AGGIORNA ORA'}
               </button>
@@ -6976,6 +6545,43 @@ function App() {
                   </p>
                 </div>
               )}
+            </div>
+
+            <div className="main-card" style={{ marginTop: '9px' }}>
+              <strong>GESTIONE DATI — FASE 1</strong>
+              <p className="tip" style={{ margin: '5px 0 10px' }}>
+                Dati sorgente e dati personali sono separati. Prima di ogni aggiornamento viene creato un backup locale.
+              </p>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: '7px' }}>
+                {[
+                  ['LISTONE', 'players'],
+                  ['FANTACALCIO', 'fantacalcio'],
+                  ['STATISTICHE', 'stats'],
+                  ['INFORTUNI', 'injuries'],
+                  ['FORMAZIONI', 'lineups'],
+                  ['MERCATO', 'market'],
+                ].map(([label, dataset]) => {
+                  const key = dataset as DatasetName
+                  const entry = dataManifest.datasets[key]
+                  const freshness = freshnessFor(key, entry.updatedAt)
+                  const color = freshness === 'STALE' ? '#ff958d' : freshness === 'N/D' ? '#f5ca78' : '#6ce6b3'
+                  return (
+                    <div className="stat" key={dataset}>
+                      <span>{label}</span>
+                      <strong style={{ fontSize: '9px', color }}>{freshness}</strong>
+                    </div>
+                  )
+                })}
+              </div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '9px' }}>
+                <span className="setup-badge">SCHEMA {dataManifest.schemaVersion}</span>
+                <span className="setup-badge">MODEL {dataManifest.modelVersion}</span>
+                <span className="setup-badge">CAMBI {phase1ChangeCount}</span>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '7px', marginTop: '10px' }}>
+                <button type="button" className="secondary-button" onClick={exportPhase1Backup}>ESPORTA BACKUP</button>
+                <button type="button" className="secondary-button" onClick={importPhase1Backup}>RIPRISTINA BACKUP</button>
+              </div>
             </div>
 
             <div className="main-card" style={{ marginTop: '9px' }}>
@@ -7596,6 +7202,24 @@ function App() {
                           <PlayerPhoto player={sale.player} size={34} />
                           <div className="purchase-player"><strong>{sale.player.name}</strong><small>{sale.player.team}</small></div>
                           <div className="purchase-price"><small>PREZZO</small><strong>{sale.price}</strong></div>
+                          <button
+                            type="button"
+                            onClick={() => undoRivalPurchase(rivalSales.indexOf(sale))}
+                            style={{
+                              minHeight: '44px',
+                              padding: '8px 10px',
+                              borderRadius: '9px',
+                              border: '1px solid rgba(255,107,107,.45)',
+                              background: 'rgba(255,107,107,.10)',
+                              color: '#ff9a9a',
+                              fontSize: '9px',
+                              fontWeight: 800,
+                              cursor: 'pointer',
+                            }}
+                            aria-label={`Rimuovi assegnazione ${sale.player.name}`}
+                          >
+                            RIMUOVI
+                          </button>
                         </div>
                       ))}
                     </div>

@@ -1,0 +1,5339 @@
+{
+  "version": "snapshot-2026-08-31-infortuni-completo",
+  "generatedAt": "2026-08-31T19:20:00+02:00",
+  "sourceLabel": "Fantacalcio.it · Indisponibili Serie A · snapshot 31/08/2026",
+  "players": [
+    {
+      "playerKey": "Malen|Roma",
+      "name": "Malen",
+      "team": "Roma",
+      "quotation": 36,
+      "fvm": 414,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Martinez L.|Inter",
+      "name": "Martinez L.",
+      "team": "Inter",
+      "quotation": 34,
+      "fvm": 367,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Dimarco|Inter",
+      "name": "Dimarco",
+      "team": "Inter",
+      "quotation": 31,
+      "fvm": 253,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Paz N.|Como",
+      "name": "Paz N.",
+      "team": "Como",
+      "quotation": 29,
+      "fvm": 247,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Calhanoglu|Inter",
+      "name": "Calhanoglu",
+      "team": "Inter",
+      "quotation": 28,
+      "fvm": 236,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "McTominay|Napoli",
+      "name": "McTominay",
+      "team": "Napoli",
+      "quotation": 28,
+      "fvm": 228,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Thuram|Inter",
+      "name": "Thuram",
+      "team": "Inter",
+      "quotation": 28,
+      "fvm": 263,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Hojlund|Napoli",
+      "name": "Hojlund",
+      "team": "Napoli",
+      "quotation": 27,
+      "fvm": 257,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Ramos G.|Milan",
+      "name": "Ramos G.",
+      "team": "Milan",
+      "quotation": 27,
+      "fvm": 228,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Kean|Fiorentina",
+      "name": "Kean",
+      "team": "Fiorentina",
+      "quotation": 25,
+      "fvm": 187,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Kolo Muani|Juventus",
+      "name": "Kolo Muani",
+      "team": "Juventus",
+      "quotation": 25,
+      "fvm": 211,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Orsolini|Bologna",
+      "name": "Orsolini",
+      "team": "Bologna",
+      "quotation": 25,
+      "fvm": 192,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Pulisic|Milan",
+      "name": "Pulisic",
+      "team": "Milan",
+      "quotation": 24,
+      "fvm": 160,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Rabiot|Milan",
+      "name": "Rabiot",
+      "team": "Milan",
+      "quotation": 23,
+      "fvm": 145,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Yildiz|Juventus",
+      "name": "Yildiz",
+      "team": "Juventus",
+      "quotation": 22,
+      "fvm": 150,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00",
+      "injury": "Problema al piede sinistro; ulteriori valutazioni mediche.",
+      "recoveryTime": "Rischio stop di circa tre mesi, da confermare.",
+      "injuryStatus": "injured"
+    },
+    {
+      "playerKey": "Douvikas|Como",
+      "name": "Douvikas",
+      "team": "Como",
+      "quotation": 21,
+      "fvm": 170,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Baturina|Como",
+      "name": "Baturina",
+      "team": "Como",
+      "quotation": 19,
+      "fvm": 97,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Davis K.|Udinese",
+      "name": "Davis K.",
+      "team": "Udinese",
+      "quotation": 19,
+      "fvm": 109,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Krstovic|Atalanta",
+      "name": "Krstovic",
+      "team": "Atalanta",
+      "quotation": 19,
+      "fvm": 100,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Mora|Roma",
+      "name": "Mora",
+      "team": "Roma",
+      "quotation": 19,
+      "fvm": 95,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Scamacca|Atalanta",
+      "name": "Scamacca",
+      "team": "Atalanta",
+      "quotation": 19,
+      "fvm": 123,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Berardi|Sassuolo",
+      "name": "Berardi",
+      "team": "Sassuolo",
+      "quotation": 18,
+      "fvm": 101,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Da Cunha|Como",
+      "name": "Da Cunha",
+      "team": "Como",
+      "quotation": 18,
+      "fvm": 87,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Leao|Milan",
+      "name": "Leao",
+      "team": "Milan",
+      "quotation": 18,
+      "fvm": 75,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Molina N.|Roma",
+      "name": "Molina N.",
+      "team": "Roma",
+      "quotation": 18,
+      "fvm": 80,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Svilar|Roma",
+      "name": "Svilar",
+      "team": "Roma",
+      "quotation": 18,
+      "fvm": 75,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Zaniolo|Udinese",
+      "name": "Zaniolo",
+      "team": "Udinese",
+      "quotation": 18,
+      "fvm": 85,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00",
+      "injury": "Lesione muscolare al bicipite femorale della coscia destra.",
+      "recoveryTime": "Stop di circa 25 giorni; recuperabile dalla seconda metà di settembre.",
+      "injuryStatus": "injured"
+    },
+    {
+      "playerKey": "Barella|Inter",
+      "name": "Barella",
+      "team": "Inter",
+      "quotation": 17,
+      "fvm": 80,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "De Ketelaere|Atalanta",
+      "name": "De Ketelaere",
+      "team": "Atalanta",
+      "quotation": 17,
+      "fvm": 98,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Esposito F.P.|Inter",
+      "name": "Esposito F.P.",
+      "team": "Inter",
+      "quotation": 17,
+      "fvm": 105,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Martinez Jo.|Inter",
+      "name": "Martinez Jo.",
+      "team": "Inter",
+      "quotation": 17,
+      "fvm": 63,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "McKennie|Juventus",
+      "name": "McKennie",
+      "team": "Juventus",
+      "quotation": 17,
+      "fvm": 70,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00",
+      "injury": "Affaticamento muscolare alla gamba.",
+      "recoveryTime": "Da valutare.",
+      "injuryStatus": "injured"
+    },
+    {
+      "playerKey": "Wesley|Roma",
+      "name": "Wesley",
+      "team": "Roma",
+      "quotation": 17,
+      "fvm": 82,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Akanji|Inter",
+      "name": "Akanji",
+      "team": "Inter",
+      "quotation": 16,
+      "fvm": 51,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Atta|Fiorentina",
+      "name": "Atta",
+      "team": "Fiorentina",
+      "quotation": 16,
+      "fvm": 86,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Bremer|Juventus",
+      "name": "Bremer",
+      "team": "Juventus",
+      "quotation": 16,
+      "fvm": 60,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Butez|Como",
+      "name": "Butez",
+      "team": "Como",
+      "quotation": 16,
+      "fvm": 54,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Carnesecchi|Atalanta",
+      "name": "Carnesecchi",
+      "team": "Atalanta",
+      "quotation": 16,
+      "fvm": 52,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "De Bruyne|Napoli",
+      "name": "De Bruyne",
+      "team": "Napoli",
+      "quotation": 16,
+      "fvm": 107,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Vicario|Juventus",
+      "name": "Vicario",
+      "team": "Juventus",
+      "quotation": 16,
+      "fvm": 58,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Zaccagni|Lazio",
+      "name": "Zaccagni",
+      "team": "Lazio",
+      "quotation": 16,
+      "fvm": 88,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Dovbyk|Bologna",
+      "name": "Dovbyk",
+      "team": "Bologna",
+      "quotation": 15,
+      "fvm": 58,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Dybala|Roma",
+      "name": "Dybala",
+      "team": "Roma",
+      "quotation": 15,
+      "fvm": 95,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Laurientè|Sassuolo",
+      "name": "Laurientè",
+      "team": "Sassuolo",
+      "quotation": 15,
+      "fvm": 86,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Maignan|Milan",
+      "name": "Maignan",
+      "team": "Milan",
+      "quotation": 15,
+      "fvm": 50,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Mancini|Roma",
+      "name": "Mancini",
+      "team": "Roma",
+      "quotation": 15,
+      "fvm": 49,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Simeone|Torino",
+      "name": "Simeone",
+      "team": "Torino",
+      "quotation": 15,
+      "fvm": 80,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Bastoni|Inter",
+      "name": "Bastoni",
+      "team": "Inter",
+      "quotation": 14,
+      "fvm": 43,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Castro S.|Roma",
+      "name": "Castro S.",
+      "team": "Roma",
+      "quotation": 14,
+      "fvm": 76,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Pavlovic|Milan",
+      "name": "Pavlovic",
+      "team": "Milan",
+      "quotation": 14,
+      "fvm": 48,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Pellegrino M.|Fiorentina",
+      "name": "Pellegrino M.",
+      "team": "Fiorentina",
+      "quotation": 14,
+      "fvm": 50,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Raspadori|Atalanta",
+      "name": "Raspadori",
+      "team": "Atalanta",
+      "quotation": 14,
+      "fvm": 76,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Rrahmani|Napoli",
+      "name": "Rrahmani",
+      "team": "Napoli",
+      "quotation": 14,
+      "fvm": 51,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Santos A.|Napoli",
+      "name": "Santos A.",
+      "team": "Napoli",
+      "quotation": 14,
+      "fvm": 62,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Esposito Se.|Cagliari",
+      "name": "Esposito Se.",
+      "team": "Cagliari",
+      "quotation": 13,
+      "fvm": 40,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Gudmundsson A.|Fiorentina",
+      "name": "Gudmundsson A.",
+      "team": "Fiorentina",
+      "quotation": 13,
+      "fvm": 40,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Kalulu|Juventus",
+      "name": "Kalulu",
+      "team": "Juventus",
+      "quotation": 13,
+      "fvm": 46,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Kevin Carlos|Cagliari",
+      "name": "Kevin Carlos",
+      "team": "Cagliari",
+      "quotation": 13,
+      "fvm": 37,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "N'Dicka|Roma",
+      "name": "N'Dicka",
+      "team": "Roma",
+      "quotation": 13,
+      "fvm": 44,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00",
+      "injury": "Problema fisico accusato nel riscaldamento prepartita.",
+      "recoveryTime": "Da valutare.",
+      "injuryStatus": "injured"
+    },
+    {
+      "playerKey": "Pinamonti|Lazio",
+      "name": "Pinamonti",
+      "team": "Lazio",
+      "quotation": 13,
+      "fvm": 51,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Solet|Udinese",
+      "name": "Solet",
+      "team": "Udinese",
+      "quotation": 13,
+      "fvm": 46,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Taylor K.|Lazio",
+      "name": "Taylor K.",
+      "team": "Lazio",
+      "quotation": 13,
+      "fvm": 57,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Vlasic|Torino",
+      "name": "Vlasic",
+      "team": "Torino",
+      "quotation": 13,
+      "fvm": 75,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Adams A.|Venezia",
+      "name": "Adams A.",
+      "team": "Venezia",
+      "quotation": 12,
+      "fvm": 45,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Alajbegovic|Juventus",
+      "name": "Alajbegovic",
+      "team": "Juventus",
+      "quotation": 12,
+      "fvm": 50,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Bisseck|Inter",
+      "name": "Bisseck",
+      "team": "Inter",
+      "quotation": 12,
+      "fvm": 37,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Conceicao|Juventus",
+      "name": "Conceicao",
+      "team": "Juventus",
+      "quotation": 12,
+      "fvm": 67,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "De Gea|Fiorentina",
+      "name": "De Gea",
+      "team": "Fiorentina",
+      "quotation": 12,
+      "fvm": 40,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Di Lorenzo|Napoli",
+      "name": "Di Lorenzo",
+      "team": "Napoli",
+      "quotation": 12,
+      "fvm": 40,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Ederson D.S.|Atalanta",
+      "name": "Ederson D.S.",
+      "team": "Atalanta",
+      "quotation": 12,
+      "fvm": 49,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Gila|Milan",
+      "name": "Gila",
+      "team": "Milan",
+      "quotation": 12,
+      "fvm": 31,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Jones C.|Inter",
+      "name": "Jones C.",
+      "team": "Inter",
+      "quotation": 12,
+      "fvm": 48,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Mastantuono|Fiorentina",
+      "name": "Mastantuono",
+      "team": "Fiorentina",
+      "quotation": 12,
+      "fvm": 54,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Modric|Milan",
+      "name": "Modric",
+      "team": "Milan",
+      "quotation": 12,
+      "fvm": 46,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Moreira|Milan",
+      "name": "Moreira",
+      "team": "Milan",
+      "quotation": 12,
+      "fvm": 50,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Rodriguez Je.|Como",
+      "name": "Rodriguez Je.",
+      "team": "Como",
+      "quotation": 12,
+      "fvm": 31,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Samardzic|Atalanta",
+      "name": "Samardzic",
+      "team": "Atalanta",
+      "quotation": 12,
+      "fvm": 41,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Soulè|Roma",
+      "name": "Soulè",
+      "team": "Roma",
+      "quotation": 12,
+      "fvm": 45,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Spence|Inter",
+      "name": "Spence",
+      "team": "Inter",
+      "quotation": 12,
+      "fvm": 40,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Stones|Inter",
+      "name": "Stones",
+      "team": "Inter",
+      "quotation": 12,
+      "fvm": 30,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Baldanzi|Genoa",
+      "name": "Baldanzi",
+      "team": "Genoa",
+      "quotation": 11,
+      "fvm": 30,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Colombo|Genoa",
+      "name": "Colombo",
+      "team": "Genoa",
+      "quotation": 11,
+      "fvm": 55,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Diao|Como",
+      "name": "Diao",
+      "team": "Como",
+      "quotation": 11,
+      "fvm": 47,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Ekkelenkamp|Udinese",
+      "name": "Ekkelenkamp",
+      "team": "Udinese",
+      "quotation": 11,
+      "fvm": 45,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Meret|Napoli",
+      "name": "Meret",
+      "team": "Napoli",
+      "quotation": 11,
+      "fvm": 53,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Ostigard|Genoa",
+      "name": "Ostigard",
+      "team": "Genoa",
+      "quotation": 11,
+      "fvm": 43,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Rowe|Bologna",
+      "name": "Rowe",
+      "team": "Bologna",
+      "quotation": 11,
+      "fvm": 44,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Tourè E.|Parma",
+      "name": "Tourè E.",
+      "team": "Parma",
+      "quotation": 11,
+      "fvm": 43,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Zambo Anguissa|Napoli",
+      "name": "Zambo Anguissa",
+      "team": "Napoli",
+      "quotation": 11,
+      "fvm": 47,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Zielinski|Inter",
+      "name": "Zielinski",
+      "team": "Inter",
+      "quotation": 11,
+      "fvm": 45,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Adams C.|Torino",
+      "name": "Adams C.",
+      "team": "Torino",
+      "quotation": 10,
+      "fvm": 33,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Bowie|Sassuolo",
+      "name": "Bowie",
+      "team": "Sassuolo",
+      "quotation": 10,
+      "fvm": 39,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Caprile|Cagliari",
+      "name": "Caprile",
+      "team": "Cagliari",
+      "quotation": 10,
+      "fvm": 28,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Casadei|Torino",
+      "name": "Casadei",
+      "team": "Torino",
+      "quotation": 10,
+      "fvm": 32,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00",
+      "injury": "Affaticamento muscolare alla gamba.",
+      "recoveryTime": "Da valutare per la 3a giornata.",
+      "injuryStatus": "injured"
+    },
+    {
+      "playerKey": "Dia|Lazio",
+      "name": "Dia",
+      "team": "Lazio",
+      "quotation": 10,
+      "fvm": 30,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Dodò|Fiorentina",
+      "name": "Dodò",
+      "team": "Fiorentina",
+      "quotation": 10,
+      "fvm": 20,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Hermoso|Roma",
+      "name": "Hermoso",
+      "team": "Roma",
+      "quotation": 10,
+      "fvm": 26,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Konè M.|Roma",
+      "name": "Konè M.",
+      "team": "Roma",
+      "quotation": 10,
+      "fvm": 42,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Mandas|Lazio",
+      "name": "Mandas",
+      "team": "Lazio",
+      "quotation": 10,
+      "fvm": 32,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Pellegrini Lo.|Roma",
+      "name": "Pellegrini Lo.",
+      "team": "Roma",
+      "quotation": 10,
+      "fvm": 25,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Perrone|Como",
+      "name": "Perrone",
+      "team": "Como",
+      "quotation": 10,
+      "fvm": 37,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Politano|Napoli",
+      "name": "Politano",
+      "team": "Napoli",
+      "quotation": 10,
+      "fvm": 40,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Ramon|Como",
+      "name": "Ramon",
+      "team": "Como",
+      "quotation": 10,
+      "fvm": 32,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Ratkov|Lazio",
+      "name": "Ratkov",
+      "team": "Lazio",
+      "quotation": 10,
+      "fvm": 26,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Romero D.|Parma",
+      "name": "Romero D.",
+      "team": "Parma",
+      "quotation": 10,
+      "fvm": 37,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Saelemaekers|Milan",
+      "name": "Saelemaekers",
+      "team": "Milan",
+      "quotation": 10,
+      "fvm": 35,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Scalvini|Atalanta",
+      "name": "Scalvini",
+      "team": "Atalanta",
+      "quotation": 10,
+      "fvm": 28,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Skorupski|Bologna",
+      "name": "Skorupski",
+      "team": "Bologna",
+      "quotation": 10,
+      "fvm": 36,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Thorstvedt|Sassuolo",
+      "name": "Thorstvedt",
+      "team": "Sassuolo",
+      "quotation": 10,
+      "fvm": 40,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Thuram K.|Juventus",
+      "name": "Thuram K.",
+      "team": "Juventus",
+      "quotation": 10,
+      "fvm": 35,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00",
+      "injury": "Sindrome femoro-rotulea.",
+      "recoveryTime": "Da valutare per la 3a giornata.",
+      "injuryStatus": "injured"
+    },
+    {
+      "playerKey": "Vergara|Napoli",
+      "name": "Vergara",
+      "team": "Napoli",
+      "quotation": 10,
+      "fvm": 40,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Bernardeschi|Bologna",
+      "name": "Bernardeschi",
+      "team": "Bologna",
+      "quotation": 9,
+      "fvm": 30,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Cambiaso|Juventus",
+      "name": "Cambiaso",
+      "team": "Juventus",
+      "quotation": 9,
+      "fvm": 25,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Cancellieri|Lazio",
+      "name": "Cancellieri",
+      "team": "Lazio",
+      "quotation": 9,
+      "fvm": 28,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Chalobah T.|Como",
+      "name": "Chalobah T.",
+      "team": "Como",
+      "quotation": 9,
+      "fvm": 30,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Cutrone|Monza",
+      "name": "Cutrone",
+      "team": "Monza",
+      "quotation": 9,
+      "fvm": 33,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "David|Juventus",
+      "name": "David",
+      "team": "Juventus",
+      "quotation": 9,
+      "fvm": 37,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Diouf|Inter",
+      "name": "Diouf",
+      "team": "Inter",
+      "quotation": 9,
+      "fvm": 44,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Falcone|Lecce",
+      "name": "Falcone",
+      "team": "Lecce",
+      "quotation": 9,
+      "fvm": 30,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Frattesi|Lazio",
+      "name": "Frattesi",
+      "team": "Lazio",
+      "quotation": 9,
+      "fvm": 68,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Geubbels|Lecce",
+      "name": "Geubbels",
+      "team": "Lecce",
+      "quotation": 9,
+      "fvm": 23,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Ghedjemis|Frosinone",
+      "name": "Ghedjemis",
+      "team": "Frosinone",
+      "quotation": 9,
+      "fvm": 27,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Isaksen|Lazio",
+      "name": "Isaksen",
+      "team": "Lazio",
+      "quotation": 9,
+      "fvm": 22,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Konè I.|Sassuolo",
+      "name": "Konè I.",
+      "team": "Sassuolo",
+      "quotation": 9,
+      "fvm": 20,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00",
+      "injury": "Rottura di tibia e perone; operato.",
+      "recoveryTime": "Punta al rientro da dicembre.",
+      "injuryStatus": "injured"
+    },
+    {
+      "playerKey": "Mandragora|Fiorentina",
+      "name": "Mandragora",
+      "team": "Fiorentina",
+      "quotation": 9,
+      "fvm": 23,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Okoye|Udinese",
+      "name": "Okoye",
+      "team": "Udinese",
+      "quotation": 9,
+      "fvm": 29,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Pasalic|Atalanta",
+      "name": "Pasalic",
+      "team": "Atalanta",
+      "quotation": 9,
+      "fvm": 24,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Tiago Gabriel|Lecce",
+      "name": "Tiago Gabriel",
+      "team": "Lecce",
+      "quotation": 9,
+      "fvm": 20,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Vasquez|Genoa",
+      "name": "Vasquez",
+      "team": "Genoa",
+      "quotation": 9,
+      "fvm": 32,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Bartesaghi|Milan",
+      "name": "Bartesaghi",
+      "team": "Milan",
+      "quotation": 8,
+      "fvm": 22,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Bijlow|Genoa",
+      "name": "Bijlow",
+      "team": "Genoa",
+      "quotation": 8,
+      "fvm": 17,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Cambiaghi|Bologna",
+      "name": "Cambiaghi",
+      "team": "Bologna",
+      "quotation": 8,
+      "fvm": 21,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Celik|Juventus",
+      "name": "Celik",
+      "team": "Juventus",
+      "quotation": 8,
+      "fvm": 15,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Colpani|Monza",
+      "name": "Colpani",
+      "team": "Monza",
+      "quotation": 8,
+      "fvm": 25,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Couto|Como",
+      "name": "Couto",
+      "team": "Como",
+      "quotation": 8,
+      "fvm": 26,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Cristante|Roma",
+      "name": "Cristante",
+      "team": "Roma",
+      "quotation": 8,
+      "fvm": 29,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Delprato|Parma",
+      "name": "Delprato",
+      "team": "Parma",
+      "quotation": 8,
+      "fvm": 21,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Doekhi|Lazio",
+      "name": "Doekhi",
+      "team": "Lazio",
+      "quotation": 8,
+      "fvm": 16,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Fagioli|Fiorentina",
+      "name": "Fagioli",
+      "team": "Fiorentina",
+      "quotation": 8,
+      "fvm": 22,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Gaetano|Atalanta",
+      "name": "Gaetano",
+      "team": "Atalanta",
+      "quotation": 8,
+      "fvm": 30,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Hien|Atalanta",
+      "name": "Hien",
+      "team": "Atalanta",
+      "quotation": 8,
+      "fvm": 11,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00",
+      "injury": "Recupero dopo intervento per lesione del tendine prossimale del muscolo semimembranoso della coscia sinistra.",
+      "injuryStatus": "injured",
+      "recoveryTime": "Rientro previsto da inizio ottobre."
+    },
+    {
+      "playerKey": "Jimenez A.|Fiorentina",
+      "name": "Jimenez A.",
+      "team": "Fiorentina",
+      "quotation": 8,
+      "fvm": 23,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Kamara H.|Udinese",
+      "name": "Kamara H.",
+      "team": "Udinese",
+      "quotation": 8,
+      "fvm": 12,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Koulierakis|Roma",
+      "name": "Koulierakis",
+      "team": "Roma",
+      "quotation": 8,
+      "fvm": 17,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Lobotka|Napoli",
+      "name": "Lobotka",
+      "team": "Napoli",
+      "quotation": 8,
+      "fvm": 22,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Locatelli|Juventus",
+      "name": "Locatelli",
+      "team": "Juventus",
+      "quotation": 8,
+      "fvm": 33,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Lucumì|Juventus",
+      "name": "Lucumì",
+      "team": "Juventus",
+      "quotation": 8,
+      "fvm": 18,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Mina|Cagliari",
+      "name": "Mina",
+      "team": "Cagliari",
+      "quotation": 8,
+      "fvm": 20,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00",
+      "injury": "Affaticamento muscolare al polpaccio.",
+      "injuryStatus": "doubt",
+      "recoveryTime": "Out nel prossimo impegno; da valutare per il turno successivo."
+    },
+    {
+      "playerKey": "Miranda J.|Bologna",
+      "name": "Miranda J.",
+      "team": "Bologna",
+      "quotation": 8,
+      "fvm": 24,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Ndour|Fiorentina",
+      "name": "Ndour",
+      "team": "Fiorentina",
+      "quotation": 8,
+      "fvm": 25,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Norton-Cuffy|Genoa",
+      "name": "Norton-Cuffy",
+      "team": "Genoa",
+      "quotation": 8,
+      "fvm": 21,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Odgaard|Bologna",
+      "name": "Odgaard",
+      "team": "Bologna",
+      "quotation": 8,
+      "fvm": 17,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Osmajic|Genoa",
+      "name": "Osmajic",
+      "team": "Genoa",
+      "quotation": 8,
+      "fvm": 30,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Piccoli|Bologna",
+      "name": "Piccoli",
+      "team": "Bologna",
+      "quotation": 8,
+      "fvm": 37,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Rrahmani Al.|Venezia",
+      "name": "Rrahmani Al.",
+      "team": "Venezia",
+      "quotation": 8,
+      "fvm": 18,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Schmid|Frosinone",
+      "name": "Schmid",
+      "team": "Frosinone",
+      "quotation": 8,
+      "fvm": 28,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Spinazzola|Napoli",
+      "name": "Spinazzola",
+      "team": "Napoli",
+      "quotation": 8,
+      "fvm": 25,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Sucic P.|Inter",
+      "name": "Sucic P.",
+      "team": "Inter",
+      "quotation": 8,
+      "fvm": 21,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Valeri|Parma",
+      "name": "Valeri",
+      "team": "Parma",
+      "quotation": 8,
+      "fvm": 24,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Vitinha O.|Genoa",
+      "name": "Vitinha O.",
+      "team": "Genoa",
+      "quotation": 8,
+      "fvm": 16,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Vojvoda|Udinese",
+      "name": "Vojvoda",
+      "team": "Udinese",
+      "quotation": 8,
+      "fvm": 19,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Volpato|Sassuolo",
+      "name": "Volpato",
+      "team": "Sassuolo",
+      "quotation": 8,
+      "fvm": 23,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Yeboah J.|Venezia",
+      "name": "Yeboah J.",
+      "team": "Venezia",
+      "quotation": 8,
+      "fvm": 27,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Zappacosta|Atalanta",
+      "name": "Zappacosta",
+      "team": "Atalanta",
+      "quotation": 8,
+      "fvm": 19,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Adopo|Cagliari",
+      "name": "Adopo",
+      "team": "Cagliari",
+      "quotation": 7,
+      "fvm": 13,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Badiashile|Napoli",
+      "name": "Badiashile",
+      "team": "Napoli",
+      "quotation": 7,
+      "fvm": 21,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Bernabè|Parma",
+      "name": "Bernabè",
+      "team": "Parma",
+      "quotation": 7,
+      "fvm": 35,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Bonny|Inter",
+      "name": "Bonny",
+      "team": "Inter",
+      "quotation": 7,
+      "fvm": 18,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Buongiorno|Napoli",
+      "name": "Buongiorno",
+      "team": "Napoli",
+      "quotation": 7,
+      "fvm": 15,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00",
+      "injury": "Recupero dopo intervento al menisco del ginocchio destro.",
+      "recoveryTime": "Possibile rientro da metà novembre.",
+      "injuryStatus": "injured"
+    },
+    {
+      "playerKey": "Calò|Frosinone",
+      "name": "Calò",
+      "team": "Frosinone",
+      "quotation": 7,
+      "fvm": 25,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Carlos Augusto|Inter",
+      "name": "Carlos Augusto",
+      "team": "Inter",
+      "quotation": 7,
+      "fvm": 25,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Chukwueze|Milan",
+      "name": "Chukwueze",
+      "team": "Milan",
+      "quotation": 7,
+      "fvm": 22,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Coco|Torino",
+      "name": "Coco",
+      "team": "Torino",
+      "quotation": 7,
+      "fvm": 14,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Coulibaly L.|Lecce",
+      "name": "Coulibaly L.",
+      "team": "Lecce",
+      "quotation": 7,
+      "fvm": 17,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Daffara|Parma",
+      "name": "Daffara",
+      "team": "Parma",
+      "quotation": 7,
+      "fvm": 10,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Dragusin|Fiorentina",
+      "name": "Dragusin",
+      "team": "Fiorentina",
+      "quotation": 7,
+      "fvm": 27,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Elmas|Atalanta",
+      "name": "Elmas",
+      "team": "Atalanta",
+      "quotation": 7,
+      "fvm": 28,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Fazzini|Cagliari",
+      "name": "Fazzini",
+      "team": "Cagliari",
+      "quotation": 7,
+      "fvm": 24,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Ferguson|Bologna",
+      "name": "Ferguson",
+      "team": "Bologna",
+      "quotation": 7,
+      "fvm": 23,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Frendrup|Genoa",
+      "name": "Frendrup",
+      "team": "Genoa",
+      "quotation": 7,
+      "fvm": 20,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Gabbia|Milan",
+      "name": "Gabbia",
+      "team": "Milan",
+      "quotation": 7,
+      "fvm": 24,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Idzes|Sassuolo",
+      "name": "Idzes",
+      "team": "Sassuolo",
+      "quotation": 7,
+      "fvm": 19,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Ismajli|Torino",
+      "name": "Ismajli",
+      "team": "Torino",
+      "quotation": 7,
+      "fvm": 13,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Kaiki|Como",
+      "name": "Kaiki",
+      "team": "Como",
+      "quotation": 7,
+      "fvm": 16,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Karlstrom|Udinese",
+      "name": "Karlstrom",
+      "team": "Udinese",
+      "quotation": 7,
+      "fvm": 20,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Kristensen T.|Atalanta",
+      "name": "Kristensen T.",
+      "team": "Atalanta",
+      "quotation": 7,
+      "fvm": 20,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00",
+      "injury": "Problema alla caviglia; da valutare quotidianamente.",
+      "injuryStatus": "doubt",
+      "recoveryTime": "A rischio per la prossima gara."
+    },
+    {
+      "playerKey": "Muric|Sassuolo",
+      "name": "Muric",
+      "team": "Sassuolo",
+      "quotation": 7,
+      "fvm": 15,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Obert|Cagliari",
+      "name": "Obert",
+      "team": "Cagliari",
+      "quotation": 7,
+      "fvm": 15,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Oristanio|Torino",
+      "name": "Oristanio",
+      "team": "Torino",
+      "quotation": 7,
+      "fvm": 12,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Pessina|Monza",
+      "name": "Pessina",
+      "team": "Monza",
+      "quotation": 7,
+      "fvm": 15,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00",
+      "injury": "Lussazione della rotula del ginocchio destro.",
+      "recoveryTime": "Possibile rientro da inizio novembre.",
+      "injuryStatus": "injured"
+    },
+    {
+      "playerKey": "Pisilli|Roma",
+      "name": "Pisilli",
+      "team": "Roma",
+      "quotation": 7,
+      "fvm": 17,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Raimondo|Frosinone",
+      "name": "Raimondo",
+      "team": "Frosinone",
+      "quotation": 7,
+      "fvm": 22,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Romagnoli|Lazio",
+      "name": "Romagnoli",
+      "team": "Lazio",
+      "quotation": 7,
+      "fvm": 22,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Romano|Cagliari",
+      "name": "Romano",
+      "team": "Cagliari",
+      "quotation": 7,
+      "fvm": 20,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Rovella|Lazio",
+      "name": "Rovella",
+      "team": "Lazio",
+      "quotation": 7,
+      "fvm": 16,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Sow|Genoa",
+      "name": "Sow",
+      "team": "Genoa",
+      "quotation": 7,
+      "fvm": 15,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Stulic|Lecce",
+      "name": "Stulic",
+      "team": "Lecce",
+      "quotation": 7,
+      "fvm": 12,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Sutalo J.|Lazio",
+      "name": "Sutalo J.",
+      "team": "Lazio",
+      "quotation": 7,
+      "fvm": 19,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Tomori|Milan",
+      "name": "Tomori",
+      "team": "Milan",
+      "quotation": 7,
+      "fvm": 8,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Unai Gomez|Udinese",
+      "name": "Unai Gomez",
+      "team": "Udinese",
+      "quotation": 7,
+      "fvm": 17,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Zapata D.|Torino",
+      "name": "Zapata D.",
+      "team": "Torino",
+      "quotation": 7,
+      "fvm": 18,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Ahanor|Atalanta",
+      "name": "Ahanor",
+      "team": "Atalanta",
+      "quotation": 6,
+      "fvm": 14,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Akinsanmiro|Monza",
+      "name": "Akinsanmiro",
+      "team": "Monza",
+      "quotation": 6,
+      "fvm": 16,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Basic|Venezia",
+      "name": "Basic",
+      "team": "Venezia",
+      "quotation": 6,
+      "fvm": 19,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Bella-Kotchap|Venezia",
+      "name": "Bella-Kotchap",
+      "team": "Venezia",
+      "quotation": 6,
+      "fvm": 13,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Bellanova|Atalanta",
+      "name": "Bellanova",
+      "team": "Atalanta",
+      "quotation": 6,
+      "fvm": 17,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Bernasconi|Atalanta",
+      "name": "Bernasconi",
+      "team": "Atalanta",
+      "quotation": 6,
+      "fvm": 18,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Beukema|Napoli",
+      "name": "Beukema",
+      "team": "Napoli",
+      "quotation": 6,
+      "fvm": 12,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Boga|Juventus",
+      "name": "Boga",
+      "team": "Juventus",
+      "quotation": 6,
+      "fvm": 26,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Caqueret|Como",
+      "name": "Caqueret",
+      "team": "Como",
+      "quotation": 6,
+      "fvm": 17,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Comuzzo|Torino",
+      "name": "Comuzzo",
+      "team": "Torino",
+      "quotation": 6,
+      "fvm": 13,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Ellertsson|Genoa",
+      "name": "Ellertsson",
+      "team": "Genoa",
+      "quotation": 6,
+      "fvm": 18,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Gallo|Lecce",
+      "name": "Gallo",
+      "team": "Lecce",
+      "quotation": 6,
+      "fvm": 13,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Gaspar K.|Lecce",
+      "name": "Gaspar K.",
+      "team": "Lecce",
+      "quotation": 6,
+      "fvm": 12,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Gimenez|Milan",
+      "name": "Gimenez",
+      "team": "Milan",
+      "quotation": 6,
+      "fvm": 10,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00",
+      "injury": "Distorsione alla caviglia.",
+      "recoveryTime": "Da valutare per la 3a giornata.",
+      "injuryStatus": "injured"
+    },
+    {
+      "playerKey": "Gineitis|Torino",
+      "name": "Gineitis",
+      "team": "Torino",
+      "quotation": 6,
+      "fvm": 12,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Heggem|Bologna",
+      "name": "Heggem",
+      "team": "Bologna",
+      "quotation": 6,
+      "fvm": 15,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Liberali|Como",
+      "name": "Liberali",
+      "team": "Como",
+      "quotation": 6,
+      "fvm": 21,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Mangas|Monza",
+      "name": "Mangas",
+      "team": "Monza",
+      "quotation": 6,
+      "fvm": 15,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Marcandalli|Genoa",
+      "name": "Marcandalli",
+      "team": "Genoa",
+      "quotation": 6,
+      "fvm": 14,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Marusic|Lazio",
+      "name": "Marusic",
+      "team": "Lazio",
+      "quotation": 6,
+      "fvm": 20,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00",
+      "injury": "Problema muscolare alla coscia.",
+      "recoveryTime": "Da valutare.",
+      "injuryStatus": "injured"
+    },
+    {
+      "playerKey": "Matic|Sassuolo",
+      "name": "Matic",
+      "team": "Sassuolo",
+      "quotation": 6,
+      "fvm": 15,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Milla|Como",
+      "name": "Milla",
+      "team": "Como",
+      "quotation": 6,
+      "fvm": 20,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Monterisi|Frosinone",
+      "name": "Monterisi",
+      "team": "Frosinone",
+      "quotation": 6,
+      "fvm": 13,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Mutandwa|Cagliari",
+      "name": "Mutandwa",
+      "team": "Cagliari",
+      "quotation": 6,
+      "fvm": 10,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Neres|Napoli",
+      "name": "Neres",
+      "team": "Napoli",
+      "quotation": 6,
+      "fvm": 17,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Nicolussi Caviglia|Parma",
+      "name": "Nicolussi Caviglia",
+      "team": "Parma",
+      "quotation": 6,
+      "fvm": 16,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00",
+      "injury": "Lesione di medio grado alla coscia destra; operato a fine agosto.",
+      "recoveryTime": "Ipotesi rientro da novembre.",
+      "injuryStatus": "injured"
+    },
+    {
+      "playerKey": "Noslin|Lazio",
+      "name": "Noslin",
+      "team": "Lazio",
+      "quotation": 6,
+      "fvm": 17,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Obrador|Sassuolo",
+      "name": "Obrador",
+      "team": "Sassuolo",
+      "quotation": 6,
+      "fvm": 15,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Oulai|Fiorentina",
+      "name": "Oulai",
+      "team": "Fiorentina",
+      "quotation": 6,
+      "fvm": 20,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Pavard|Inter",
+      "name": "Pavard",
+      "team": "Inter",
+      "quotation": 6,
+      "fvm": 14,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Pierotti|Lecce",
+      "name": "Pierotti",
+      "team": "Lecce",
+      "quotation": 6,
+      "fvm": 19,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Pobega|Bologna",
+      "name": "Pobega",
+      "team": "Bologna",
+      "quotation": 6,
+      "fvm": 13,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Stankovic F.|Venezia",
+      "name": "Stankovic F.",
+      "team": "Venezia",
+      "quotation": 6,
+      "fvm": 12,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Sulemana K.|Atalanta",
+      "name": "Sulemana K.",
+      "team": "Atalanta",
+      "quotation": 6,
+      "fvm": 10,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00",
+      "injury": "Lesione del collaterale mediale di secondo grado del ginocchio sinistro.",
+      "injuryStatus": "injured",
+      "recoveryTime": "Recuperabile da inizio ottobre."
+    },
+    {
+      "playerKey": "Tavares N.|Lazio",
+      "name": "Tavares N.",
+      "team": "Lazio",
+      "quotation": 6,
+      "fvm": 12,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Tourè I.|Monza",
+      "name": "Tourè I.",
+      "team": "Monza",
+      "quotation": 6,
+      "fvm": 15,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00",
+      "injury": "Fastidio articolare.",
+      "recoveryTime": "Da valutare.",
+      "injuryStatus": "injured"
+    },
+    {
+      "playerKey": "Valdepenas|Fiorentina",
+      "name": "Valdepenas",
+      "team": "Fiorentina",
+      "quotation": 6,
+      "fvm": 18,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Valle|Como",
+      "name": "Valle",
+      "team": "Como",
+      "quotation": 6,
+      "fvm": 21,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Veiga D.|Lecce",
+      "name": "Veiga D.",
+      "team": "Lecce",
+      "quotation": 6,
+      "fvm": 12,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Viery|Fiorentina",
+      "name": "Viery",
+      "team": "Fiorentina",
+      "quotation": 6,
+      "fvm": 17,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Winks|Cagliari",
+      "name": "Winks",
+      "team": "Cagliari",
+      "quotation": 6,
+      "fvm": 15,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Zalewski|Atalanta",
+      "name": "Zalewski",
+      "team": "Atalanta",
+      "quotation": 6,
+      "fvm": 20,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Zhegrova|Juventus",
+      "name": "Zhegrova",
+      "team": "Juventus",
+      "quotation": 6,
+      "fvm": 20,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Zortea|Bologna",
+      "name": "Zortea",
+      "team": "Bologna",
+      "quotation": 6,
+      "fvm": 19,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Addai|Como",
+      "name": "Addai",
+      "team": "Como",
+      "quotation": 5,
+      "fvm": 10,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00",
+      "injury": "Rottura del tendine d'Achille.",
+      "injuryStatus": "injured",
+      "recoveryTime": "Prova a recuperare dalla seconda metà di settembre."
+    },
+    {
+      "playerKey": "Adorante|Venezia",
+      "name": "Adorante",
+      "team": "Venezia",
+      "quotation": 5,
+      "fvm": 12,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00",
+      "injury": "Operato per un problema alla schiena.",
+      "recoveryTime": "Tentativo di rientro da ottobre.",
+      "injuryStatus": "injured"
+    },
+    {
+      "playerKey": "Adzic|Sassuolo",
+      "name": "Adzic",
+      "team": "Sassuolo",
+      "quotation": 5,
+      "fvm": 16,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Amondarain|Bologna",
+      "name": "Amondarain",
+      "team": "Bologna",
+      "quotation": 5,
+      "fvm": 12,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Amorim|Genoa",
+      "name": "Amorim",
+      "team": "Genoa",
+      "quotation": 5,
+      "fvm": 11,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Bakola|Sassuolo",
+      "name": "Bakola",
+      "team": "Sassuolo",
+      "quotation": 5,
+      "fvm": 14,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Berisha M.|Lecce",
+      "name": "Berisha M.",
+      "team": "Lecce",
+      "quotation": 5,
+      "fvm": 12,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Bracaglia|Frosinone",
+      "name": "Bracaglia",
+      "team": "Frosinone",
+      "quotation": 5,
+      "fvm": 12,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Busio|Venezia",
+      "name": "Busio",
+      "team": "Venezia",
+      "quotation": 5,
+      "fvm": 14,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Cacciamani|Torino",
+      "name": "Cacciamani",
+      "team": "Torino",
+      "quotation": 5,
+      "fvm": 20,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Camarda|Milan",
+      "name": "Camarda",
+      "team": "Milan",
+      "quotation": 5,
+      "fvm": 20,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Cissè A.|Milan",
+      "name": "Cissè A.",
+      "team": "Milan",
+      "quotation": 5,
+      "fvm": 25,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Correia T.|Venezia",
+      "name": "Correia T.",
+      "team": "Venezia",
+      "quotation": 5,
+      "fvm": 12,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Dele-Bashiru|Lazio",
+      "name": "Dele-Bashiru",
+      "team": "Lazio",
+      "quotation": 5,
+      "fvm": 13,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00",
+      "injury": "Problema muscolare alla gamba.",
+      "recoveryTime": "Da valutare; assente contro il Genoa.",
+      "injuryStatus": "injured"
+    },
+    {
+      "playerKey": "Felici|Cagliari",
+      "name": "Felici",
+      "team": "Cagliari",
+      "quotation": 5,
+      "fvm": 8,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Fofana Y.|Milan",
+      "name": "Fofana Y.",
+      "team": "Milan",
+      "quotation": 5,
+      "fvm": 10,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Fortini|Torino",
+      "name": "Fortini",
+      "team": "Torino",
+      "quotation": 5,
+      "fvm": 12,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Frigan|Parma",
+      "name": "Frigan",
+      "team": "Parma",
+      "quotation": 5,
+      "fvm": 10,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Gandelman|Lecce",
+      "name": "Gandelman",
+      "team": "Lecce",
+      "quotation": 5,
+      "fvm": 10,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Grillitsch|Frosinone",
+      "name": "Grillitsch",
+      "team": "Frosinone",
+      "quotation": 5,
+      "fvm": 10,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Haps|Venezia",
+      "name": "Haps",
+      "team": "Venezia",
+      "quotation": 5,
+      "fvm": 10,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Holm|Bologna",
+      "name": "Holm",
+      "team": "Bologna",
+      "quotation": 5,
+      "fvm": 13,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Jashari|Milan",
+      "name": "Jashari",
+      "team": "Milan",
+      "quotation": 5,
+      "fvm": 13,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Keita M.|Parma",
+      "name": "Keita M.",
+      "team": "Parma",
+      "quotation": 5,
+      "fvm": 15,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Kelly L.|Juventus",
+      "name": "Kelly L.",
+      "team": "Juventus",
+      "quotation": 5,
+      "fvm": 12,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Kempf|Como",
+      "name": "Kempf",
+      "team": "Como",
+      "quotation": 5,
+      "fvm": 13,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Kofler|Cagliari",
+      "name": "Kofler",
+      "team": "Cagliari",
+      "quotation": 5,
+      "fvm": 8,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Kolasinac|Atalanta",
+      "name": "Kolasinac",
+      "team": "Atalanta",
+      "quotation": 5,
+      "fvm": 8,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Koopmeiners|Juventus",
+      "name": "Koopmeiners",
+      "team": "Juventus",
+      "quotation": 5,
+      "fvm": 13,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Leysen F.|Sassuolo",
+      "name": "Leysen F.",
+      "team": "Sassuolo",
+      "quotation": 5,
+      "fvm": 12,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Maldini|Cagliari",
+      "name": "Maldini",
+      "team": "Cagliari",
+      "quotation": 5,
+      "fvm": 21,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Martin|Genoa",
+      "name": "Martin",
+      "team": "Genoa",
+      "quotation": 5,
+      "fvm": 8,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Meichtry|Genoa",
+      "name": "Meichtry",
+      "team": "Genoa",
+      "quotation": 5,
+      "fvm": 11,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Milik|Juventus",
+      "name": "Milik",
+      "team": "Juventus",
+      "quotation": 5,
+      "fvm": 13,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Milinkovic-Savic V.|Napoli",
+      "name": "Milinkovic-Savic V.",
+      "team": "Napoli",
+      "quotation": 5,
+      "fvm": 7,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Mkhitaryan|Inter",
+      "name": "Mkhitaryan",
+      "team": "Inter",
+      "quotation": 5,
+      "fvm": 10,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Moreno M.|Venezia",
+      "name": "Moreno M.",
+      "team": "Venezia",
+      "quotation": 5,
+      "fvm": 6,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00",
+      "injury": "Noie fisiche.",
+      "recoveryTime": "Punta al rientro da inizio settembre.",
+      "injuryStatus": "injured"
+    },
+    {
+      "playerKey": "Mota|Monza",
+      "name": "Mota",
+      "team": "Monza",
+      "quotation": 5,
+      "fvm": 18,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Njie|Torino",
+      "name": "Njie",
+      "team": "Torino",
+      "quotation": 5,
+      "fvm": 14,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Olivera|Napoli",
+      "name": "Olivera",
+      "team": "Napoli",
+      "quotation": 5,
+      "fvm": 13,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Oyono A.|Frosinone",
+      "name": "Oyono A.",
+      "team": "Frosinone",
+      "quotation": 5,
+      "fvm": 10,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Palmisani|Frosinone",
+      "name": "Palmisani",
+      "team": "Frosinone",
+      "quotation": 5,
+      "fvm": 12,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Parisi|Fiorentina",
+      "name": "Parisi",
+      "team": "Fiorentina",
+      "quotation": 5,
+      "fvm": 10,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00",
+      "injury": "Recupero dall'infortunio al legamento crociato del ginocchio.",
+      "injuryStatus": "injured",
+      "recoveryTime": "Punta a tornare convocabile da novembre."
+    },
+    {
+      "playerKey": "Pedersen|Torino",
+      "name": "Pedersen",
+      "team": "Torino",
+      "quotation": 5,
+      "fvm": 12,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Pedraza|Lazio",
+      "name": "Pedraza",
+      "team": "Lazio",
+      "quotation": 5,
+      "fvm": 15,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Perez K.|Venezia",
+      "name": "Perez K.",
+      "team": "Venezia",
+      "quotation": 5,
+      "fvm": 15,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Piotrowski|Udinese",
+      "name": "Piotrowski",
+      "team": "Udinese",
+      "quotation": 5,
+      "fvm": 15,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Rensch|Roma",
+      "name": "Rensch",
+      "team": "Roma",
+      "quotation": 5,
+      "fvm": 14,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00",
+      "injury": "Risentimento muscolare al flessore sinistro.",
+      "recoveryTime": "Da valutare.",
+      "injuryStatus": "injured"
+    },
+    {
+      "playerKey": "Siebert|Lecce",
+      "name": "Siebert",
+      "team": "Lecce",
+      "quotation": 5,
+      "fvm": 12,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Sohm|Venezia",
+      "name": "Sohm",
+      "team": "Venezia",
+      "quotation": 5,
+      "fvm": 11,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Thiam|Monza",
+      "name": "Thiam",
+      "team": "Monza",
+      "quotation": 5,
+      "fvm": 11,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Traorè Hj.|Genoa",
+      "name": "Traorè Hj.",
+      "team": "Genoa",
+      "quotation": 5,
+      "fvm": 11,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Varela G.|Monza",
+      "name": "Varela G.",
+      "team": "Monza",
+      "quotation": 5,
+      "fvm": 7,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Vitik|Bologna",
+      "name": "Vitik",
+      "team": "Bologna",
+      "quotation": 5,
+      "fvm": 10,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Zè Pedro|Cagliari",
+      "name": "Zè Pedro",
+      "team": "Cagliari",
+      "quotation": 5,
+      "fvm": 13,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Zerbin|Frosinone",
+      "name": "Zerbin",
+      "team": "Frosinone",
+      "quotation": 5,
+      "fvm": 12,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Almqvist|Parma",
+      "name": "Almqvist",
+      "team": "Parma",
+      "quotation": 4,
+      "fvm": 11,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Arizala|Udinese",
+      "name": "Arizala",
+      "team": "Udinese",
+      "quotation": 4,
+      "fvm": 8,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Bertola|Udinese",
+      "name": "Bertola",
+      "team": "Udinese",
+      "quotation": 4,
+      "fvm": 10,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Birindelli|Monza",
+      "name": "Birindelli",
+      "team": "Monza",
+      "quotation": 4,
+      "fvm": 12,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Borrelli|Cagliari",
+      "name": "Borrelli",
+      "team": "Cagliari",
+      "quotation": 4,
+      "fvm": 9,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Calvani|Frosinone",
+      "name": "Calvani",
+      "team": "Frosinone",
+      "quotation": 4,
+      "fvm": 12,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Cataldi|Lazio",
+      "name": "Cataldi",
+      "team": "Lazio",
+      "quotation": 4,
+      "fvm": 12,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00",
+      "injury": "Recupero dopo ernia bilaterale.",
+      "recoveryTime": "Recuperabile da inizio ottobre.",
+      "injuryStatus": "injured"
+    },
+    {
+      "playerKey": "Cichella|Frosinone",
+      "name": "Cichella",
+      "team": "Frosinone",
+      "quotation": 4,
+      "fvm": 12,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Comert|Torino",
+      "name": "Comert",
+      "team": "Torino",
+      "quotation": 4,
+      "fvm": 12,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "De Roon|Atalanta",
+      "name": "De Roon",
+      "team": "Atalanta",
+      "quotation": 4,
+      "fvm": 8,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "De Winter|Milan",
+      "name": "De Winter",
+      "team": "Milan",
+      "quotation": 4,
+      "fvm": 12,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Deiola|Cagliari",
+      "name": "Deiola",
+      "team": "Cagliari",
+      "quotation": 4,
+      "fvm": 8,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Delli Carri|Monza",
+      "name": "Delli Carri",
+      "team": "Monza",
+      "quotation": 4,
+      "fvm": 11,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Diallo O.|Parma",
+      "name": "Diallo O.",
+      "team": "Parma",
+      "quotation": 4,
+      "fvm": 12,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Doig|Sassuolo",
+      "name": "Doig",
+      "team": "Sassuolo",
+      "quotation": 4,
+      "fvm": 10,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Dominguez B.|Sassuolo",
+      "name": "Dominguez B.",
+      "team": "Sassuolo",
+      "quotation": 4,
+      "fvm": 12,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Douglas Luiz|Juventus",
+      "name": "Douglas Luiz",
+      "team": "Juventus",
+      "quotation": 4,
+      "fvm": 15,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "El Aynaoui|Roma",
+      "name": "El Aynaoui",
+      "team": "Roma",
+      "quotation": 4,
+      "fvm": 18,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Estupinan|Milan",
+      "name": "Estupinan",
+      "team": "Milan",
+      "quotation": 4,
+      "fvm": 13,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Fabbian|Fiorentina",
+      "name": "Fabbian",
+      "team": "Fiorentina",
+      "quotation": 4,
+      "fvm": 8,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Fatah|Lecce",
+      "name": "Fatah",
+      "team": "Lecce",
+      "quotation": 4,
+      "fvm": 17,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Favasuli|Napoli",
+      "name": "Favasuli",
+      "team": "Napoli",
+      "quotation": 4,
+      "fvm": 11,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Fini|Frosinone",
+      "name": "Fini",
+      "team": "Frosinone",
+      "quotation": 4,
+      "fvm": 13,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Fitz-Jim|Torino",
+      "name": "Fitz-Jim",
+      "team": "Torino",
+      "quotation": 4,
+      "fvm": 18,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Folorunsho|Monza",
+      "name": "Folorunsho",
+      "team": "Monza",
+      "quotation": 4,
+      "fvm": 5,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Gatti|Juventus",
+      "name": "Gatti",
+      "team": "Juventus",
+      "quotation": 4,
+      "fvm": 10,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Ghilardi|Roma",
+      "name": "Ghilardi",
+      "team": "Roma",
+      "quotation": 4,
+      "fvm": 10,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Giovane|Napoli",
+      "name": "Giovane",
+      "team": "Napoli",
+      "quotation": 4,
+      "fvm": 10,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Gueye|Udinese",
+      "name": "Gueye",
+      "team": "Udinese",
+      "quotation": 4,
+      "fvm": 7,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Halhal|Venezia",
+      "name": "Halhal",
+      "team": "Venezia",
+      "quotation": 4,
+      "fvm": 10,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Havel|Genoa",
+      "name": "Havel",
+      "team": "Genoa",
+      "quotation": 4,
+      "fvm": 9,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Ilkhan|Torino",
+      "name": "Ilkhan",
+      "team": "Torino",
+      "quotation": 4,
+      "fvm": 10,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Kabasele|Udinese",
+      "name": "Kabasele",
+      "team": "Udinese",
+      "quotation": 4,
+      "fvm": 12,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Koutsoupias|Frosinone",
+      "name": "Koutsoupias",
+      "team": "Frosinone",
+      "quotation": 4,
+      "fvm": 11,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Kulenovic|Torino",
+      "name": "Kulenovic",
+      "team": "Torino",
+      "quotation": 4,
+      "fvm": 9,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Kvernadze|Frosinone",
+      "name": "Kvernadze",
+      "team": "Frosinone",
+      "quotation": 4,
+      "fvm": 16,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Lang|Napoli",
+      "name": "Lang",
+      "team": "Napoli",
+      "quotation": 4,
+      "fvm": 12,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Loftus-Cheek|Milan",
+      "name": "Loftus-Cheek",
+      "team": "Milan",
+      "quotation": 4,
+      "fvm": 18,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Lucca|Napoli",
+      "name": "Lucca",
+      "team": "Napoli",
+      "quotation": 4,
+      "fvm": 10,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Lucchesi|Monza",
+      "name": "Lucchesi",
+      "team": "Monza",
+      "quotation": 4,
+      "fvm": 12,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Luis Henrique|Inter",
+      "name": "Luis Henrique",
+      "team": "Inter",
+      "quotation": 4,
+      "fvm": 12,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Mendy P.|Cagliari",
+      "name": "Mendy P.",
+      "team": "Cagliari",
+      "quotation": 4,
+      "fvm": 14,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Messias|Genoa",
+      "name": "Messias",
+      "team": "Genoa",
+      "quotation": 4,
+      "fvm": 8,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Miller L.|Udinese",
+      "name": "Miller L.",
+      "team": "Udinese",
+      "quotation": 4,
+      "fvm": 12,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Mitaj|Genoa",
+      "name": "Mitaj",
+      "team": "Genoa",
+      "quotation": 4,
+      "fvm": 10,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Morata|Como",
+      "name": "Morata",
+      "team": "Como",
+      "quotation": 4,
+      "fvm": 7,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Moro N.|Bologna",
+      "name": "Moro N.",
+      "team": "Bologna",
+      "quotation": 4,
+      "fvm": 14,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Ngom|Lecce",
+      "name": "Ngom",
+      "team": "Lecce",
+      "quotation": 4,
+      "fvm": 13,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Pongracic|Fiorentina",
+      "name": "Pongracic",
+      "team": "Fiorentina",
+      "quotation": 4,
+      "fvm": 8,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Ricci S.|Milan",
+      "name": "Ricci S.",
+      "team": "Milan",
+      "quotation": 4,
+      "fvm": 10,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Robinson J.|Monza",
+      "name": "Robinson J.",
+      "team": "Monza",
+      "quotation": 4,
+      "fvm": 10,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Rodriguez Ju.|Cagliari",
+      "name": "Rodriguez Ju.",
+      "team": "Cagliari",
+      "quotation": 4,
+      "fvm": 14,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Smolcic I.|Como",
+      "name": "Smolcic I.",
+      "team": "Como",
+      "quotation": 4,
+      "fvm": 10,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Terzic|Frosinone",
+      "name": "Terzic",
+      "team": "Frosinone",
+      "quotation": 4,
+      "fvm": 8,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Troilo|Parma",
+      "name": "Troilo",
+      "team": "Parma",
+      "quotation": 4,
+      "fvm": 14,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Valenti|Parma",
+      "name": "Valenti",
+      "team": "Parma",
+      "quotation": 4,
+      "fvm": 10,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Walukiewicz|Sassuolo",
+      "name": "Walukiewicz",
+      "team": "Sassuolo",
+      "quotation": 4,
+      "fvm": 10,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00",
+      "injury": "Forte trauma contusivo alla gamba destra.",
+      "recoveryTime": "Da valutare da inizio settembre.",
+      "injuryStatus": "injured"
+    },
+    {
+      "playerKey": "Zanoli|Udinese",
+      "name": "Zanoli",
+      "team": "Udinese",
+      "quotation": 4,
+      "fvm": 10,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00",
+      "injury": "Recupero da lesione del legamento crociato anteriore.",
+      "recoveryTime": "Possibile rientro da ottobre.",
+      "injuryStatus": "injured"
+    },
+    {
+      "playerKey": "Zappa|Cagliari",
+      "name": "Zappa",
+      "team": "Cagliari",
+      "quotation": 4,
+      "fvm": 7,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Aboukhlal|Torino",
+      "name": "Aboukhlal",
+      "team": "Torino",
+      "quotation": 3,
+      "fvm": 5,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Akpoguma|Frosinone",
+      "name": "Akpoguma",
+      "team": "Frosinone",
+      "quotation": 3,
+      "fvm": 6,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Brescianini|Fiorentina",
+      "name": "Brescianini",
+      "team": "Fiorentina",
+      "quotation": 3,
+      "fvm": 12,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Britschgi|Parma",
+      "name": "Britschgi",
+      "team": "Parma",
+      "quotation": 3,
+      "fvm": 10,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Candè|Sassuolo",
+      "name": "Candè",
+      "team": "Sassuolo",
+      "quotation": 3,
+      "fvm": 7,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00",
+      "injury": "Recupero da rottura del legamento crociato anteriore.",
+      "recoveryTime": "Punta al rientro da metà settembre.",
+      "injuryStatus": "injured"
+    },
+    {
+      "playerKey": "Carboni A.|Monza",
+      "name": "Carboni A.",
+      "team": "Monza",
+      "quotation": 3,
+      "fvm": 9,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Casale|Bologna",
+      "name": "Casale",
+      "team": "Bologna",
+      "quotation": 3,
+      "fvm": 5,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Cittadini|Frosinone",
+      "name": "Cittadini",
+      "team": "Frosinone",
+      "quotation": 3,
+      "fvm": 8,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Colombo L.|Monza",
+      "name": "Colombo L.",
+      "team": "Monza",
+      "quotation": 3,
+      "fvm": 7,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Ebosse|Udinese",
+      "name": "Ebosse",
+      "team": "Udinese",
+      "quotation": 3,
+      "fvm": 5,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Ekhator|Juventus",
+      "name": "Ekhator",
+      "team": "Juventus",
+      "quotation": 3,
+      "fvm": 10,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Elphege|Parma",
+      "name": "Elphege",
+      "team": "Parma",
+      "quotation": 3,
+      "fvm": 11,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Floriani Mussolini|Lazio",
+      "name": "Floriani Mussolini",
+      "team": "Lazio",
+      "quotation": 3,
+      "fvm": 10,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Gelli F.|Frosinone",
+      "name": "Gelli F.",
+      "team": "Frosinone",
+      "quotation": 3,
+      "fvm": 8,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Gilmour|Napoli",
+      "name": "Gilmour",
+      "team": "Napoli",
+      "quotation": 3,
+      "fvm": 10,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Gorter|Lecce",
+      "name": "Gorter",
+      "team": "Lecce",
+      "quotation": 3,
+      "fvm": 12,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Hainaut|Venezia",
+      "name": "Hainaut",
+      "team": "Venezia",
+      "quotation": 3,
+      "fvm": 12,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Hasa|Frosinone",
+      "name": "Hasa",
+      "team": "Frosinone",
+      "quotation": 3,
+      "fvm": 5,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Helgason|Venezia",
+      "name": "Helgason",
+      "team": "Venezia",
+      "quotation": 3,
+      "fvm": 3,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Helland|Bologna",
+      "name": "Helland",
+      "team": "Bologna",
+      "quotation": 3,
+      "fvm": 12,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Idrissi R.|Cagliari",
+      "name": "Idrissi R.",
+      "team": "Cagliari",
+      "quotation": 3,
+      "fvm": 3,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00",
+      "injury": "In recupero dalla rottura del legamento crociato.",
+      "injuryStatus": "injured",
+      "recoveryTime": "Possibile rientro dalla fine di ottobre."
+    },
+    {
+      "playerKey": "Joao Mario|Fiorentina",
+      "name": "Joao Mario",
+      "team": "Fiorentina",
+      "quotation": 3,
+      "fvm": 12,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Kambwala|Como",
+      "name": "Kambwala",
+      "team": "Como",
+      "quotation": 3,
+      "fvm": 8,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Kossounou|Atalanta",
+      "name": "Kossounou",
+      "team": "Atalanta",
+      "quotation": 3,
+      "fvm": 12,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Kouadio|Monza",
+      "name": "Kouadio",
+      "team": "Monza",
+      "quotation": 3,
+      "fvm": 9,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Kuhn|Como",
+      "name": "Kuhn",
+      "team": "Como",
+      "quotation": 3,
+      "fvm": 5,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Maleh|Lecce",
+      "name": "Maleh",
+      "team": "Lecce",
+      "quotation": 3,
+      "fvm": 7,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Masini|Frosinone",
+      "name": "Masini",
+      "team": "Frosinone",
+      "quotation": 3,
+      "fvm": 8,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Miretti|Juventus",
+      "name": "Miretti",
+      "team": "Juventus",
+      "quotation": 3,
+      "fvm": 7,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Musah|Milan",
+      "name": "Musah",
+      "team": "Milan",
+      "quotation": 3,
+      "fvm": 15,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "N'Dri|Lecce",
+      "name": "N'Dri",
+      "team": "Lecce",
+      "quotation": 3,
+      "fvm": 15,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Odenthal|Sassuolo",
+      "name": "Odenthal",
+      "team": "Sassuolo",
+      "quotation": 3,
+      "fvm": 8,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Ordonez C.|Parma",
+      "name": "Ordonez C.",
+      "team": "Parma",
+      "quotation": 3,
+      "fvm": 5,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Palma|Udinese",
+      "name": "Palma",
+      "team": "Udinese",
+      "quotation": 3,
+      "fvm": 11,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00",
+      "injury": "Lieve problema muscolare all’adduttore della coscia destra.",
+      "recoveryTime": "Ai box fino a metà settembre.",
+      "injuryStatus": "injured"
+    },
+    {
+      "playerKey": "Provstgaard|Lazio",
+      "name": "Provstgaard",
+      "team": "Lazio",
+      "quotation": 3,
+      "fvm": 14,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Ranieri L.|Fiorentina",
+      "name": "Ranieri L.",
+      "team": "Fiorentina",
+      "quotation": 3,
+      "fvm": 10,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Schingtienne|Venezia",
+      "name": "Schingtienne",
+      "team": "Venezia",
+      "quotation": 3,
+      "fvm": 10,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Sorensen O.|Parma",
+      "name": "Sorensen O.",
+      "team": "Parma",
+      "quotation": 3,
+      "fvm": 12,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Stankovic A.|Inter",
+      "name": "Stankovic A.",
+      "team": "Inter",
+      "quotation": 3,
+      "fvm": 7,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Sulemana I.|Atalanta",
+      "name": "Sulemana I.",
+      "team": "Atalanta",
+      "quotation": 3,
+      "fvm": 7,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Sverko|Venezia",
+      "name": "Sverko",
+      "team": "Venezia",
+      "quotation": 3,
+      "fvm": 7,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00",
+      "injury": "Recupero dopo intervento per problema all’anca.",
+      "recoveryTime": "Recuperabile da fine ottobre.",
+      "injuryStatus": "injured"
+    },
+    {
+      "playerKey": "Tchato|Frosinone",
+      "name": "Tchato",
+      "team": "Frosinone",
+      "quotation": 3,
+      "fvm": 8,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Abankwah|Udinese",
+      "name": "Abankwah",
+      "team": "Udinese",
+      "quotation": 2,
+      "fvm": 10,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Alhassane|Bologna",
+      "name": "Alhassane",
+      "team": "Bologna",
+      "quotation": 2,
+      "fvm": 6,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Aurelio|Cagliari",
+      "name": "Aurelio",
+      "team": "Cagliari",
+      "quotation": 2,
+      "fvm": 5,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Bakoune|Monza",
+      "name": "Bakoune",
+      "team": "Monza",
+      "quotation": 2,
+      "fvm": 4,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Biraghi|Torino",
+      "name": "Biraghi",
+      "team": "Torino",
+      "quotation": 2,
+      "fvm": 5,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Boloca|Sassuolo",
+      "name": "Boloca",
+      "team": "Sassuolo",
+      "quotation": 2,
+      "fvm": 5,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00",
+      "injury": "Problema al ginocchio.",
+      "recoveryTime": "Da valutare da metà settembre.",
+      "injuryStatus": "injured"
+    },
+    {
+      "playerKey": "Chakvetadze|Udinese",
+      "name": "Chakvetadze",
+      "team": "Udinese",
+      "quotation": 2,
+      "fvm": 6,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00",
+      "injury": "Frattura al terzo metatarso del piede destro.",
+      "recoveryTime": "Possibile rientro da inizio settembre.",
+      "injuryStatus": "injured"
+    },
+    {
+      "playerKey": "Cinquegrano|Sassuolo",
+      "name": "Cinquegrano",
+      "team": "Sassuolo",
+      "quotation": 2,
+      "fvm": 4,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Ciurria|Monza",
+      "name": "Ciurria",
+      "team": "Monza",
+      "quotation": 2,
+      "fvm": 6,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00",
+      "injury": "Noie fisiche.",
+      "recoveryTime": "Da valutare.",
+      "injuryStatus": "injured"
+    },
+    {
+      "playerKey": "Desplanches|Frosinone",
+      "name": "Desplanches",
+      "team": "Frosinone",
+      "quotation": 2,
+      "fvm": 3,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Diawara S.|Milan",
+      "name": "Diawara S.",
+      "team": "Milan",
+      "quotation": 2,
+      "fvm": 4,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Duncan|Venezia",
+      "name": "Duncan",
+      "team": "Venezia",
+      "quotation": 2,
+      "fvm": 4,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "El Azzouzi O.|Bologna",
+      "name": "El Azzouzi O.",
+      "team": "Bologna",
+      "quotation": 2,
+      "fvm": 10,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00",
+      "injury": "Lesione del bicipite femorale della coscia sinistra.",
+      "injuryStatus": "injured",
+      "recoveryTime": "Recuperabile dalla seconda metà di settembre."
+    },
+    {
+      "playerKey": "Fadera|Cagliari",
+      "name": "Fadera",
+      "team": "Cagliari",
+      "quotation": 2,
+      "fvm": 12,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Forson O.|Monza",
+      "name": "Forson O.",
+      "team": "Monza",
+      "quotation": 2,
+      "fvm": 1,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Franjic|Venezia",
+      "name": "Franjic",
+      "team": "Venezia",
+      "quotation": 2,
+      "fvm": 7,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Jean|Lecce",
+      "name": "Jean",
+      "team": "Lecce",
+      "quotation": 2,
+      "fvm": 4,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Lazzari|Lazio",
+      "name": "Lazzari",
+      "team": "Lazio",
+      "quotation": 2,
+      "fvm": 5,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Lipani|Sassuolo",
+      "name": "Lipani",
+      "team": "Sassuolo",
+      "quotation": 2,
+      "fvm": 5,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Lontani|Parma",
+      "name": "Lontani",
+      "team": "Parma",
+      "quotation": 2,
+      "fvm": 10,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Marin R.|Napoli",
+      "name": "Marin R.",
+      "team": "Napoli",
+      "quotation": 2,
+      "fvm": 8,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Ndaba|Lecce",
+      "name": "Ndaba",
+      "team": "Lecce",
+      "quotation": 2,
+      "fvm": 5,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Ndiaye|Parma",
+      "name": "Ndiaye",
+      "team": "Parma",
+      "quotation": 2,
+      "fvm": 8,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Otoa|Genoa",
+      "name": "Otoa",
+      "team": "Genoa",
+      "quotation": 2,
+      "fvm": 5,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Pellegrini Lu.|Lazio",
+      "name": "Pellegrini Lu.",
+      "team": "Lazio",
+      "quotation": 2,
+      "fvm": 7,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00",
+      "injury": "Noie fisiche.",
+      "recoveryTime": "Da valutare.",
+      "injuryStatus": "injured"
+    },
+    {
+      "playerKey": "Provedel|Inter",
+      "name": "Provedel",
+      "team": "Inter",
+      "quotation": 2,
+      "fvm": 5,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Puczka|Genoa",
+      "name": "Puczka",
+      "team": "Genoa",
+      "quotation": 2,
+      "fvm": 3,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Sabelli|Genoa",
+      "name": "Sabelli",
+      "team": "Genoa",
+      "quotation": 2,
+      "fvm": 5,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Sagrado|Venezia",
+      "name": "Sagrado",
+      "team": "Venezia",
+      "quotation": 2,
+      "fvm": 4,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Terracciano F.|Milan",
+      "name": "Terracciano F.",
+      "team": "Milan",
+      "quotation": 2,
+      "fvm": 4,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Van Der Brempt|Como",
+      "name": "Van Der Brempt",
+      "team": "Como",
+      "quotation": 2,
+      "fvm": 5,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Venturino|Genoa",
+      "name": "Venturino",
+      "team": "Genoa",
+      "quotation": 2,
+      "fvm": 4,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Amey|Frosinone",
+      "name": "Amey",
+      "team": "Frosinone",
+      "quotation": 1,
+      "fvm": 1,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Anjorin|Torino",
+      "name": "Anjorin",
+      "team": "Torino",
+      "quotation": 1,
+      "fvm": 4,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Antov|Monza",
+      "name": "Antov",
+      "team": "Monza",
+      "quotation": 1,
+      "fvm": 2,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Azon|Como",
+      "name": "Azon",
+      "team": "Como",
+      "quotation": 1,
+      "fvm": 1,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Bayo V.|Udinese",
+      "name": "Bayo V.",
+      "team": "Udinese",
+      "quotation": 1,
+      "fvm": 3,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Belahyane|Lazio",
+      "name": "Belahyane",
+      "team": "Lazio",
+      "quotation": 1,
+      "fvm": 3,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Bleve|Lecce",
+      "name": "Bleve",
+      "team": "Lecce",
+      "quotation": 1,
+      "fvm": 1,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Cabal|Juventus",
+      "name": "Cabal",
+      "team": "Juventus",
+      "quotation": 1,
+      "fvm": 4,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Carboni F.|Parma",
+      "name": "Carboni F.",
+      "team": "Parma",
+      "quotation": 1,
+      "fvm": 3,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Christensen O.|Fiorentina",
+      "name": "Christensen O.",
+      "team": "Fiorentina",
+      "quotation": 1,
+      "fvm": 1,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Comotto|Milan",
+      "name": "Comotto",
+      "team": "Milan",
+      "quotation": 1,
+      "fvm": 1,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Contini|Napoli",
+      "name": "Contini",
+      "team": "Napoli",
+      "quotation": 1,
+      "fvm": 1,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Corvi|Parma",
+      "name": "Corvi",
+      "team": "Parma",
+      "quotation": 1,
+      "fvm": 10,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Cremaschi|Parma",
+      "name": "Cremaschi",
+      "team": "Parma",
+      "quotation": 1,
+      "fvm": 3,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Dagasso|Venezia",
+      "name": "Dagasso",
+      "team": "Venezia",
+      "quotation": 1,
+      "fvm": 1,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "De Martis|Parma",
+      "name": "De Martis",
+      "team": "Parma",
+      "quotation": 1,
+      "fvm": 1,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "De Marzi|Roma",
+      "name": "De Marzi",
+      "team": "Roma",
+      "quotation": 1,
+      "fvm": 1,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "De Silvestri|Bologna",
+      "name": "De Silvestri",
+      "team": "Bologna",
+      "quotation": 1,
+      "fvm": 4,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Di Gennaro|Inter",
+      "name": "Di Gennaro",
+      "team": "Inter",
+      "quotation": 1,
+      "fvm": 1,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "El Azzouzi A.|Frosinone",
+      "name": "El Azzouzi A.",
+      "team": "Frosinone",
+      "quotation": 1,
+      "fvm": 1,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Foe Ondoa|Monza",
+      "name": "Foe Ondoa",
+      "team": "Monza",
+      "quotation": 1,
+      "fvm": 2,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Fofana Sa.|Lecce",
+      "name": "Fofana Sa.",
+      "team": "Lecce",
+      "quotation": 1,
+      "fvm": 1,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Goldaniga|Como",
+      "name": "Goldaniga",
+      "team": "Como",
+      "quotation": 1,
+      "fvm": 1,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Gollini|Roma",
+      "name": "Gollini",
+      "team": "Roma",
+      "quotation": 1,
+      "fvm": 1,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Gomes|Venezia",
+      "name": "Gomes",
+      "team": "Venezia",
+      "quotation": 1,
+      "fvm": 1,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Grabara|Juventus",
+      "name": "Grabara",
+      "team": "Juventus",
+      "quotation": 1,
+      "fvm": 1,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Grandi|Venezia",
+      "name": "Grandi",
+      "team": "Venezia",
+      "quotation": 1,
+      "fvm": 1,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Happonen|Bologna",
+      "name": "Happonen",
+      "team": "Bologna",
+      "quotation": 1,
+      "fvm": 1,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Iannoni|Sassuolo",
+      "name": "Iannoni",
+      "team": "Sassuolo",
+      "quotation": 1,
+      "fvm": 1,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Ilic|Lecce",
+      "name": "Ilic",
+      "team": "Lecce",
+      "quotation": 1,
+      "fvm": 8,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Kaba|Lecce",
+      "name": "Kaba",
+      "team": "Lecce",
+      "quotation": 1,
+      "fvm": 2,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Kone B.|Frosinone",
+      "name": "Kone B.",
+      "team": "Frosinone",
+      "quotation": 1,
+      "fvm": 3,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Laerke|Lecce",
+      "name": "Laerke",
+      "team": "Lecce",
+      "quotation": 1,
+      "fvm": 1,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Lahdo|Como",
+      "name": "Lahdo",
+      "team": "Como",
+      "quotation": 1,
+      "fvm": 1,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Lauberbach|Venezia",
+      "name": "Lauberbach",
+      "team": "Venezia",
+      "quotation": 1,
+      "fvm": 1,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Lezzerini|Fiorentina",
+      "name": "Lezzerini",
+      "team": "Fiorentina",
+      "quotation": 1,
+      "fvm": 1,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Lisman|Venezia",
+      "name": "Lisman",
+      "team": "Venezia",
+      "quotation": 1,
+      "fvm": 1,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Liteta|Cagliari",
+      "name": "Liteta",
+      "team": "Cagliari",
+      "quotation": 1,
+      "fvm": 1,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Lolic|Frosinone",
+      "name": "Lolic",
+      "team": "Frosinone",
+      "quotation": 1,
+      "fvm": 1,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Lulli|Roma",
+      "name": "Lulli",
+      "team": "Roma",
+      "quotation": 1,
+      "fvm": 3,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Marianucci|Napoli",
+      "name": "Marianucci",
+      "team": "Napoli",
+      "quotation": 1,
+      "fvm": 3,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00",
+      "injury": "Lesione di alto grado del collaterale mediale del ginocchio sinistro.",
+      "recoveryTime": "Rischio stop di almeno due mesi.",
+      "injuryStatus": "injured"
+    },
+    {
+      "playerKey": "Mascardi|Torino",
+      "name": "Mascardi",
+      "team": "Torino",
+      "quotation": 1,
+      "fvm": 13,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Maye|Monza",
+      "name": "Maye",
+      "team": "Monza",
+      "quotation": 1,
+      "fvm": 1,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Mazzocchi|Napoli",
+      "name": "Mazzocchi",
+      "team": "Napoli",
+      "quotation": 1,
+      "fvm": 3,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Missori|Sassuolo",
+      "name": "Missori",
+      "team": "Sassuolo",
+      "quotation": 1,
+      "fvm": 2,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Mlacic|Udinese",
+      "name": "Mlacic",
+      "team": "Udinese",
+      "quotation": 1,
+      "fvm": 3,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Montipò|Venezia",
+      "name": "Montipò",
+      "team": "Venezia",
+      "quotation": 1,
+      "fvm": 1,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Motta|Lazio",
+      "name": "Motta",
+      "team": "Lazio",
+      "quotation": 1,
+      "fvm": 1,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Mout|Monza",
+      "name": "Mout",
+      "team": "Monza",
+      "quotation": 1,
+      "fvm": 2,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Omar Fayed|Frosinone",
+      "name": "Omar Fayed",
+      "team": "Frosinone",
+      "quotation": 1,
+      "fvm": 1,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Padelli|Udinese",
+      "name": "Padelli",
+      "team": "Udinese",
+      "quotation": 1,
+      "fvm": 1,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Paleari|Torino",
+      "name": "Paleari",
+      "team": "Torino",
+      "quotation": 1,
+      "fvm": 1,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Patric|Lazio",
+      "name": "Patric",
+      "team": "Lazio",
+      "quotation": 1,
+      "fvm": 1,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00",
+      "injury": "Problema fisico.",
+      "recoveryTime": "Da valutare.",
+      "injuryStatus": "injured"
+    },
+    {
+      "playerKey": "Penev|Lecce",
+      "name": "Penev",
+      "team": "Lecce",
+      "quotation": 1,
+      "fvm": 1,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Pessina Mas.|Bologna",
+      "name": "Pessina Mas.",
+      "team": "Bologna",
+      "quotation": 1,
+      "fvm": 1,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Piana|Udinese",
+      "name": "Piana",
+      "team": "Udinese",
+      "quotation": 1,
+      "fvm": 1,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Pieragnolo|Sassuolo",
+      "name": "Pieragnolo",
+      "team": "Sassuolo",
+      "quotation": 1,
+      "fvm": 1,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00",
+      "injury": "Recupero da lesione del legamento crociato anteriore.",
+      "recoveryTime": "Possibile rientro da ottobre.",
+      "injuryStatus": "injured"
+    },
+    {
+      "playerKey": "Pinsoglio|Juventus",
+      "name": "Pinsoglio",
+      "team": "Juventus",
+      "quotation": 1,
+      "fvm": 1,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Pisseri|Frosinone",
+      "name": "Pisseri",
+      "team": "Frosinone",
+      "quotation": 1,
+      "fvm": 1,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Pizzignacco|Monza",
+      "name": "Pizzignacco",
+      "team": "Monza",
+      "quotation": 1,
+      "fvm": 1,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Pozzi|Venezia",
+      "name": "Pozzi",
+      "team": "Venezia",
+      "quotation": 1,
+      "fvm": 1,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Przyborek|Lazio",
+      "name": "Przyborek",
+      "team": "Lazio",
+      "quotation": 1,
+      "fvm": 5,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Radunovic|Cagliari",
+      "name": "Radunovic",
+      "team": "Cagliari",
+      "quotation": 1,
+      "fvm": 1,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Renzetti|Lazio",
+      "name": "Renzetti",
+      "team": "Lazio",
+      "quotation": 1,
+      "fvm": 1,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Rugani|Juventus",
+      "name": "Rugani",
+      "team": "Juventus",
+      "quotation": 1,
+      "fvm": 3,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Russo A.|Sassuolo",
+      "name": "Russo A.",
+      "team": "Sassuolo",
+      "quotation": 1,
+      "fvm": 1,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Satalino|Sassuolo",
+      "name": "Satalino",
+      "team": "Sassuolo",
+      "quotation": 1,
+      "fvm": 1,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Sherri|Cagliari",
+      "name": "Sherri",
+      "team": "Cagliari",
+      "quotation": 1,
+      "fvm": 1,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Siviero|Torino",
+      "name": "Siviero",
+      "team": "Torino",
+      "quotation": 1,
+      "fvm": 1,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Sommariva|Genoa",
+      "name": "Sommariva",
+      "team": "Genoa",
+      "quotation": 1,
+      "fvm": 1,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Sportiello|Atalanta",
+      "name": "Sportiello",
+      "team": "Atalanta",
+      "quotation": 1,
+      "fvm": 1,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Stolz|Genoa",
+      "name": "Stolz",
+      "team": "Genoa",
+      "quotation": 1,
+      "fvm": 1,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Strajnar|Monza",
+      "name": "Strajnar",
+      "team": "Monza",
+      "quotation": 1,
+      "fvm": 1,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Terracciano|Milan",
+      "name": "Terracciano",
+      "team": "Milan",
+      "quotation": 1,
+      "fvm": 1,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Tornqvist|Como",
+      "name": "Tornqvist",
+      "team": "Como",
+      "quotation": 1,
+      "fvm": 1,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Torriani|Milan",
+      "name": "Torriani",
+      "team": "Milan",
+      "quotation": 1,
+      "fvm": 1,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Trepy|Cagliari",
+      "name": "Trepy",
+      "team": "Cagliari",
+      "quotation": 1,
+      "fvm": 2,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00",
+      "injury": "Condizioni monitorate dallo staff medico dopo il ricovero di agosto.",
+      "injuryStatus": "injured",
+      "recoveryTime": "Tempi di recupero da valutare; assente nel prossimo turno."
+    },
+    {
+      "playerKey": "Turati|Sassuolo",
+      "name": "Turati",
+      "team": "Sassuolo",
+      "quotation": 1,
+      "fvm": 1,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Vaz|Roma",
+      "name": "Vaz",
+      "team": "Roma",
+      "quotation": 1,
+      "fvm": 4,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Vigorito|Como",
+      "name": "Vigorito",
+      "team": "Como",
+      "quotation": 1,
+      "fvm": 1,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Vismara|Atalanta",
+      "name": "Vismara",
+      "team": "Atalanta",
+      "quotation": 1,
+      "fvm": 1,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Zarraga|Udinese",
+      "name": "Zarraga",
+      "team": "Udinese",
+      "quotation": 1,
+      "fvm": 4,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Ziolkowski|Monza",
+      "name": "Ziolkowski",
+      "team": "Monza",
+      "quotation": 1,
+      "fvm": 2,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Ngonge|Monza",
+      "name": "Ngonge",
+      "team": "Monza",
+      "quotation": 1,
+      "fvm": 0,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Berretta|Monza",
+      "name": "Berretta",
+      "team": "Monza",
+      "quotation": 1,
+      "fvm": 0,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Galazzi|Monza",
+      "name": "Galazzi",
+      "team": "Monza",
+      "quotation": 1,
+      "fvm": 0,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Keita Balde|Monza",
+      "name": "Keita Balde",
+      "team": "Monza",
+      "quotation": 1,
+      "fvm": 0,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Martins|Monza",
+      "name": "Martins",
+      "team": "Monza",
+      "quotation": 1,
+      "fvm": 0,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Loubao|Monza",
+      "name": "Loubao",
+      "team": "Monza",
+      "quotation": 1,
+      "fvm": 0,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Corrado|Frosinone",
+      "name": "Corrado",
+      "team": "Frosinone",
+      "quotation": 1,
+      "fvm": 0,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Oyono J.|Frosinone",
+      "name": "Oyono J.",
+      "team": "Frosinone",
+      "quotation": 1,
+      "fvm": 0,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Grosso|Frosinone",
+      "name": "Grosso",
+      "team": "Frosinone",
+      "quotation": 1,
+      "fvm": 0,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Altare|Venezia",
+      "name": "Altare",
+      "team": "Venezia",
+      "quotation": 1,
+      "fvm": 0,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Conde|Venezia",
+      "name": "Conde",
+      "team": "Venezia",
+      "quotation": 1,
+      "fvm": 0,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "L. Berardi|Venezia",
+      "name": "L. Berardi",
+      "team": "Venezia",
+      "quotation": 1,
+      "fvm": 0,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Ciocci|Cagliari",
+      "name": "Ciocci",
+      "team": "Cagliari",
+      "quotation": 1,
+      "fvm": 0,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Prati|Cagliari",
+      "name": "Prati",
+      "team": "Cagliari",
+      "quotation": 1,
+      "fvm": 0,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Albaraccin|Cagliari",
+      "name": "Albaraccin",
+      "team": "Cagliari",
+      "quotation": 1,
+      "fvm": 0,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Akarakiri|Cagliari",
+      "name": "Akarakiri",
+      "team": "Cagliari",
+      "quotation": 1,
+      "fvm": 0,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Dossena|Como",
+      "name": "Dossena",
+      "team": "Como",
+      "quotation": 5,
+      "fvm": 0,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Cuenca|Como",
+      "name": "Cuenca",
+      "team": "Como",
+      "quotation": 8,
+      "fvm": 0,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Matturro|Genoa",
+      "name": "Matturro",
+      "team": "Genoa",
+      "quotation": 1,
+      "fvm": 0,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Kospo|Fiorentina",
+      "name": "Kospo",
+      "team": "Fiorentina",
+      "quotation": 1,
+      "fvm": 0,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Lysionok|Genoa",
+      "name": "Lysionok",
+      "team": "Genoa",
+      "quotation": 1,
+      "fvm": 0,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Carbone|Genoa",
+      "name": "Carbone",
+      "team": "Genoa",
+      "quotation": 1,
+      "fvm": 0,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Lafont|Genoa",
+      "name": "Lafont",
+      "team": "Genoa",
+      "quotation": 3,
+      "fvm": 0,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Carboni Valentin|Inter",
+      "name": "Carboni Valentin",
+      "team": "Inter",
+      "quotation": 5,
+      "fvm": 0,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Furlanetto|Lazio",
+      "name": "Furlanetto",
+      "team": "Lazio",
+      "quotation": 1,
+      "fvm": 0,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Galassi|Lazio",
+      "name": "Galassi",
+      "team": "Lazio",
+      "quotation": 1,
+      "fvm": 0,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Cristo Munoz|Lazio",
+      "name": "Cristo Munoz",
+      "team": "Lazio",
+      "quotation": 1,
+      "fvm": 0,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Banda|Lecce",
+      "name": "Banda",
+      "team": "Lecce",
+      "quotation": 19,
+      "fvm": 0,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Gutierrez|Napoli",
+      "name": "Gutierrez",
+      "team": "Napoli",
+      "quotation": 11,
+      "fvm": 0,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Suzuki|Parma",
+      "name": "Suzuki",
+      "team": "Parma",
+      "quotation": 7,
+      "fvm": 0,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Circati|Parma",
+      "name": "Circati",
+      "team": "Parma",
+      "quotation": 7,
+      "fvm": 0,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Kouda|Parma",
+      "name": "Kouda",
+      "team": "Parma",
+      "quotation": 1,
+      "fvm": 0,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Hartley|Parma",
+      "name": "Hartley",
+      "team": "Parma",
+      "quotation": 1,
+      "fvm": 0,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Vasquez Devis|Roma",
+      "name": "Vasquez Devis",
+      "team": "Roma",
+      "quotation": 1,
+      "fvm": 0,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Arena|Roma",
+      "name": "Arena",
+      "team": "Roma",
+      "quotation": 2,
+      "fvm": 0,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Zacchi|Sassuolo",
+      "name": "Zacchi",
+      "team": "Sassuolo",
+      "quotation": 1,
+      "fvm": 0,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Romagna|Sassuolo",
+      "name": "Romagna",
+      "team": "Sassuolo",
+      "quotation": 1,
+      "fvm": 0,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Israel|Torino",
+      "name": "Israel",
+      "team": "Torino",
+      "quotation": 1,
+      "fvm": 0,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Sava|Udinese",
+      "name": "Sava",
+      "team": "Udinese",
+      "quotation": 1,
+      "fvm": 0,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    },
+    {
+      "playerKey": "Nunziante|Udinese",
+      "name": "Nunziante",
+      "team": "Udinese",
+      "quotation": 1,
+      "fvm": 0,
+      "lastUpdated": "2026-08-31T18:20:00+02:00",
+      "sourceUpdatedAt": "2026-08-31T18:20:00+02:00"
+    }
+  ],
+  "changes": [
+    {
+      "type": "injury_update",
+      "player": "Yildiz|Juventus",
+      "detail": "Problema al piede sinistro; ulteriori valutazioni mediche."
+    },
+    {
+      "type": "injury_update",
+      "player": "Zaniolo|Udinese",
+      "detail": "Lesione muscolare al bicipite femorale della coscia destra."
+    },
+    {
+      "type": "injury_update",
+      "player": "McKennie|Juventus",
+      "detail": "Affaticamento muscolare alla gamba."
+    },
+    {
+      "type": "injury_update",
+      "player": "N'Dicka|Roma",
+      "detail": "Problema fisico accusato nel riscaldamento prepartita."
+    },
+    {
+      "type": "injury_update",
+      "player": "Casadei|Torino",
+      "detail": "Affaticamento muscolare alla gamba."
+    },
+    {
+      "type": "injury_update",
+      "player": "Thuram K.|Juventus",
+      "detail": "Sindrome femoro-rotulea."
+    },
+    {
+      "type": "injury_update",
+      "player": "Konè I.|Sassuolo",
+      "detail": "Rottura di tibia e perone; operato."
+    },
+    {
+      "type": "injury_update",
+      "player": "Hien|Atalanta",
+      "detail": "Recupero dopo intervento per lesione del tendine prossimale del muscolo semimembranoso della coscia sinistra."
+    },
+    {
+      "type": "injury_update",
+      "player": "Mina|Cagliari",
+      "detail": "Affaticamento muscolare al polpaccio."
+    },
+    {
+      "type": "injury_update",
+      "player": "Buongiorno|Napoli",
+      "detail": "Recupero dopo intervento al menisco del ginocchio destro."
+    },
+    {
+      "type": "injury_update",
+      "player": "Kristensen T.|Atalanta",
+      "detail": "Problema alla caviglia; da valutare quotidianamente."
+    },
+    {
+      "type": "injury_update",
+      "player": "Pessina|Monza",
+      "detail": "Lussazione della rotula del ginocchio destro."
+    },
+    {
+      "type": "injury_update",
+      "player": "Gimenez|Milan",
+      "detail": "Distorsione alla caviglia."
+    },
+    {
+      "type": "injury_update",
+      "player": "Marusic|Lazio",
+      "detail": "Problema muscolare alla coscia."
+    },
+    {
+      "type": "injury_update",
+      "player": "Nicolussi Caviglia|Parma",
+      "detail": "Lesione di medio grado alla coscia destra; operato a fine agosto."
+    },
+    {
+      "type": "injury_update",
+      "player": "Sulemana K.|Atalanta",
+      "detail": "Lesione del collaterale mediale di secondo grado del ginocchio sinistro."
+    },
+    {
+      "type": "injury_update",
+      "player": "Tourè I.|Monza",
+      "detail": "Fastidio articolare."
+    },
+    {
+      "type": "injury_update",
+      "player": "Addai|Como",
+      "detail": "Rottura del tendine d'Achille."
+    },
+    {
+      "type": "injury_update",
+      "player": "Adorante|Venezia",
+      "detail": "Operato per un problema alla schiena."
+    },
+    {
+      "type": "injury_update",
+      "player": "Dele-Bashiru|Lazio",
+      "detail": "Problema muscolare alla gamba."
+    },
+    {
+      "type": "injury_update",
+      "player": "Moreno M.|Venezia",
+      "detail": "Noie fisiche."
+    },
+    {
+      "type": "injury_update",
+      "player": "Parisi|Fiorentina",
+      "detail": "Recupero dall'infortunio al legamento crociato del ginocchio."
+    },
+    {
+      "type": "injury_update",
+      "player": "Rensch|Roma",
+      "detail": "Risentimento muscolare al flessore sinistro."
+    },
+    {
+      "type": "injury_update",
+      "player": "Cataldi|Lazio",
+      "detail": "Recupero dopo ernia bilaterale."
+    },
+    {
+      "type": "injury_update",
+      "player": "Walukiewicz|Sassuolo",
+      "detail": "Forte trauma contusivo alla gamba destra."
+    },
+    {
+      "type": "injury_update",
+      "player": "Zanoli|Udinese",
+      "detail": "Recupero da lesione del legamento crociato anteriore."
+    },
+    {
+      "type": "injury_update",
+      "player": "Candè|Sassuolo",
+      "detail": "Recupero da rottura del legamento crociato anteriore."
+    },
+    {
+      "type": "injury_update",
+      "player": "Idrissi R.|Cagliari",
+      "detail": "In recupero dalla rottura del legamento crociato."
+    },
+    {
+      "type": "injury_update",
+      "player": "Palma|Udinese",
+      "detail": "Lieve problema muscolare all’adduttore della coscia destra."
+    },
+    {
+      "type": "injury_update",
+      "player": "Sverko|Venezia",
+      "detail": "Recupero dopo intervento per problema all’anca."
+    },
+    {
+      "type": "injury_update",
+      "player": "Boloca|Sassuolo",
+      "detail": "Problema al ginocchio."
+    },
+    {
+      "type": "injury_update",
+      "player": "Chakvetadze|Udinese",
+      "detail": "Frattura al terzo metatarso del piede destro."
+    },
+    {
+      "type": "injury_update",
+      "player": "Ciurria|Monza",
+      "detail": "Noie fisiche."
+    },
+    {
+      "type": "injury_update",
+      "player": "El Azzouzi O.|Bologna",
+      "detail": "Lesione del bicipite femorale della coscia sinistra."
+    },
+    {
+      "type": "injury_update",
+      "player": "Pellegrini Lu.|Lazio",
+      "detail": "Noie fisiche."
+    },
+    {
+      "type": "injury_update",
+      "player": "Marianucci|Napoli",
+      "detail": "Lesione di alto grado del collaterale mediale del ginocchio sinistro."
+    },
+    {
+      "type": "injury_update",
+      "player": "Patric|Lazio",
+      "detail": "Problema fisico."
+    },
+    {
+      "type": "injury_update",
+      "player": "Pieragnolo|Sassuolo",
+      "detail": "Recupero da lesione del legamento crociato anteriore."
+    },
+    {
+      "type": "injury_update",
+      "player": "Trepy|Cagliari",
+      "detail": "Condizioni monitorate dallo staff medico dopo il ricovero di agosto."
+    }
+  ],
+  "diagnostics": {
+    "quotationPlayers": 557,
+    "injuryPlayers": 39,
+    "mode": "static-fallback"
+  }
+}

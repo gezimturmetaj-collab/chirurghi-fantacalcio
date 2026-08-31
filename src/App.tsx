@@ -119,7 +119,8 @@ const BASE_BUDGET = 500
 const STORAGE_KEY = 'fantacalcio-auction-state-v1'
 const DATA_UPDATE_KEY = 'fantacalcio-data-update-v1'
 const DATA_UPDATE_META_KEY = 'fantacalcio-data-update-meta-v1'
-const UPDATE_ENDPOINT = 'https://celebrated-fox-b05fdb.netlify.app/.netlify/functions/fantacalcio-update'
+const UPDATE_ENDPOINT = '/.netlify/functions/fantacalcio-update'
+const UPDATE_ENDPOINT_FALLBACK = 'https://celebrated-fox-b05fdb.netlify.app/.netlify/functions/fantacalcio-update'
 
 type SavedAuction = {
   setupComplete?: boolean
@@ -5179,21 +5180,38 @@ function App() {
     }
 
     try {
-      const response = await fetch(`${UPDATE_ENDPOINT}?t=${Date.now()}`, {
-        method: 'GET',
-        cache: 'no-store',
-        headers: { Accept: 'application/json', 'Cache-Control': 'no-cache' },
-      })
+      const endpoints = [UPDATE_ENDPOINT, UPDATE_ENDPOINT_FALLBACK]
+      let response: Response | null = null
+      let lastServerError = ''
 
-      if (!response.ok) {
-        let detail = ''
+      for (const endpoint of endpoints) {
         try {
-          const errorPayload = await response.json() as { error?: string }
-          detail = errorPayload?.error ? ` ${errorPayload.error}` : ''
-        } catch {
-          detail = ''
+          const candidate = await fetch(`${endpoint}?t=${Date.now()}`, {
+            method: 'GET',
+            cache: 'no-store',
+            headers: { Accept: 'application/json', 'Cache-Control': 'no-cache' },
+          })
+
+          if (candidate.ok) {
+            response = candidate
+            break
+          }
+
+          let detail = ''
+          try {
+            const errorPayload = await candidate.json() as { error?: string }
+            detail = errorPayload?.error ? ` ${errorPayload.error}` : ''
+          } catch {
+            detail = ''
+          }
+          lastServerError = `HTTP ${candidate.status}.${detail}`
+        } catch (fetchError) {
+          lastServerError = fetchError instanceof Error ? fetchError.message : 'errore di rete'
         }
-        throw new Error(`Server aggiornamenti non disponibile (${response.status}).${detail}`)
+      }
+
+      if (!response) {
+        throw new Error(`Server aggiornamenti non disponibile. ${lastServerError}`.trim())
       }
 
       const payload = (await response.json()) as UpdatePayload

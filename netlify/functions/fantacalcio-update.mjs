@@ -64,20 +64,40 @@ function toNumber(value) {
 }
 
 async function fetchHtml(url) {
-  const response = await fetch(url, {
-    headers: {
-      'user-agent': 'Mozilla/5.0 (compatible; ChirurghiFantacalcio/2026.27)',
-      accept: 'text/html,application/xhtml+xml',
-      'accept-language': 'it-IT,it;q=0.9,en;q=0.6'
-    },
-    redirect: 'follow'
-  })
+  let lastError = null
 
-  if (!response.ok) {
-    throw new Error(`Fonte non disponibile (${response.status}): ${url}`)
+  for (let attempt = 1; attempt <= 3; attempt += 1) {
+    try {
+      const controller = new AbortController()
+      const timer = setTimeout(() => controller.abort(), 12000)
+
+      const response = await fetch(`${url}${url.includes('?') ? '&' : '?'}_=${Date.now()}`, {
+        headers: {
+          'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0 Safari/537.36',
+          accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+          'accept-language': 'it-IT,it;q=0.9,en;q=0.6',
+          'cache-control': 'no-cache',
+          pragma: 'no-cache'
+        },
+        redirect: 'follow',
+        signal: controller.signal
+      })
+      clearTimeout(timer)
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`)
+      }
+
+      const html = await response.text()
+      if (html.length < 1000) throw new Error('risposta HTML troppo corta')
+      return html
+    } catch (error) {
+      lastError = error
+      if (attempt < 3) await new Promise(resolve => setTimeout(resolve, 350 * attempt))
+    }
   }
 
-  return response.text()
+  throw new Error(`Fonte non disponibile: ${url} (${lastError instanceof Error ? lastError.message : 'errore di rete'})`)
 }
 
 function getCells(tr) {
@@ -263,6 +283,17 @@ function findByNameAndTeam(rows, name, team) {
 }
 
 export default async function handler(request) {
+  if (request.method === 'OPTIONS') {
+    return new Response(null, {
+      status: 204,
+      headers: {
+        'access-control-allow-origin': '*',
+        'access-control-allow-methods': 'GET, OPTIONS',
+        'access-control-allow-headers': 'Content-Type, Accept, Cache-Control'
+      }
+    })
+  }
+
   if (request.method !== 'GET') {
     return new Response(JSON.stringify({ error: 'Method not allowed' }), {
       status: 405,

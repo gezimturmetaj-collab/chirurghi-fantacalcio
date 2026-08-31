@@ -77,7 +77,10 @@ export class UpdateManager {
 
   async loadManifestFromUrl(url = '/data/update_manifest.json') {
     try {
-      const response = await fetch(`${url}?t=${Date.now()}`, { cache: 'no-store' })
+      const response = await fetch(`${url}?t=${Date.now()}`, {
+        cache: 'no-store',
+        headers: { Accept: 'application/json', 'Cache-Control': 'no-cache' },
+      })
       if (!response.ok) throw new Error(`Manifest HTTP ${response.status}`)
 
       const manifest = await response.json() as UpdateManifest

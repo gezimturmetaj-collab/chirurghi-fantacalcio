@@ -950,7 +950,7 @@ const APP_THEME_CSS = `
   }
 
   /* =========================================================
-     MEGA FINAL ALL-IN-ONE — WAR / VERDETTO / ESITI / RIVALI / CONFRONTO
+     PERFORMANCE FIX — MEMO HOT PATHS / WAR RESPONSIVE
      Più pulita, moderna e leggibile durante l'asta
      ========================================================= */
 
@@ -2925,9 +2925,23 @@ function App() {
     }
   }
 
-  const auctionMoves = roles
-    .map((currentRole) => buildRoleMove(currentRole))
-    .sort((a, b) => b.urgency - a.urgency)
+  const auctionMoves = useMemo(
+    () =>
+      roles
+        .map((currentRole) => buildRoleMove(currentRole))
+        .sort((a, b) => b.urgency - a.urgency),
+    [
+      availablePlayers,
+      purchases,
+      rivalSales,
+      budget,
+      startingBudget,
+      leagueSize,
+      strategy,
+      dataUpdates,
+      wishlist,
+    ]
+  )
 
   const filteredAuctionMoves =
     suggestionRole === 'ALL'
@@ -2954,10 +2968,14 @@ function App() {
   const selectedPlayer =
     availablePlayers.find((player) => player.name === selectedName) ?? null
 
-  const comparisonPlayers = comparisonNames.flatMap((name) => {
-    const player = availablePlayers.find((item) => item.name === name)
-    return player ? [player] : []
-  })
+  const comparisonPlayers = useMemo(
+    () =>
+      comparisonNames.flatMap((name) => {
+        const player = availablePlayers.find((item) => item.name === name)
+        return player ? [player] : []
+      }),
+    [comparisonNames, availablePlayers]
+  )
 
 
   function estimatedStarterPct(player: Player) {
@@ -3825,9 +3843,23 @@ function App() {
   ])
 
 
-  const rivalPredictions = activeRivals
-    .map((_, rivalId) => rivalPrediction(rivalId))
-    .sort((a, b) => b.threat - a.threat)
+  const rivalPredictions = useMemo(
+    () =>
+      rivalNames
+        .slice(0, activeRivalCount)
+        .map((_, rivalId) => rivalPrediction(rivalId))
+        .sort((a, b) => b.threat - a.threat),
+    [
+      rivalNames,
+      activeRivalCount,
+      rivalSales,
+      purchases,
+      budget,
+      startingBudget,
+      leagueSize,
+      strategy,
+    ]
+  )
 
   const averageRivalBudget = rivalPredictions.length > 0
     ? rivalPredictions.reduce((total, rival) => total + rival.remaining, 0) / rivalPredictions.length
@@ -3842,35 +3874,67 @@ function App() {
   const remainingBudgetShare = startingBudget > 0 ? budget / startingBudget : 0
   const cashEdge = budget - averageRivalBudget
 
-  const predictiveCallCandidates = availablePlayers
-    .filter((player) => roleRemaining(player.role) > 0)
-    .map((player) => {
-      const market = Math.max(1, getMarket(player))
-      const intel = buyNowIntelligence(player, market)
-      const move = auctionMoves.find((item) => item.role === player.role)
-      const rivalInterest = activeRivals.length > 0
-        ? activeRivals.reduce(
-            (total, _, rivalId) => total + rivalPlayerDanger(rivalId, player, market),
-            0
-          ) / activeRivals.length
-        : 1
-      const callScore = clampScore(
-        intel.actionScore * .64 +
-        (move?.urgency ?? 5) * 10 * .16 +
-        rivalInterest * 10 * .12 +
-        (isStarred(player) ? 100 : wishlistItemFor(player) ? 72 : 45) * .08
-      )
-      return { player, intel, callScore, rivalInterest, move }
-    })
-    .sort((a, b) => b.callScore - a.callScore)
-    .slice(0, 5)
+  const predictiveCallCandidates = useMemo(
+    () =>
+      availablePlayers
+          .filter((player) => roleRemaining(player.role) > 0)
+          .map((player) => {
+            const market = Math.max(1, getMarket(player))
+            const intel = buyNowIntelligence(player, market)
+            const move = auctionMoves.find((item) => item.role === player.role)
+            const rivalInterest = activeRivals.length > 0
+              ? activeRivals.reduce(
+                  (total, _, rivalId) => total + rivalPlayerDanger(rivalId, player, market),
+                  0
+                ) / activeRivals.length
+              : 1
+            const callScore = clampScore(
+              intel.actionScore * .64 +
+              (move?.urgency ?? 5) * 10 * .16 +
+              rivalInterest * 10 * .12 +
+              (isStarred(player) ? 100 : wishlistItemFor(player) ? 72 : 45) * .08
+            )
+            return { player, intel, callScore, rivalInterest, move }
+          })
+          .sort((a, b) => b.callScore - a.callScore)
+          .slice(0, 5),
+    [
+      availablePlayers,
+      purchases,
+      rivalSales,
+      budget,
+      startingBudget,
+      leagueSize,
+      strategy,
+      suggestionMode,
+      dataUpdates,
+      wishlist,
+      auctionMoves,
+      rivalNames,
+      activeRivalCount,
+    ]
+  )
 
   const predictiveBestCall = predictiveCallCandidates[0] ?? null
 
-  const predictiveGlobalDecoy = availablePlayers
-    .filter((player) => !isStarred(player) && roleRemaining(player.role) > 0)
-    .map((player) => ({ player, score: calculateDecoyScore(player) }))
-    .sort((a, b) => b.score - a.score)[0] ?? null
+  const predictiveGlobalDecoy = useMemo(
+    () =>
+      availablePlayers
+        .filter((player) => !isStarred(player) && roleRemaining(player.role) > 0)
+        .map((player) => ({ player, score: calculateDecoyScore(player) }))
+        .sort((a, b) => b.score - a.score)[0] ?? null,
+    [
+      availablePlayers,
+      purchases,
+      rivalSales,
+      budget,
+      startingBudget,
+      leagueSize,
+      strategy,
+      dataUpdates,
+      wishlist,
+    ]
+  )
 
   const dominantRival = rivalPredictions[0] ?? null
   const strongestRivalNeed = dominantRival?.primary ?? null
@@ -3903,26 +3967,38 @@ function App() {
   }
 
 
-  const closingPlan = roles.map((role) => {
-    const missing = roleRemaining(role)
-    const budgetRoom = Math.max(0, adaptiveRoleBudget(role) - spentByRole(role))
-    const minReserve = missing
-    const attackRoom = Math.max(0, budgetRoom - minReserve)
-    const availableRole = availablePlayers
-      .filter((player) => player.role === role)
-      .map((player) => ({ player, score: chirurgoScore(player).total, max: calculateDynamicMax(player) }))
-      .sort((a, b) => b.score - a.score)
+  const closingPlan = useMemo(
+    () =>
+      roles.map((role) => {
+          const missing = roleRemaining(role)
+          const budgetRoom = Math.max(0, adaptiveRoleBudget(role) - spentByRole(role))
+          const minReserve = missing
+          const attackRoom = Math.max(0, budgetRoom - minReserve)
+          const availableRole = availablePlayers
+            .filter((player) => player.role === role)
+            .map((player) => ({ player, score: chirurgoScore(player).total, max: calculateDynamicMax(player) }))
+            .sort((a, b) => b.score - a.score)
 
-    const topAffordable = availableRole.find((item) => item.max <= Math.max(1, budget))
-    return {
-      role,
-      missing,
-      budgetRoom,
-      minReserve,
-      attackRoom,
-      topAffordable,
-    }
-  })
+          const topAffordable = availableRole.find((item) => item.max <= Math.max(1, budget))
+          return {
+            role,
+            missing,
+            budgetRoom,
+            minReserve,
+            attackRoom,
+            topAffordable,
+          }
+        }),
+    [
+      availablePlayers,
+      purchases,
+      budget,
+      startingBudget,
+      leagueSize,
+      strategy,
+      dataUpdates,
+    ]
+  )
 
   const totalMissingSlots = closingPlan.reduce((total, item) => total + item.missing, 0)
   const minimumClosingReserve = totalMissingSlots
@@ -3934,16 +4010,28 @@ function App() {
     closingAttackBudget >= totalMissingSlots * 3 ? 'GESTIBILE' : 'STRETTA'
 
 
-  const remainingMarketNeed = roles.reduce((total, role) => {
-    const missing = roleRemaining(role)
-    if (missing <= 0) return total
-    const roleMarkets = availablePlayers
-      .filter((player) => player.role === role)
-      .map((player) => Math.max(1, getMarket(player)))
-      .sort((a, b) => a - b)
-    const expected = roleMarkets.slice(0, missing).reduce((sum, value) => sum + value, 0)
-    return total + Math.max(missing, expected)
-  }, 0)
+  const remainingMarketNeed = useMemo(
+    () =>
+      roles.reduce((total, role) => {
+        const missing = roleRemaining(role)
+        if (missing <= 0) return total
+        const roleMarkets = availablePlayers
+          .filter((player) => player.role === role)
+          .map((player) => Math.max(1, getMarket(player)))
+          .sort((a, b) => a - b)
+        const expected = roleMarkets.slice(0, missing).reduce((sum, value) => sum + value, 0)
+        return total + Math.max(missing, expected)
+      }, 0),
+    [
+      availablePlayers,
+      purchases,
+      budget,
+      startingBudget,
+      leagueSize,
+      strategy,
+      dataUpdates,
+    ]
+  )
 
   const projectedUnusedCredits = Math.max(0, budget - remainingMarketNeed)
   const unusedCreditRisk = clampScore(
@@ -7153,7 +7241,8 @@ function App() {
                                   color: '#ff9a9a',
                                   fontSize: '9px',
                                   fontWeight: 800,
-                                  cursor: 'pointer',
+            
+                      cursor: 'pointer',
                                 }}
                                 aria-label={`Rimuovi acquisto ${purchase.player.name}`}
                               >

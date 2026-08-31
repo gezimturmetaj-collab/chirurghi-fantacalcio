@@ -950,7 +950,7 @@ const APP_THEME_CSS = `
   }
 
   /* =========================================================
-     FINAL SPEED + USABILITY — DEBOUNCE / QUICK PRICE / CLEAN SEARCH
+     MASTER ULTIMATE ONE-SHOT — ALL FEATURES / PERFORMANCE / DESIGN
      Più pulita, moderna e leggibile durante l'asta
      ========================================================= */
 
@@ -1690,7 +1690,965 @@ const APP_THEME_CSS = `
   .message { background:#edf2ff !important; color:#3949ab !important; }
   .back-button { background:#f4f7fb !important; color:#52617a !important; }
 
+
+  /* MASTER ULTIMATE DESIGN — HIGH CONTRAST AUCTION UI */
+  :root {
+    color-scheme: dark;
+    --app-bg:#07111f;
+    --app-bg-2:#0b1728;
+    --surface:#101d30;
+    --surface-2:#14243a;
+    --surface-3:#182b44;
+    --line:#314864;
+    --line-strong:#496887;
+    --text:#f7fbff;
+    --muted:#b4c2d3;
+  }
+  html { background:#07111f !important; }
+  body {
+    background:
+      radial-gradient(circle at 10% 0%,rgba(25,157,218,.18),transparent 30%),
+      radial-gradient(circle at 95% 8%,rgba(119,76,220,.14),transparent 28%),
+      linear-gradient(180deg,#07111f 0%,#0a1627 55%,#07111f 100%) !important;
+    color:#f7fbff !important;
+  }
+  .app { color:#f7fbff !important; }
+  .topbar {
+    background:linear-gradient(135deg,#10243a,#132a45 58%,#1c2544) !important;
+    border:1px solid #36516f !important;
+    box-shadow:0 14px 36px rgba(0,0,0,.28) !important;
+  }
+  .topbar h1 {
+    background:none !important;
+    -webkit-background-clip:initial !important;
+    background-clip:initial !important;
+    color:#ffffff !important;
+    text-shadow:0 1px 12px rgba(72,190,255,.18);
+  }
+  .eyebrow { color:#70d7ff !important; }
+  .section {
+    background:#0e1b2d !important;
+    border:1px solid #2b425e !important;
+    box-shadow:0 8px 24px rgba(0,0,0,.18) !important;
+  }
+  .section:nth-of-type(3n+1){border-top:3px solid #32c7f2 !important}
+  .section:nth-of-type(3n+2){border-top:3px solid #9c7cff !important}
+  .section:nth-of-type(3n){border-top:3px solid #f4c95d !important}
+  .section-title,.main-card strong,.target-card strong,.purchase-player strong { color:#ffffff !important; }
+  .main-card,.target-card,.recommendation-main,.role-budget-card,.purchase-row,.recommendation-item,.roster-summary>div {
+    background:#14243a !important;
+    border-color:#334d6a !important;
+    box-shadow:none !important;
+  }
+  .stat,.decision-grid>div,.dynamic-info-grid>div,.adaptive-comparison>div {
+    background:#0c192a !important;
+    border-color:#304963 !important;
+  }
+  .stat span,.small-label,label { color:#b8c6d8 !important; }
+  .stat strong { color:#ffffff !important; }
+  .highlight-stat { background:#10352f !important; border-color:#2b7b67 !important; }
+  .highlight-stat strong { color:#82f0c2 !important; }
+  .recommendation-score { background:#24204a !important; border-color:#6656aa !important; }
+  .recommendation-score strong { color:#c8baff !important; }
+  .tip,.description,.recommendation-reason { color:#c2cede !important; }
+  input,select,textarea {
+    background:#091727 !important;
+    color:#ffffff !important;
+    border:1px solid #48627e !important;
+  }
+  input::placeholder,textarea::placeholder { color:#8295ab !important; }
+  input:focus,select:focus,textarea:focus { border-color:#52c8f5 !important; box-shadow:0 0 0 3px rgba(82,200,245,.16) !important; }
+  .primary-button,.suggested-target-button {
+    background:linear-gradient(135deg,#087fb5,#316be0) !important;
+    color:#ffffff !important;
+    border-color:#5ba7e8 !important;
+    box-shadow:0 8px 20px rgba(20,103,196,.24) !important;
+  }
+  .back-button { background:#17283d !important; color:#eaf3ff !important; border-color:#405b77 !important; }
+  .app-nav { background:#0b1728 !important; border-color:#334b66 !important; box-shadow:0 10px 30px rgba(0,0,0,.30) !important; }
+  .app-nav button { color:#b8c7d9 !important; }
+  .app-nav button[style*="rgba"] { color:#ffffff !important; background:#1b314b !important; }
+  .setup-badge,.purchase-role { background:#123654 !important; color:#8edcff !important; border-color:#315f7e !important; }
+  .message { background:#17284a !important; color:#dce7ff !important; border-color:#405c91 !important; }
+  small,p,span { text-rendering:optimizeLegibility; }
+  small { color:#aebed0; }
+  [style*="color: '#78859b'"],[style*="color: '#68758d'"],[style*="color: '#64748b'"],[style*="color: '#a8b1c2'"] { color:#b9c7d8 !important; }
+  [style*="background: '#0b111e'"] { background:#0b1829 !important; border-color:#334d69 !important; }
+  [style*="background: '#10251d'"] { background:#123328 !important; }
+  [style*="border: '1px solid #273149'"] { border-color:#334d69 !important; }
+  button { -webkit-tap-highlight-color:transparent; }
+  button:active { transform:translateY(1px); }
+
+
+  /* FINAL ONE-SHOT: contrasto + mobile + touch */
+  html, body, #root { min-height: 100%; background: #08111f !important; }
+  body { color: #f8fafc !important; text-rendering: optimizeLegibility; }
+  button, input, select, textarea { font: inherit; }
+  button { min-height: 44px; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+  input, select, textarea {
+    background: #0f1c2e !important;
+    color: #f8fafc !important;
+    border: 1px solid #38506d !important;
+  }
+  input::placeholder, textarea::placeholder { color: #aebdd0 !important; opacity: 1 !important; }
+  select option { background: #0f1c2e; color: #f8fafc; }
+  .main-card, .mini-card, .section, .player-row, .team-card, .rival-card {
+    color: #f8fafc !important;
+    border-color: #304863 !important;
+  }
+  .primary-button {
+    background: #2563eb !important;
+    color: #fff !important;
+    border-color: #5b8df5 !important;
+    font-weight: 800 !important;
+  }
+  .back-button {
+    background: #17283d !important;
+    color: #f8fafc !important;
+    border-color: #46617f !important;
+    font-weight: 700 !important;
+  }
+  .eyebrow { color: #b8c7da !important; }
+  @media (max-width: 760px) {
+    .app { padding-left: 10px !important; padding-right: 10px !important; }
+    button, input, select { min-height: 46px; }
+    h1 { line-height: 1.12 !important; }
+    h2, h3 { line-height: 1.18 !important; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: .01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: .01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
 `
+
+
+/* ========================================================================
+   FANTACALCIO WAR ROOM 2026/27 — ENGINE V2
+   Unico layer compatibile: nessun dato inventato, null => N/D.
+   Le funzioni sono esportate per restare modulari/testabili senza rompere
+   l'App esistente e senza obbligare a cambiare la struttura del progetto.
+   ======================================================================== */
+
+export type DataQuality = 'HIGH' | 'MEDIUM' | 'LOW'
+export type TrendV2 = 'RISING' | 'STABLE' | 'FALLING'
+export type FreshnessBadge = 'LIVE' | 'OGGI' | '1g' | '3g' | 'STALE' | 'N/D'
+
+export type AuditValue<T> = {
+  value: T | null
+  source?: string | null
+  sourceUrl?: string | null
+  updatedAt?: string | null
+  confidence?: number | null
+  quality?: DataQuality | null
+}
+
+export type FantasyScoringV2 = {
+  goal: number
+  assist: number
+  yellow: number
+  red: number
+  ownGoal: number
+  penaltyMissed: number
+  penaltySaved: number
+  goalkeeperGoalConceded: number
+}
+
+export const DEFAULT_FANTASY_SCORING_V2: FantasyScoringV2 = {
+  goal: 3,
+  assist: 1,
+  yellow: -0.5,
+  red: -1,
+  ownGoal: -2,
+  penaltyMissed: -3,
+  penaltySaved: 3,
+  goalkeeperGoalConceded: -1,
+}
+
+export type RatingExplanationV2 = {
+  score: number | null
+  confidence: number
+  quality: DataQuality
+  components: Array<{ label: string; contribution: number; reason: string }>
+  formula: string
+}
+
+export type PlayerProjectionV2 = {
+  titolarita: number | null
+  xMin: number | null
+  pGoal: number | null
+  pAssist: number | null
+  pBonus: number | null
+  pCard: number | null
+  pCleanSheet: number | null
+  xFP: number | null
+  form: number | null
+  consistency: number | null
+  upside: number | null
+  risk: number | null
+  value: number | null
+  vorp: number | null
+  fdr: number | null
+  overall: number | null
+  confidence: number
+  quality: DataQuality
+}
+
+export type ChangeSeverityV2 = 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW'
+export type DatasetChangeV2 = {
+  playerId: string
+  field: string
+  oldValue: unknown
+  newValue: unknown
+  severity: ChangeSeverityV2
+}
+
+export const WARROOM_MODEL_VERSION = '2.0.0'
+export const WARROOM_SCHEMA_VERSION = '2.0'
+
+export const WARROOM_STORAGE_V2 = {
+  settings: 'fantawarroom_v2_settings',
+  auction: 'fantawarroom_v2_auction',
+  userPlayers: 'fantawarroom_v2_userPlayers',
+  watchlist: 'fantawarroom_v2_watchlist',
+  backup: 'fantawarroom_v2_backup',
+  sourceData: 'fantawarroom_v2_sourceData',
+  history: 'fantawarroom_v2_history',
+  changelog: 'fantawarroom_v2_changelog',
+} as const
+
+export function normalizeSearchV2(value: string | null | undefined) {
+  return (value ?? '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[’'`´]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .toLowerCase()
+}
+
+export function stablePlayerIdV2(player: { id?: string | null; name?: string | null; team?: string | null; role?: string | null }) {
+  if (player.id?.trim()) return player.id.trim()
+  const raw = `${normalizeSearchV2(player.name)}|${normalizeSearchV2(player.team)}|${player.role ?? ''}`
+  let hash = 2166136261
+  for (let i = 0; i < raw.length; i += 1) {
+    hash ^= raw.charCodeAt(i)
+    hash = Math.imul(hash, 16777619)
+  }
+  return `legacy_${(hash >>> 0).toString(36)}`
+}
+
+export function clampV2(value: number, min = 0, max = 100) {
+  return Math.min(max, Math.max(min, value))
+}
+
+export function safeNumberV2(value: unknown): number | null {
+  if (typeof value !== 'number' || !Number.isFinite(value)) return null
+  return value
+}
+
+export function per90V2(total: number | null | undefined, minutes: number | null | undefined) {
+  if (total == null || minutes == null || minutes <= 0) return null
+  return total * 90 / minutes
+}
+
+export function shrinkMetricV2(
+  playerMetric: number | null | undefined,
+  roleAverage: number | null | undefined,
+  minutes: number | null | undefined,
+) {
+  if (playerMetric == null) return roleAverage ?? null
+  if (roleAverage == null) return playerMetric
+  const mins = Math.max(0, minutes ?? 0)
+  const weight = mins / (mins + 900)
+  return weight * playerMetric + (1 - weight) * roleAverage
+}
+
+export function weightedFormIndexV2(values: Array<number | null | undefined>) {
+  const weights = [0.35, 0.25, 0.18, 0.13, 0.09]
+  const valid = values.slice(0, 5).map((v, i) => v == null ? null : { value: v, weight: weights[i] })
+    .filter((x): x is { value: number; weight: number } => x !== null)
+  if (!valid.length) return null
+  const weighted = valid.reduce((sum, x) => sum + x.value * x.weight, 0)
+  const weightSum = valid.reduce((sum, x) => sum + x.weight, 0)
+  return clampV2(weighted / weightSum)
+}
+
+export function titolaritaIndexV2(input: {
+  nextMatchProbability?: number | null
+  seasonStartRate?: number | null
+  recentStartRate?: number | null
+  expectedMinutesScore?: number | null
+  competitionScore?: number | null
+  injuryPenalty?: number | null
+  turnoverPenalty?: number | null
+  competitionPenalty?: number | null
+}) {
+  const parts: Array<[number | null | undefined, number]> = [
+    [input.nextMatchProbability, .35],
+    [input.seasonStartRate, .25],
+    [input.recentStartRate, .15],
+    [input.expectedMinutesScore, .15],
+    [input.competitionScore, .10],
+  ]
+  const valid = parts.filter(([v]) => v != null) as Array<[number, number]>
+  if (!valid.length) return null
+  const base = valid.reduce((s, [v, w]) => s + v * w, 0) / valid.reduce((s, [, w]) => s + w, 0)
+  const penalty = (input.injuryPenalty ?? 0) + (input.turnoverPenalty ?? 0) + (input.competitionPenalty ?? 0)
+  return clampV2(base - penalty)
+}
+
+export function expectedMinutesV2(input: {
+  pStart?: number | null
+  avgMinutesStarter?: number | null
+  pSubIn?: number | null
+  avgMinutesSub?: number | null
+}) {
+  const { pStart, avgMinutesStarter, pSubIn, avgMinutesSub } = input
+  if (pStart == null || avgMinutesStarter == null) return null
+  const ps = clampV2(pStart, 0, 100) / 100
+  const psi = clampV2(pSubIn ?? 0, 0, 100) / 100
+  const sub = avgMinutesSub ?? 0
+  return clampV2(ps * avgMinutesStarter + (1 - ps) * psi * sub, 0, 90)
+}
+
+export function poissonAtLeastOneV2(lambda: number | null | undefined) {
+  if (lambda == null || lambda < 0 || !Number.isFinite(lambda)) return null
+  return clampV2(1 - Math.exp(-lambda), 0, 1)
+}
+
+export function goalProbabilityV2(input: {
+  xG90?: number | null
+  xMin?: number | null
+  opponentAdjustment?: number | null
+  penaltyExpectation?: number | null
+}) {
+  if (input.xG90 == null || input.xMin == null) return null
+  const lambda = Math.max(0, input.xG90) * clampV2(input.xMin, 0, 90) / 90 *
+    Math.max(0, input.opponentAdjustment ?? 1) + Math.max(0, input.penaltyExpectation ?? 0)
+  return poissonAtLeastOneV2(lambda)
+}
+
+export function assistProbabilityV2(input: {
+  xA90?: number | null
+  xMin?: number | null
+  opponentAdjustment?: number | null
+}) {
+  if (input.xA90 == null || input.xMin == null) return null
+  const lambda = Math.max(0, input.xA90) * clampV2(input.xMin, 0, 90) / 90 *
+    Math.max(0, input.opponentAdjustment ?? 1)
+  return poissonAtLeastOneV2(lambda)
+}
+
+export function expectedFantasyPointsV2(input: {
+  expectedBaseVote?: number | null
+  pGoal?: number | null
+  pAssist?: number | null
+  pCleanSheet?: number | null
+  pPenaltySave?: number | null
+  pYellow?: number | null
+  pRed?: number | null
+  pOwnGoal?: number | null
+  pPenaltyMiss?: number | null
+  expectedGoalsConceded?: number | null
+  scoring?: FantasyScoringV2
+}) {
+  if (input.expectedBaseVote == null) return null
+  const s = input.scoring ?? DEFAULT_FANTASY_SCORING_V2
+  let result = input.expectedBaseVote
+  if (input.pGoal != null) result += input.pGoal * s.goal
+  if (input.pAssist != null) result += input.pAssist * s.assist
+  if (input.pPenaltySave != null) result += input.pPenaltySave * s.penaltySaved
+  if (input.pYellow != null) result += input.pYellow * s.yellow
+  if (input.pRed != null) result += input.pRed * s.red
+  if (input.pOwnGoal != null) result += input.pOwnGoal * s.ownGoal
+  if (input.pPenaltyMiss != null) result += input.pPenaltyMiss * s.penaltyMissed
+  if (input.expectedGoalsConceded != null) result += input.expectedGoalsConceded * s.goalkeeperGoalConceded
+  return Math.round(result * 100) / 100
+}
+
+export function teamExpectedGoalsV2(attackStrength: number | null, opponentDefenseStrength: number | null, home = false) {
+  if (attackStrength == null || opponentDefenseStrength == null) return null
+  const attack = clampV2(attackStrength) / 50
+  const defenseWeakness = (100 - clampV2(opponentDefenseStrength)) / 50
+  const homeFactor = home ? 1.10 : 1
+  return clampV2(1.25 * attack * Math.max(.35, defenseWeakness) * homeFactor, 0.05, 4.5)
+}
+
+export function cleanSheetProbabilityV2(lambdaOpponentGoals: number | null | undefined) {
+  if (lambdaOpponentGoals == null || lambdaOpponentGoals < 0) return null
+  return clampV2(Math.exp(-lambdaOpponentGoals), 0, 1)
+}
+
+export function fixtureDifficultyV2(input: {
+  opponentPower?: number | null
+  opponentAttack?: number | null
+  opponentDefense?: number | null
+  away?: boolean
+  formAdjustment?: number | null
+  absenceAdjustment?: number | null
+}) {
+  const vals = [input.opponentPower, input.opponentAttack, input.opponentDefense].filter((v): v is number => v != null)
+  if (!vals.length) return null
+  const base = vals.reduce((a, b) => a + b, 0) / vals.length
+  return clampV2(base + (input.away ? 5 : -3) + (input.formAdjustment ?? 0) + (input.absenceAdjustment ?? 0))
+}
+
+export function consistencyIndexV2(input: {
+  fantasyStdDev?: number | null
+  sufficientPct?: number | null
+  votePct?: number | null
+  minutesContinuity?: number | null
+}) {
+  const pieces: number[] = []
+  if (input.fantasyStdDev != null) pieces.push(clampV2(100 - input.fantasyStdDev * 18))
+  if (input.sufficientPct != null) pieces.push(clampV2(input.sufficientPct))
+  if (input.votePct != null) pieces.push(clampV2(input.votePct))
+  if (input.minutesContinuity != null) pieces.push(clampV2(input.minutesContinuity))
+  return pieces.length ? pieces.reduce((a, b) => a + b, 0) / pieces.length : null
+}
+
+export function riskIndexV2(input: {
+  rotation?: number | null
+  injury?: number | null
+  competition?: number | null
+  discipline?: number | null
+  volatility?: number | null
+  market?: number | null
+  europe?: number | null
+  tactical?: number | null
+}) {
+  const weighted: Array<[number | null | undefined, number]> = [
+    [input.rotation, .25], [input.injury, .20], [input.competition, .15],
+    [input.discipline, .10], [input.volatility, .10], [input.market, .10],
+    [input.europe, .05], [input.tactical, .05],
+  ]
+  const valid = weighted.filter(([v]) => v != null) as Array<[number, number]>
+  if (!valid.length) return null
+  return clampV2(valid.reduce((s, [v, w]) => s + clampV2(v) * w, 0) / valid.reduce((s, [, w]) => s + w, 0))
+}
+
+export function upsideIndexV2(input: {
+  ageScore?: number | null
+  xGiScore?: number | null
+  offensiveRole?: number | null
+  starterGrowth?: number | null
+  transferImpact?: number | null
+  setPieces?: number | null
+  trend?: number | null
+}) {
+  const values = Object.values(input).filter((v): v is number => v != null)
+  return values.length ? clampV2(values.reduce((a, b) => a + clampV2(b), 0) / values.length) : null
+}
+
+export function vorpV2(projectedSeasonValue: number | null, replacementLevelValue: number | null) {
+  if (projectedSeasonValue == null || replacementLevelValue == null) return null
+  return projectedSeasonValue - replacementLevelValue
+}
+
+export function scarcityIndexV2(input: {
+  topPlayersLeft: number
+  managersNeedingRole: number
+  totalMissingSlots: number
+  rivalBudgetPressure: number
+}) {
+  const supplyPressure = input.managersNeedingRole <= 0 ? 0 :
+    clampV2((input.managersNeedingRole / Math.max(1, input.topPlayersLeft)) * 35)
+  const slots = clampV2(input.totalMissingSlots * 4)
+  const budget = clampV2(input.rivalBudgetPressure)
+  return clampV2(supplyPressure + slots * .25 + budget * .4)
+}
+
+export function auctionInflationV2(actualSpend: number, expectedSpend: number) {
+  if (expectedSpend <= 0) return 1
+  return clampV2(actualSpend / expectedSpend, .5, 2)
+}
+
+export function personalMaxV2(input: {
+  baseAuctionValue: number
+  inflationFactor?: number
+  scarcityFactor?: number
+  needFactor?: number
+  fitFactor?: number
+  budgetSafetyFactor?: number
+  budgetRemaining: number
+  slotsRemaining: number
+}) {
+  const raw = input.baseAuctionValue *
+    (input.inflationFactor ?? 1) *
+    (input.scarcityFactor ?? 1) *
+    (input.needFactor ?? 1) *
+    (input.fitFactor ?? 1) *
+    (input.budgetSafetyFactor ?? 1)
+  const reserveCredits = Math.max(0, input.slotsRemaining - 1)
+  const maxSpend = Math.max(0, input.budgetRemaining - reserveCredits)
+  return Math.max(0, Math.min(Math.round(raw), maxSpend))
+}
+
+export function valueIndexV2(input: {
+  projectedValue?: number | null
+  vorp?: number | null
+  expectedPrice?: number | null
+  risk?: number | null
+  upside?: number | null
+}) {
+  if (input.projectedValue == null || input.expectedPrice == null || input.expectedPrice <= 0) return null
+  const efficiency = clampV2((input.projectedValue / input.expectedPrice) * 50)
+  const vorp = input.vorp == null ? 50 : clampV2(50 + input.vorp)
+  const riskAdj = input.risk == null ? 50 : 100 - clampV2(input.risk)
+  const upside = input.upside == null ? 50 : clampV2(input.upside)
+  return clampV2(efficiency * .45 + vorp * .25 + riskAdj * .15 + upside * .15)
+}
+
+export function overallRatingV2(role: Role, input: {
+  bonus?: number | null
+  xFP?: number | null
+  titolarita?: number | null
+  consistency?: number | null
+  fixture?: number | null
+  upside?: number | null
+  risk?: number | null
+  setPieces?: number | null
+  cleanSheet?: number | null
+  teamDefense?: number | null
+  saveQuality?: number | null
+  rotationValue?: number | null
+}): RatingExplanationV2 {
+  const normalizedXfp = input.xFP == null ? null : clampV2(input.xFP * 12)
+  const fixtureEase = input.fixture == null ? null : 100 - clampV2(input.fixture)
+  const riskAdj = input.risk == null ? null : 100 - clampV2(input.risk)
+  const configs: Record<Role, Array<[string, number | null | undefined, number]>> = {
+    A: [['Bonus', input.bonus, .30], ['xFP', normalizedXfp, .20], ['Titolarità', input.titolarita, .15],
+        ['Consistency', input.consistency, .10], ['Calendario', fixtureEase, .10], ['Upside', input.upside, .10], ['Rischio', riskAdj, .05]],
+    C: [['Bonus', input.bonus, .25], ['xFP', normalizedXfp, .20], ['Titolarità', input.titolarita, .15],
+        ['Piazzati', input.setPieces, .10], ['Consistency', input.consistency, .10], ['Calendario', fixtureEase, .10],
+        ['Upside/Risk', input.upside != null && riskAdj != null ? (input.upside + riskAdj) / 2 : input.upside ?? riskAdj, .10]],
+    D: [['xFP', normalizedXfp, .20], ['Titolarità', input.titolarita, .20], ['Clean sheet', input.cleanSheet, .15],
+        ['Bonus', input.bonus, .15], ['Consistency', input.consistency, .10], ['Calendario', fixtureEase, .10], ['Rischio', riskAdj, .10]],
+    P: [['Difesa squadra', input.teamDefense, .25], ['Qualità parate', input.saveQuality, .20], ['Clean sheet', input.cleanSheet, .20],
+        ['Calendario', fixtureEase, .15], ['Titolarità', input.titolarita, .10], ['Rotazione', input.rotationValue, .10]],
+  }
+  const valid = configs[role].filter(([, v]) => v != null) as Array<[string, number, number]>
+  if (!valid.length) return { score: null, confidence: 0, quality: 'LOW', components: [], formula: `Overall ${role}: dati insufficienti` }
+  const usedWeight = valid.reduce((s, [, , w]) => s + w, 0)
+  const score = clampV2(valid.reduce((s, [, v, w]) => s + clampV2(v) * w, 0) / usedWeight)
+  const confidence = clampV2(usedWeight * 100)
+  const quality: DataQuality = confidence >= 80 ? 'HIGH' : confidence >= 55 ? 'MEDIUM' : 'LOW'
+  return {
+    score: Math.round(score),
+    confidence: Math.round(confidence),
+    quality,
+    components: valid.map(([label, value, weight]) => ({
+      label,
+      contribution: Math.round((value * weight / usedWeight) * 10) / 10,
+      reason: `${label}: ${Math.round(value)}/100`,
+    })),
+    formula: `Media pesata per ruolo ${role}; pesi rinormalizzati solo sui dati realmente disponibili.`,
+  }
+}
+
+export function freshnessBadgeV2(updatedAt: string | null | undefined, staleHours: number): FreshnessBadge {
+  if (!updatedAt) return 'N/D'
+  const time = new Date(updatedAt).getTime()
+  if (!Number.isFinite(time)) return 'N/D'
+  const hours = Math.max(0, (Date.now() - time) / 3_600_000)
+  if (hours <= 1) return 'LIVE'
+  if (hours < 24) return 'OGGI'
+  if (hours < 48) return '1g'
+  if (hours < 96 && hours <= staleHours) return '3g'
+  return hours > staleHours ? 'STALE' : '3g'
+}
+
+export const DATASET_STALE_HOURS_V2 = {
+  quotations: 48,
+  injuries: 12,
+  lineups: 12,
+  news: 24,
+  stats: 48,
+  fixtures: 168,
+  market: 24,
+} as const
+
+export function classifyChangeV2(field: string, oldValue: unknown, newValue: unknown): ChangeSeverityV2 {
+  const f = field.toLowerCase()
+  if (['role', 'outofseriea', 'severeinjury'].some(x => f.includes(x))) return 'CRITICAL'
+  if (['team', 'penalty', 'starter', 'titolar'].some(x => f.includes(x))) return 'HIGH'
+  if (['fvm', 'rating', 'quotation', 'quote'].some(x => f.includes(x))) {
+    if (typeof oldValue === 'number' && typeof newValue === 'number' && oldValue !== 0) {
+      const delta = Math.abs((newValue - oldValue) / oldValue)
+      return delta > .15 ? 'HIGH' : delta >= .05 ? 'MEDIUM' : 'LOW'
+    }
+    return 'MEDIUM'
+  }
+  return 'LOW'
+}
+
+export function compareDatasetsV2(
+  oldData: Array<Record<string, unknown>>,
+  newData: Array<Record<string, unknown>>,
+): DatasetChangeV2[] {
+  const oldMap = new Map(oldData.map(p => [String(p.id ?? ''), p]))
+  const changes: DatasetChangeV2[] = []
+  for (const current of newData) {
+    const id = String(current.id ?? '')
+    if (!id) continue
+    const previous = oldMap.get(id)
+    if (!previous) {
+      changes.push({ playerId: id, field: 'newPlayer', oldValue: null, newValue: current, severity: 'CRITICAL' })
+      continue
+    }
+    for (const [field, value] of Object.entries(current)) {
+      if (field === 'updatedAt' || field === 'source') continue
+      const before = previous[field]
+      if (JSON.stringify(before) !== JSON.stringify(value)) {
+        changes.push({ playerId: id, field, oldValue: before, newValue: value, severity: classifyChangeV2(field, before, value) })
+      }
+    }
+  }
+  return changes
+}
+
+export function safeMergePlayerV2<T extends Record<string, unknown>, U extends Record<string, unknown>>(
+  sourcePlayerData: T,
+  userPlayerData: U | null | undefined,
+): T & U {
+  return { ...sourcePlayerData, ...(userPlayerData ?? {}) } as T & U
+}
+
+export function validatePlayersV2(data: Array<Record<string, unknown>>) {
+  const warnings: string[] = []
+  const ids = new Set<string>()
+  data.forEach((p, index) => {
+    const id = String(p.id ?? '')
+    if (!id) warnings.push(`Player #${index + 1}: id mancante`)
+    else if (ids.has(id)) warnings.push(`ID duplicato: ${id}`)
+    else ids.add(id)
+    if (!String(p.name ?? p.displayName ?? '').trim()) warnings.push(`${id || `#${index + 1}`}: nome mancante`)
+    const role = String(p.role ?? '')
+    if (role && !['P', 'D', 'C', 'A'].includes(role)) warnings.push(`${id}: ruolo non valido ${role}`)
+    const fvm = safeNumberV2(p.fvm)
+    if (fvm != null && fvm < 0) warnings.push(`${id}: FVM negativo`)
+    const xmin = safeNumberV2(p.xMin)
+    if (xmin != null && (xmin < 0 || xmin > 90)) warnings.push(`${id}: xMin fuori range`)
+  })
+  return warnings
+}
+
+export function exportWarRoomBackupV2(payload: Record<string, unknown>) {
+  const backup = {
+    schemaVersion: WARROOM_SCHEMA_VERSION,
+    modelVersion: WARROOM_MODEL_VERSION,
+    exportedAt: new Date().toISOString(),
+    ...payload,
+  }
+  const date = new Date().toISOString().slice(0, 10)
+  const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `fantawarroom-backup-${date}.json`
+  a.click()
+  URL.revokeObjectURL(url)
+}
+
+export function runWarRoomSelfTestsV2() {
+  const failures: string[] = []
+  const assert = (condition: boolean, label: string) => { if (!condition) failures.push(label) }
+  assert(personalMaxV2({ baseAuctionValue: 100, budgetRemaining: 50, slotsRemaining: 5 }) <= 46, 'personalMax riserva crediti')
+  assert(expectedMinutesV2({ pStart: 100, avgMinutesStarter: 95, pSubIn: 0, avgMinutesSub: 0 }) === 90, 'xMin clamp 90')
+  assert(clampV2(140) === 100 && clampV2(-4) === 0, 'rating clamp 0-100')
+  const p = poissonAtLeastOneV2(1)
+  assert(p != null && p >= 0 && p <= 1, 'probabilità 0-1')
+  const merged = safeMergePlayerV2({ id: 'p1', team: 'A' }, { note: 'x' })
+  assert(merged.id === 'p1' && merged.note === 'x', 'safe merge')
+  assert(normalizeSearchV2('Çalhanoğlu') === 'calhanoglu', 'ricerca accenti')
+  return { ok: failures.length === 0, failures }
+}
+
+export const WarRoomV2 = {
+  modelVersion: WARROOM_MODEL_VERSION,
+  schemaVersion: WARROOM_SCHEMA_VERSION,
+  storage: WARROOM_STORAGE_V2,
+  normalizeSearch: normalizeSearchV2,
+  stablePlayerId: stablePlayerIdV2,
+  per90: per90V2,
+  shrinkMetric: shrinkMetricV2,
+  weightedFormIndex: weightedFormIndexV2,
+  titolaritaIndex: titolaritaIndexV2,
+  expectedMinutes: expectedMinutesV2,
+  goalProbability: goalProbabilityV2,
+  assistProbability: assistProbabilityV2,
+  expectedFantasyPoints: expectedFantasyPointsV2,
+  teamExpectedGoals: teamExpectedGoalsV2,
+  cleanSheetProbability: cleanSheetProbabilityV2,
+  fixtureDifficulty: fixtureDifficultyV2,
+  consistencyIndex: consistencyIndexV2,
+  riskIndex: riskIndexV2,
+  upsideIndex: upsideIndexV2,
+  vorp: vorpV2,
+  scarcityIndex: scarcityIndexV2,
+  auctionInflation: auctionInflationV2,
+  personalMax: personalMaxV2,
+  valueIndex: valueIndexV2,
+  overallRating: overallRatingV2,
+  freshnessBadge: freshnessBadgeV2,
+  compareDatasets: compareDatasetsV2,
+  safeMergePlayer: safeMergePlayerV2,
+  validatePlayers: validatePlayersV2,
+  exportBackup: exportWarRoomBackupV2,
+  selfTest: runWarRoomSelfTestsV2,
+}
+
+
+/* ======================================================================
+   MASTER TOTALE — COMPLETAMENTO SPEC 102
+   Layer modulare finale. Non sostituisce i motori legacy: li completa.
+   Ogni funzione usa solo dati disponibili; assenza dato => null / N/D.
+   ====================================================================== */
+
+export type WatchCategoryV2 =
+  'TOP TARGET'|'VALUE'|'SCOMMESSA'|'LOW COST'|'EVITA'|'DA MONITORARE'
+
+export type VerdictV2 =
+  'TOP ASSOLUTO'|'TARGET'|'VALUE'|'BUON ACQUISTO'|'SOLO A PREZZO'|
+  'SCOMMESSA'|'COPERTURA'|'RISCHIOSO'|'EVITA'
+
+export type ManagerProfileV2 = {
+  aggression: number | null
+  topBias: number | null
+  budgetSaving: number | null
+  roleSpending: Partial<Record<Role, number>>
+  averageOverpay: number | null
+}
+
+export function dataQualityV2(minutes: number | null | undefined, confidence: number | null | undefined): DataQuality {
+  const c=confidence ?? 0, m=minutes ?? 0
+  if(c>=80 && m>=900) return 'HIGH'
+  if(c>=55 && m>=270) return 'MEDIUM'
+  return 'LOW'
+}
+
+export function displayMetricV2(v: unknown, digits=1) {
+  return typeof v==='number' && Number.isFinite(v) ? v.toFixed(digits).replace(/\.0$/,'') : 'N/D'
+}
+
+export function trendV2(values: Array<number|null|undefined>): TrendV2|null {
+  const v=values.filter((x):x is number=>x!=null && Number.isFinite(x))
+  if(v.length<2) return null
+  const d=v[v.length-1]-v[0]
+  const scale=Math.max(1,Math.abs(v[0]))
+  if(d/scale>.05) return 'RISING'
+  if(d/scale<-.05) return 'FALLING'
+  return 'STABLE'
+}
+
+export function underValueTagV2(ourValue:number|null, expected:number|null, threshold=.20) {
+  if(ourValue==null||expected==null||expected<=0) return null
+  const gap=(ourValue-expected)/expected
+  return gap>=threshold?'UNDERVALUED':gap<=-threshold?'OVERPRICED':'FAIR'
+}
+
+export function expectedWinningBidV2(input:{
+  expectedPrice?:number|null; inflation?:number|null; scarcity?:number|null;
+  marketSamples?:number[]|null
+}) {
+  if(input.expectedPrice==null) return {price:null,low:null,high:null,confidence:0}
+  const samples=(input.marketSamples??[]).filter(Number.isFinite)
+  const infl=input.inflation ?? 1
+  const scarcity=1+clampV2(input.scarcity??0)*.002
+  const price=Math.max(1,Math.round(input.expectedPrice*infl*scarcity))
+  const spread=samples.length>=5?.08:samples.length>=2?.12:.18
+  return {
+    price, low:Math.max(1,Math.round(price*(1-spread))),
+    high:Math.round(price*(1+spread)),
+    confidence:clampV2(35+samples.length*7)
+  }
+}
+
+export function fitRosaV2(input:{
+  sameTeam:number; riskyPlayers:number; uncertainStarters:number;
+  penaltyTakers:number; roleNeed:number; goalkeeperOverlap?:number
+}) {
+  let score=100
+  score-=Math.max(0,input.sameTeam-3)*7
+  score-=Math.max(0,input.riskyPlayers-3)*6
+  score-=Math.max(0,input.uncertainStarters-3)*7
+  if(input.penaltyTakers===0) score-=8
+  score-=clampV2(input.goalkeeperOverlap??0)*.12
+  score+=clampV2(input.roleNeed)*.08
+  return clampV2(score)
+}
+
+export function recommendationV2(input:{
+  overall?:number|null; value?:number|null; risk?:number|null; upside?:number|null;
+  currentPrice?:number|null; personalMax?:number|null; starter?:number|null
+}):VerdictV2|null {
+  const {overall,value,risk,upside,currentPrice,personalMax,starter}=input
+  if(currentPrice!=null&&personalMax!=null&&currentPrice>personalMax) return 'EVITA'
+  if(overall==null&&value==null) return null
+  if((overall??0)>=90&&(risk??50)<=35) return 'TOP ASSOLUTO'
+  if((value??0)>=82) return 'VALUE'
+  if((overall??0)>=82&&(starter??50)>=70) return 'TARGET'
+  if((value??0)>=68&&(risk??50)<=55) return 'BUON ACQUISTO'
+  if((upside??0)>=75) return 'SCOMMESSA'
+  if((risk??0)>=70) return 'RISCHIOSO'
+  return 'SOLO A PREZZO'
+}
+
+export function deterministicCommentV2(input:{
+  titolarita?:number|null; bonus?:number|null; fdr?:number|null;
+  risk?:number|null; personalMax?:number|null; verdict?:VerdictV2|null
+}) {
+  const a:string[]=[]
+  if(input.titolarita!=null) a.push(input.titolarita>=80?'Titolarità molto alta.':input.titolarita<50?'Titolarità incerta.':'Titolarità discreta.')
+  if(input.bonus!=null&&input.bonus>=70) a.push('Potenziale bonus elevato.')
+  if(input.fdr!=null) a.push(input.fdr<=40?'Calendario favorevole.':input.fdr>=70?'Calendario impegnativo.':'Calendario equilibrato.')
+  if(input.risk!=null&&input.risk>=65) a.push('Profilo di rischio alto.')
+  if(input.personalMax!=null) a.push(`Tetto consigliato ${Math.round(input.personalMax)} crediti.`)
+  return a.slice(0,3).join(' ') || 'Dati insufficienti per un commento affidabile.'
+}
+
+export function managerProfileV2(sales:Array<{price:number;expected?:number|null;role:Role}>, initialBudget:number):ManagerProfileV2 {
+  if(!sales.length) return {aggression:null,topBias:null,budgetSaving:null,roleSpending:{},averageOverpay:null}
+  const total=sales.reduce((s,x)=>s+x.price,0)
+  const roleSpending:Partial<Record<Role,number>>={}
+  for(const x of sales) roleSpending[x.role]=(roleSpending[x.role]??0)+x.price
+  const over=sales.filter(x=>x.expected!=null&&x.expected!>0).map(x=>(x.price-x.expected!)/x.expected!*100)
+  return {
+    aggression:clampV2(total/Math.max(1,initialBudget)*100),
+    topBias:null,
+    budgetSaving:clampV2((initialBudget-total)/Math.max(1,initialBudget)*100),
+    roleSpending,
+    averageOverpay:over.length?over.reduce((a,b)=>a+b,0)/over.length:null
+  }
+}
+
+export function rosterScoreV2(parts:Partial<Record<'P'|'D'|'C'|'A'|'Bonus'|'Titolarita'|'Upside'|'Risk'|'Depth',number|null>>) {
+  const vals=Object.entries(parts).filter(([,v])=>v!=null) as Array<[string,number]>
+  if(!vals.length) return null
+  return Math.round(clampV2(vals.reduce((s,[k,v])=>s+(k==='Risk'?100-v:v),0)/vals.length))
+}
+
+export function teamExposureV2(players:Array<{team?:string|null}>) {
+  const m=new Map<string,number>()
+  for(const p of players) if(p.team) m.set(p.team,(m.get(p.team)??0)+1)
+  return [...m.entries()].sort((a,b)=>b[1]-a[1])
+}
+
+export function similarityScoreV2(a:Record<string,unknown>,b:Record<string,unknown>) {
+  let score=0, used=0
+  const numeric=['overall','xFP','bonus','price','upside','risk']
+  for(const k of numeric) {
+    const x=safeNumberV2(a[k]), y=safeNumberV2(b[k])
+    if(x!=null&&y!=null){score+=clampV2(100-Math.abs(x-y)*4);used++}
+  }
+  if(a.role&&b.role){score+=a.role===b.role?100:0;used++}
+  if(a.archetype&&b.archetype){score+=a.archetype===b.archetype?100:30;used++}
+  return used?score/used:null
+}
+
+export function goalkeeperRotationV2(
+  keepers:Array<{id:string;cost?:number|null;fixtures:Array<{round:number;fdrDefense:number|null;cleanSheet?:number|null}>}>
+) {
+  const rounds=new Set<number>()
+  keepers.forEach(k=>k.fixtures.forEach(f=>rounds.add(f.round)))
+  let fdrSum=0,fdrN=0,cs=0,critical=0
+  const choices=[...rounds].sort((a,b)=>a-b).map(round=>{
+    const options=keepers.map(k=>({k,f:k.fixtures.find(x=>x.round===round)})).filter(x=>x.f?.fdrDefense!=null)
+      .sort((a,b)=>a.f!.fdrDefense!-b.f!.fdrDefense!)
+    const best=options[0]
+    if(best){fdrSum+=best.f!.fdrDefense!;fdrN++;cs+=best.f!.cleanSheet??0;if(best.f!.fdrDefense!>=70)critical++}
+    return {round,keeperId:best?.k.id??null,fdr:best?.f?.fdrDefense??null}
+  })
+  return {
+    choices, averageFdr:fdrN?fdrSum/fdrN:null, expectedCleanSheets:fdrN?cs:null,
+    criticalRounds:critical, totalCost:keepers.reduce((s,k)=>s+(k.cost??0),0)
+  }
+}
+
+export function bestXiScoreV2(xfp:number|null, starterProbability:number|null, matchup:number|null, noVoteRisk:number|null) {
+  if(xfp==null) return null
+  return xfp*(starterProbability==null?1:clampV2(starterProbability)/100)*
+    (matchup==null?1:(1.15-clampV2(matchup)/200))*
+    (noVoteRisk==null?1:(1-clampV2(noVoteRisk)/130))
+}
+
+export function tradeAnalyzerV2(a:{rosXfp?:number|null;vorp?:number|null;risk?:number|null;fixture?:number|null},
+ b:{rosXfp?:number|null;vorp?:number|null;risk?:number|null;fixture?:number|null}) {
+  const score=(x:typeof a)=>{
+    const vals:number[]=[]
+    if(x.rosXfp!=null) vals.push(x.rosXfp*10)
+    if(x.vorp!=null) vals.push(50+x.vorp)
+    if(x.risk!=null) vals.push(100-x.risk)
+    if(x.fixture!=null) vals.push(100-x.fixture)
+    return vals.length?vals.reduce((s,v)=>s+clampV2(v),0)/vals.length:null
+  }
+  const sa=score(a),sb=score(b)
+  if(sa==null||sb==null)return {verdict:null,delta:null}
+  const d=sb-sa
+  return {verdict:d>7?'VANTAGGIOSO':d<-7?'SFAVOREVOLE':'EQUILIBRATO',delta:d}
+}
+
+export function migrateLegacyStorageV2() {
+  if(typeof localStorage==='undefined') return
+  const migrations:Array<[string,string]>=[
+    ['fantawarroom_settings',WARROOM_STORAGE_V2.settings],
+    ['fantawarroom_auction',WARROOM_STORAGE_V2.auction],
+    ['fantawarroom_watchlist',WARROOM_STORAGE_V2.watchlist],
+  ]
+  for(const [oldKey,newKey] of migrations){
+    if(localStorage.getItem(newKey)==null){
+      const old=localStorage.getItem(oldKey)
+      if(old!=null)localStorage.setItem(newKey,old)
+    }
+  }
+}
+
+export function saveVersionedV2(key:keyof typeof WARROOM_STORAGE_V2,value:unknown){
+  if(typeof localStorage==='undefined')return
+  localStorage.setItem(WARROOM_STORAGE_V2[key],JSON.stringify({
+    schemaVersion:WARROOM_SCHEMA_VERSION,modelVersion:WARROOM_MODEL_VERSION,
+    updatedAt:new Date().toISOString(),value
+  }))
+}
+
+export function createUpdateManifestV2(datasets:Record<string,string|null>) {
+  return {season:'2026-27',schemaVersion:WARROOM_SCHEMA_VERSION,modelVersion:WARROOM_MODEL_VERSION,
+    updatedAt:new Date().toISOString(),datasets}
+}
+
+export function sourceStatusV2(manifest:ReturnType<typeof createUpdateManifestV2>) {
+  const stale:Record<string,number>={players:48,fantacalcio:48,stats:48,advancedStats:48,injuries:12,lineups:12,fixtures:168,editorial:24,market:24}
+  return Object.entries(manifest.datasets).map(([dataset,updatedAt])=>({
+    dataset,updatedAt,badge:freshnessBadgeV2(updatedAt,stale[dataset]??48)
+  }))
+}
+
+export function validateWarRoomV2(input:{
+  players:Array<Record<string,unknown>>;budget?:number;slots?:Partial<Record<Role,number>>
+}) {
+  const warnings=validatePlayersV2(input.players)
+  if(input.budget!=null&&input.budget<0)warnings.push('Budget negativo')
+  for(const [r,n] of Object.entries(input.slots??{}))if(n!=null&&n<0)warnings.push(`Slot ${r} negativo`)
+  return warnings
+}
+
+export const WarRoomMaster102 = {
+  dataQuality:dataQualityV2, displayMetric:displayMetricV2, trend:trendV2,
+  underValueTag:underValueTagV2, expectedWinningBid:expectedWinningBidV2,
+  fitRosa:fitRosaV2, recommendation:recommendationV2,
+  comment:deterministicCommentV2, managerProfile:managerProfileV2,
+  rosterScore:rosterScoreV2, teamExposure:teamExposureV2,
+  similarity:similarityScoreV2, goalkeeperRotation:goalkeeperRotationV2,
+  bestXiScore:bestXiScoreV2, tradeAnalyzer:tradeAnalyzerV2,
+  migrateLegacyStorage:migrateLegacyStorageV2, saveVersioned:saveVersionedV2,
+  createManifest:createUpdateManifestV2, sourceStatus:sourceStatusV2,
+  validate:validateWarRoomV2
+}
 
 function App() {
   const saved = useMemo(() => {
@@ -6447,7 +7405,8 @@ function App() {
                       </div>
                       <div style={{ padding: '9px', border: '1px solid #273149', borderRadius: '9px' }}>
                         <span style={{ color: '#78859b', fontSize: '7px', fontWeight: 900 }}>SLOT DOPO</span>
-                        <strong style={{ display: 'block', marginTop: '4px' }}>{liveSimulation.afterSlots}</strong>
+                        <strong style={{ display: 'block', marginTop: '4px' }}>{liveSimulation.
+afterSlots}</strong>
                       </div>
                       <div style={{ padding: '9px', border: '1px solid #273149', borderRadius: '9px' }}>
                         <span style={{ color: '#78859b', fontSize: '7px', fontWeight: 900 }}>CR/SLOT DOPO</span>
@@ -7237,8 +8196,7 @@ function App() {
                             }}
                           >
                             <span>
-                              <strong style={{ display:
- 'block', fontSize: '10px' }}>
+                              <strong style={{ display: 'block', fontSize: '10px' }}>
                                 {purchase.player.name}
                               </strong>
                               <small style={{ color: '#78859b' }}>

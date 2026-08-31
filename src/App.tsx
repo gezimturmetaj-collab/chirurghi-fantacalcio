@@ -950,7 +950,7 @@ const APP_THEME_CSS = `
   }
 
   /* =========================================================
-     WAR ROOM REPARTI FOCUS — UN REPARTO ALLA VOLTA
+     MEGA FINAL ALL-IN-ONE — WAR / VERDETTO / ESITI / RIVALI / CONFRONTO
      Più pulita, moderna e leggibile durante l'asta
      ========================================================= */
 
@@ -4578,6 +4578,86 @@ function App() {
   }
 
 
+  function roleFocusPlan(role: Role) {
+    const missing = roleRemaining(role)
+    const room = Math.max(0, adaptiveRoleBudget(role) - spentByRole(role))
+    const avgPerSlot = missing > 0 ? Math.floor(room / missing) : room
+    const move = auctionMoves.find((item) => item.role === role)
+    const candidates = availablePlayers
+      .filter((player) => player.role === role)
+      .map((player) => ({
+        player,
+        score: chirurgoScore(player).total,
+        max: calculateDynamicMax(player),
+      }))
+      .sort((a, b) => b.score - a.score)
+
+    const premium = candidates.filter((item) => item.score >= 82 && item.max <= Math.max(1, room)).length
+    const strong = candidates.filter((item) => item.score >= 72 && item.max <= Math.max(1, room)).length
+
+    let status = 'GESTIONE'
+    if (missing <= 0) status = 'COMPLETO'
+    else if (move && move.urgency >= 78) status = 'ATTACCA'
+    else if (room <= missing * 2) status = 'PROTEGGI'
+    else if (premium > 0 && avgPerSlot >= 10) status = 'CERCA TOP'
+    else if (strong >= Math.max(3, missing)) status = 'ASPETTA VALUE'
+
+    let instruction = move?.reason ?? 'Mantieni disciplina sui prezzi e segui i MAX dinamici.'
+    if (status === 'COMPLETO') instruction = 'Reparto completo: non spendere altri crediti qui.'
+    if (status === 'PROTEGGI') instruction = `Budget stretto: conserva almeno ${missing} crediti per chiudere tutti gli slot.`
+    if (status === 'CERCA TOP') instruction = 'Hai margine per un profilo premium: attacca solo i target realmente superiori.'
+    if (status === 'ASPETTA VALUE') instruction = 'Ci sono ancora alternative forti: evita di inseguire aste surriscaldate.'
+
+    return { missing, room, avgPerSlot, premium, strong, status, instruction }
+  }
+
+  function unifiedAuctionDecision(player: Player, currentPrice: number) {
+    const intel = buyNowIntelligence(player, currentPrice)
+    const forecast = finalPriceForecast(player, currentPrice)
+    const plan = roleFocusPlan(player.role)
+    const simulation = simulatePurchaseImpact(player, currentPrice)
+
+    let verdict = intel.action
+    if (currentPrice > intel.max) verdict = 'LASCIA'
+    else if (plan.status === 'PROTEGGI' && currentPrice > intel.fairPrice) verdict = 'LASCIA'
+    else if (intel.actionScore >= 84 && forecast.entry === 'ENTRA ORA') verdict = 'PRENDILO'
+    else if (intel.actionScore >= 74 && currentPrice <= intel.attackPrice) verdict = 'ATTACCA'
+    else if (forecast.entry === 'NON SCOPRIRTI' || forecast.entry === 'PREPARATI') verdict = 'ASPETTA'
+    else if (intel.action === 'RESTA IN GARA') verdict = 'RESTA'
+    else if (intel.action === 'STOP') verdict = 'LASCIA'
+
+    const confidence = clampScore(
+      intel.actionScore * .46 +
+      (100 - intel.risk) * .24 +
+      forecast.winChance * .18 +
+      Math.min(100, intel.structuralSafety) * .12
+    )
+
+    let nextMove = `Non superare ${intel.max}.`
+    if (verdict === 'PRENDILO') nextMove = `Entra adesso e prova a chiudere entro ${intel.attackPrice}; STOP assoluto ${intel.max}.`
+    else if (verdict === 'ATTACCA') nextMove = `Rilancia con decisione fino a ${intel.attackPrice}; oltre, valuta solo fino a ${intel.max}.`
+    else if (verdict === 'ASPETTA') nextMove = `Non scoprire subito il tuo interesse. Finestra d'ingresso: circa ${forecast.entryThreshold}.`
+    else if (verdict === 'RESTA') nextMove = `Resta dentro senza superare ${intel.max}; evita micro-rilanci emotivi.`
+    else if (verdict === 'LASCIA') nextMove = `Esci dall'asta: proteggi il budget del reparto. STOP ${intel.max}.`
+
+    const reasons = [
+      ...intel.reasons.slice(0, 2),
+      forecast.strongest ? `rivale caldo: ${forecast.strongest.name}` : '',
+      simulation.verdict !== 'SOSTENIBILE' ? simulation.verdict.toLowerCase() : '',
+    ].filter(Boolean)
+
+    return {
+      verdict,
+      confidence,
+      nextMove,
+      reasons,
+      intel,
+      forecast,
+      plan,
+      simulation,
+    }
+  }
+
   const warQuickTarget = predictiveBestCall?.player ?? opportunityCandidates[0]?.player ?? null
   const warQuickIntel = warQuickTarget ? buyNowIntelligence(warQuickTarget, getMarket(warQuickTarget)) : null
 
@@ -4599,6 +4679,43 @@ function App() {
     setSelectedName('')
     setPlayerSearch('')
   }
+  function registerWarRivalPurchase() {
+    if (!selectedPlayer) return
+    const sold = selectedPlayer
+    const paid = price
+    setRivalSales((current) => [
+      ...current,
+      { player: sold, price: paid, rivalId: selectedRivalId },
+    ])
+    setMessage(`✕ ${sold.name} → ${rivalNames[selectedRivalId]} a ${paid}. Analisi rivali aggiornata.`)
+    setSelectedName('')
+    setPlayerSearch('')
+    setPrice(1)
+  }
+
+  function goNextAuctionRole() {
+    if (suggestionRole === 'ALL') return
+    const currentIndex = roles.indexOf(suggestionRole)
+    const nextOpen = roles
+      .slice(currentIndex + 1)
+      .concat(roles.slice(0, currentIndex))
+      .find((role) => roleRemaining(role) > 0)
+
+    if (!nextOpen) {
+      setSuggestionRole('ALL')
+      setWarRoleChosen(false)
+      setMessage('✓ Rosa completa.')
+      return
+    }
+
+    setSuggestionRole(nextOpen)
+    setWarRoleChosen(true)
+    setSelectedName('')
+    setPlayerSearch('')
+    setPrice(1)
+    setMessage(`Reparto ${roleNames[nextOpen]} attivato.`)
+  }
+
   function selectLivePlayer(player: Player) {
     setLiveSelectedName(player.name)
     setLiveSearch(player.name)
@@ -5633,12 +5750,32 @@ function App() {
                   </button>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '5px', marginTop: '8px' }}>
-                  <div className="stat highlight-stat"><span>BUDGET</span><strong>{budget}</strong></div>
-                  <div className="stat"><span>SLOT {suggestionRole}</span><strong>{roleRemaining(suggestionRole)}</strong></div>
-                  <div className="stat"><span>BUDGET REP.</span><strong>{Math.max(0, adaptiveRoleBudget(suggestionRole) - spentByRole(suggestionRole))}</strong></div>
-                  <div className="stat"><span>FASE</span><strong style={{ fontSize: '9px' }}>{predictiveMode}</strong></div>
-                </div>
+                {(() => {
+                  const plan = roleFocusPlan(suggestionRole)
+                  return (
+                    <>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '5px', marginTop: '8px' }}>
+                        <div className="stat highlight-stat"><span>BUDGET</span><strong>{budget}</strong></div>
+                        <div className="stat"><span>SLOT {suggestionRole}</span><strong>{plan.missing}</strong></div>
+                        <div className="stat"><span>BUDGET REP.</span><strong>{plan.room}</strong></div>
+                        <div className="stat"><span>STATO</span><strong style={{ fontSize: '9px' }}>{plan.status}</strong></div>
+                      </div>
+                      <p className="tip" style={{ margin: '7px 0 0', lineHeight: 1.5 }}>
+                        {plan.instruction}
+                      </p>
+                      {plan.missing <= 0 && (
+                        <button
+                          type="button"
+                          className="primary-button"
+                          style={{ width: '100%', marginTop: '7px' }}
+                          onClick={goNextAuctionRole}
+                        >
+                          REPARTO COMPLETO · VAI AL SUCCESSIVO
+                        </button>
+                      )}
+                    </>
+                  )
+                })()}
               </section>
 
               {(() => {
@@ -5653,7 +5790,7 @@ function App() {
 
                 return (
                   <section className="section" style={{ padding: '11px 12px' }}>
-                    <div className="section-title">🎙️ SUGGERIMENTO {suggestionRole}</div>
+                    <div className="section-title">🎙️ TARGET N.1 · {suggestionRole}</div>
                     <div className="main-card" style={{ border: '1px solid rgba(66,214,164,.28)' }}>
                       <div style={{ display: 'grid', gridTemplateColumns: 'auto 1fr auto', gap: '9px', alignItems: 'center' }}>
                         <PlayerPhoto player={player} size={48} />
@@ -5758,22 +5895,68 @@ function App() {
                     />
 
                     {(() => {
-                      const intel = buyNowIntelligence(selectedPlayer, price)
-                      const forecast = finalPriceForecast(selectedPlayer, price)
+                      const decision = unifiedAuctionDecision(selectedPlayer, price)
                       return (
                         <>
-                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '5px', marginTop: '7px' }}>
-                            <div className="stat highlight-stat"><span>AZIONE</span><strong style={{ fontSize: '9px' }}>{intel.action}</strong></div>
-                            <div className="stat"><span>STOP</span><strong>{intel.max}</strong></div>
-                            <div className="stat"><span>STIMA</span><strong>{forecast.predictedFinal}</strong></div>
-                            <div className="stat"><span>ENTRA</span><strong>{forecast.entryThreshold}</strong></div>
+                          <div
+                            className="main-card"
+                            style={{
+                              marginTop: '8px',
+                              border:
+                                decision.verdict === 'PRENDILO' || decision.verdict === 'ATTACCA'
+                                  ? '1px solid rgba(66,214,164,.30)'
+                                  : decision.verdict === 'LASCIA'
+                                    ? '1px solid rgba(255,115,135,.30)'
+                                    : '1px solid rgba(244,201,112,.22)',
+                            }}
+                          >
+                            <small className="small-label">🩺 VERDETTO CHIRURGO</small>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '10px', alignItems: 'center', marginTop: '5px' }}>
+                              <strong style={{ fontSize: '21px' }}>{decision.verdict}</strong>
+                              <div className="recommendation-score">
+                                <span>SICUREZZA</span><strong>{scoreOutOf10(decision.confidence)}</strong>
+                              </div>
+                            </div>
+                            <p className="tip" style={{ margin: '7px 0 0', lineHeight: 1.55 }}>
+                              <strong>{decision.nextMove}</strong>
+                            </p>
+                            {decision.reasons.length > 0 && (
+                              <small style={{ display: 'block', marginTop: '5px' }}>
+                                Perché: {decision.reasons.join(' · ')}
+                              </small>
+                            )}
                           </div>
-                          <p className="tip" style={{ margin: '7px 0 0', lineHeight: 1.55 }}>
-                            {forecast.entry} · {forecast.tactic}
-                          </p>
+
+                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '5px', marginTop: '7px' }}>
+                            <div className="stat highlight-stat"><span>STOP</span><strong>{decision.intel.max}</strong></div>
+                            <div className="stat"><span>STIMA</span><strong>{decision.forecast.predictedFinal}</strong></div>
+                            <div className="stat"><span>ENTRA</span><strong>{decision.forecast.entryThreshold}</strong></div>
+                            <div className="stat"><span>DOPO ACQ.</span><strong style={{ fontSize: '8px' }}>{decision.simulation.verdict}</strong></div>
+                          </div>
                         </>
                       )
                     })()}
+
+                    <div className="main-card" style={{ marginTop: '8px' }}>
+                      <small className="small-label">REGISTRA ESITO SENZA USCIRE DALLA WAR</small>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px', marginTop: '7px' }}>
+                        <button type="button" className="primary-button" onClick={registerPurchase}>✓ MIO A {price}</button>
+                        <select value={selectedRivalId} onChange={(event) => setSelectedRivalId(Number(event.target.value))}>
+                          {rivalNames.slice(0, leagueSize - 1).map((name, index) => (
+                            <option key={`war-rival-${index}`} value={index}>{name}</option>
+                          ))}
+                        </select>
+                      </div>
+                      <button
+                        type="button"
+                        className="back-button"
+                        style={{ width: '100%', marginTop: '6px' }}
+                        onClick={registerWarRivalPurchase}
+                      >
+                        ✕ AGGIUDICATO A {rivalNames[selectedRivalId]} · {price}
+                      </button>
+                      {message && <div className="message">{message}</div>}
+                    </div>
 
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px', marginTop: '8px' }}>
                       <button type="button" className="back-button" onClick={() => setView('analysis')}>ANALISI</button>
@@ -5793,6 +5976,12 @@ function App() {
                     Attenzione a <strong>{dominantRival.name}</strong>: ha bisogno proprio di {suggestionRole} e può alzare i prezzi.
                   </p>
                 )}
+                {(purchases.length > 0 || rivalSales.length > 0) && (
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px', marginTop: '8px' }}>
+                    {purchases.length > 0 && <button type="button" className="back-button" onClick={() => undoMyPurchase(purchases.length - 1)}>↶ ANNULLA MIO</button>}
+                    {rivalSales.length > 0 && <button type="button" className="back-button" onClick={undoLastRivalSale}>↶ ANNULLA RIVALE</button>}
+                  </div>
+                )}
               </section>
             </>
           )}
@@ -5803,6 +5992,15 @@ function App() {
         <>
           <section className="section">
             <div className="section-title">🧠 ANALISI AVVERSARI</div>
+            {suggestionRole !== 'ALL' && (
+              <div className="main-card" style={{ marginBottom: '8px' }}>
+                <small className="small-label">FOCUS ASTA ATTUALE</small>
+                <strong style={{ display: 'block', marginTop: '4px' }}>{suggestionRole} · {roleNames[suggestionRole]}</strong>
+                <small style={{ display: 'block', marginTop: '4px' }}>
+                  Rivali con bisogno nel reparto: {rivalPredictions.filter((rival) => rival.primary?.role === suggestionRole || rival.secondary?.role === suggestionRole).length}
+                </small>
+              </div>
+            )}
             {rivalPredictions.length === 0 ? (
               <p className="tip">Registra gli acquisti dei rivali per attivare l'analisi.</p>
             ) : (
@@ -5868,7 +6066,35 @@ function App() {
             <div className="section-title" style={{ marginBottom: 0 }}>⚖️ CONFRONTO GIOCATORI</div>
             {comparisonNames.length > 0 && <button type="button" className="back-button" onClick={resetComparison}>↺ RESET</button>}
           </div>
-          <p className="tip">Aggiungi fino a 3 giocatori dalla War Room.</p>
+          <p className="tip">Confronta fino a 3 giocatori. Puoi aggiungerli direttamente da qui.</p>
+
+          <input
+            type="text"
+            placeholder={suggestionRole === 'ALL' ? 'Cerca giocatore da confrontare...' : `Cerca ${roleNames[suggestionRole].toLowerCase()} da confrontare...`}
+            value={playerSearch}
+            onChange={(event) => handlePlayerSearch(event.target.value)}
+          />
+
+          {playerSearch && (
+            <div style={{ display: 'grid', gap: '5px', marginTop: '7px' }}>
+              {searchedPlayers
+                .filter((player) => suggestionRole === 'ALL' || player.role === suggestionRole)
+                .filter((player) => !comparisonNames.includes(player.name))
+                .slice(0, 6)
+                .map((player) => (
+                  <button
+                    type="button"
+                    key={`compare-search-${playerKey(player)}`}
+                    className="back-button"
+                    style={{ width: '100%', display: 'flex', justifyContent: 'space-between', gap: '8px' }}
+                    onClick={() => toggleComparisonPlayer(player)}
+                  >
+                    <span>+ {player.name} · {player.team}</span>
+                    <span>{player.role} · {getMarket(player)}</span>
+                  </button>
+                ))}
+            </div>
+          )}
 
           {comparisonPlayers.length === 0 && <p className="tip">Nessun giocatore selezionato.</p>}
 
@@ -7223,8 +7449,7 @@ function App() {
                           padding: '8px 9px',
                           borderRadius: '10px',
                           border: '1px solid rgba(139,169,209,.10)',
-        
-                  background: 'rgba(19,32,52,.58)',
+                          background: 'rgba(19,32,52,.58)',
                         }}
                       >
                         <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>

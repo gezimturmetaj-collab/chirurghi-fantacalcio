@@ -31,12 +31,12 @@ function decodeHtml(value) {
     .replace(/&amp;/gi, '&')
     .replace(/&#39;/gi, "'")
     .replace(/&quot;/gi, '"')
-    .replace(/&agrave;/gi, 'à')
-    .replace(/&egrave;/gi, 'è')
-    .replace(/&eacute;/gi, 'é')
-    .replace(/&igrave;/gi, 'ì')
-    .replace(/&ograve;/gi, 'ò')
-    .replace(/&ugrave;/gi, 'ù')
+    .replace(/&agrave;/gi, 'Ã ')
+    .replace(/&egrave;/gi, 'Ã¨')
+    .replace(/&eacute;/gi, 'Ã©')
+    .replace(/&igrave;/gi, 'Ã¬')
+    .replace(/&ograve;/gi, 'Ã²')
+    .replace(/&ugrave;/gi, 'Ã¹')
 }
 
 function clean(value) {
@@ -209,7 +209,7 @@ function looksLikePlayerName(line) {
   if (isSectionHeader(line)) return false
   if (/^(atalanta|bologna|cagliari|como|fiorentina|frosinone|genoa|inter|juventus|lazio|lecce|milan|monza|napoli|parma|roma|sassuolo|torino|udinese|venezia)$/i.test(line)) return false
   if (/[.!?:;]/.test(line)) return false
-  return /^[A-ZÀ-Ü][A-Za-zÀ-ÿ' .-]+$/.test(line)
+  return /^[A-ZÃ€-Ãœ][A-Za-zÃ€-Ã¿' .-]+$/.test(line)
 }
 
 function parseUnavailable(html) {
@@ -263,7 +263,7 @@ function recoveryTime(detail) {
     /tornare[^,.]{0,100}/i,
     /torna[^,.]{0,100}/i,
     /da inizio[^,.]{0,80}/i,
-    /dalla seconda metà[^,.]{0,80}/i,
+    /dalla seconda metÃ [^,.]{0,80}/i,
     /tempi di recupero[^,.]{0,100}/i
   ]
   for (const pattern of patterns) {
@@ -322,7 +322,7 @@ export default async function handler(request) {
 
     if (quotations.length < 100) {
       throw new Error(
-        `Parsing quotazioni incompleto: trovati solo ${quotations.length} giocatori. Nessun dato locale è stato sovrascritto.`
+        `Parsing quotazioni incompleto: trovati solo ${quotations.length} giocatori. Nessun dato locale Ã¨ stato sovrascritto.`
       )
     }
 
@@ -367,7 +367,7 @@ export default async function handler(request) {
     const payload = {
       version: `live-${generatedAt}`,
       generatedAt,
-      sourceLabel: 'Fantacalcio.it · Quotazioni + Statistiche 2026/27 + Indisponibili',
+      sourceLabel: 'Fantacalcio.it Â· Quotazioni + Statistiche 2026/27 + Indisponibili',
       players,
       changes: [],
       diagnostics: {

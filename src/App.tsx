@@ -166,14 +166,19 @@ function loadUpdateMeta(): UpdateMeta | null {
 }
 
 function isStorageQuotaError(error: unknown) {
-  return error instanceof DOMException && (
-    error.name === 'QuotaExceededError' ||
-    error.name === 'NS_ERROR_DOM_QUOTA_REACHED' ||
-    error.code === 22 || error.code === 1014
+  const message = error instanceof Error ? error.message.toLowerCase() : String(error ?? '').toLowerCase()
+  return (
+    (typeof DOMException !== 'undefined' && error instanceof DOMException && (
+      error.name === 'QuotaExceededError' ||
+      error.name === 'NS_ERROR_DOM_QUOTA_REACHED' ||
+      error.code === 22 || error.code === 1014
+    )) ||
+    message.includes('quota') ||
+    message.includes('storage') && message.includes('exceed')
   )
 }
 
-function clearOnlyOldSourceCaches() {
+function clearOnlyOldSourceCaches(keepKey?: string) {
   const disposableKeys = [
     'fantawarroom_v2_sourceData',
     'fantawarroom_v2_changelog',
@@ -181,7 +186,7 @@ function clearOnlyOldSourceCaches() {
     'fantawarroom_v2_manifest',
     DATA_UPDATE_KEY,
     DATA_UPDATE_META_KEY,
-  ]
+  ].filter((key) => key !== keepKey)
   disposableKeys.forEach((key) => {
     try { localStorage.removeItem(key) } catch { /* cache non essenziale */ }
   })
@@ -191,48 +196,36 @@ function saveSourceJsonSafely(key: string, value: unknown) {
   const serialized = JSON.stringify(value)
   try {
     localStorage.setItem(key, serialized)
-    return
+    return true
   } catch (error) {
-    if (!isStorageQuotaError(error)) throw error
+    if (!isStorageQuotaError(error)) return false
   }
 
-  // Se Safari/iOS ha riempito localStorage eliminiamo SOLO cache sorgente,
-  // mai rosa, acquisti, rivali, MY TEAM o impostazioni utente.
-  clearOnlyOldSourceCaches()
-  localStorage.setItem(key, serialized)
+  // Safari/iOS può avere una quota molto piccola: eliminiamo SOLO vecchie cache sorgente.
+  // Non tocchiamo mai rosa, acquisti, rivali, MY TEAM o impostazioni utente.
+  clearOnlyOldSourceCaches(key)
+  try {
+    localStorage.setItem(key, serialized)
+    return true
+  } catch {
+    // L'aggiornamento resta comunque attivo in memoria per la sessione d'asta.
+    return false
+  }
 }
 
 function compactUpdateForStorage(item: PlayerUpdateData): PlayerUpdateData {
-  return {
-    playerKey: item.playerKey,
-    name: item.name,
-    team: item.team,
-    role: item.role,
-    quotation: item.quotation ?? null,
-    fvm: item.fvm ?? null,
-    market8: item.market8 ?? null,
-    market10: item.market10 ?? null,
-    starterPct: item.starterPct ?? null,
-    pro: item.pro ?? null,
-    contra: item.contra ?? null,
-    usefulDetails: item.usefulDetails ?? null,
-    penalties: item.penalties ?? null,
-    setPieces: item.setPieces ?? null,
-    injury: item.injury ?? null,
-    injuryStatus: item.injuryStatus ?? null,
-    expectedReturn: item.expectedReturn ?? null,
-    recoveryTime: item.recoveryTime ?? null,
-    appearances: item.appearances ?? null,
-    averageRating: item.averageRating ?? null,
-    fantasyAverage: item.fantasyAverage ?? null,
-    goals: item.goals ?? null,
-    assists: item.assists ?? null,
-    position: item.position ?? null,
-    competition: item.competition ?? null,
-    sourceUpdatedAt: item.sourceUpdatedAt ?? null,
-    lastUpdated: item.lastUpdated ?? null,
-    photoUrl: item.photoUrl ?? null,
+  const compact: Record<string, unknown> = { playerKey: item.playerKey }
+  const fields: (keyof PlayerUpdateData)[] = [
+    'quotation','fvm','market8','market10','starterPct','pro','contra','usefulDetails',
+    'penalties','setPieces','injury','injuryStatus','expectedReturn','recoveryTime',
+    'appearances','averageRating','fantasyAverage','goals','assists','position','competition',
+    'sourceUpdatedAt','lastUpdated','photoUrl'
+  ]
+  for (const field of fields) {
+    const value = item[field]
+    if (value !== null && value !== undefined && value !== '') compact[field] = value
   }
+  return compact as PlayerUpdateData
 }
 
 const roles: Role[] = ['P', 'D', 'C', 'A']
@@ -269,17 +262,17 @@ const strategies: Record<
   },
   aggressive: {
     name: 'AGGRESSIVA',
-    description: 'PiÃ¹ crediti sui giocatori offensivi e sui profili premium.',
+    description: 'Più crediti sui giocatori offensivi e sui profili premium.',
     budgets: { P: 25, D: 65, C: 135, A: 275 },
   },
   value: {
     name: 'VALUE',
-    description: 'Punta sul rapporto qualitÃ /prezzo e su una rosa profonda.',
+    description: 'Punta sul rapporto qualità/prezzo e su una rosa profonda.',
     budgets: { P: 30, D: 100, C: 180, A: 190 },
   },
   patient: {
     name: 'ATTENDISTA',
-    description: 'Riduce gli eccessi iniziali e conserva potere dâ€™acquisto.',
+    description: 'Riduce gli eccessi iniziali e conserva potere d’acquisto.',
     budgets: { P: 30, D: 90, C: 170, A: 210 },
   },
   stars: {
@@ -289,7 +282,7 @@ const strategies: Record<
   },
   free: {
     name: 'FREE',
-    description: 'QualitÃ  pura: nei suggerimenti ignora costi, mercato e vincoli di budget.',
+    description: 'Qualità pura: nei suggerimenti ignora costi, mercato e vincoli di budget.',
     budgets: { P: 30, D: 80, C: 155, A: 235 },
   },
 }
@@ -314,7 +307,7 @@ const goalkeeperCalendarNotes: Record<string, string> = {
   'Parma|Sassuolo': 'uno dei migliori incastri low-cost della griglia 2026/27',
   'Genoa|Sassuolo': 'incastro molto favorevole della griglia 2026/27',
   'Atalanta|Frosinone': 'buona copertura calendario a costo potenzialmente contenuto',
-  'Como|Fiorentina': 'coppia di fascia alta indicata tra le combinazioni piÃ¹ interessanti',
+  'Como|Fiorentina': 'coppia di fascia alta indicata tra le combinazioni più interessanti',
 }
 
 type PairingMode = 'goalkeepers' | 'attackers'
@@ -329,7 +322,7 @@ type PairingRoundResult = {
 }
 
 // Calendario ufficiale Serie A Enilive 2026/27 (Lega Serie A, 38 giornate).
-// Il calendario Ã¨ dato fattuale; indice e suggerimenti sono calcolati dal nostro motore.
+// Il calendario è dato fattuale; indice e suggerimenti sono calcolati dal nostro motore.
 const SERIE_A_FIXTURES_2026_27: FixtureMatch[][] = [
   [['Atalanta','Sassuolo'],['Bologna','Lazio'],['Frosinone','Juventus'],['Genoa','Napoli'],['Inter','Monza'],['Parma','Cagliari'],['Roma','Fiorentina'],['Torino','Milan'],['Udinese','Como'],['Venezia','Lecce']],
   [['Atalanta','Bologna'],['Cagliari','Inter'],['Fiorentina','Frosinone'],['Juventus','Parma'],['Lazio','Genoa'],['Lecce','Roma'],['Milan','Venezia'],['Monza','Udinese'],['Napoli','Como'],['Sassuolo','Torino']],
@@ -420,7 +413,7 @@ const fantacalcioPhotoIds: Record<string, number> = {
   'Maignan': 4312,
   'Mancini': 2296,
   'Dybala': 309,
-  'LaurientÃ¨': 6060,
+  'Laurientè': 6060,
   'Simeone': 2061,
   'Raspadori': 4371,
   'Bastoni': 2120,
@@ -450,7 +443,7 @@ const fantacalcioPhotoIds: Record<string, number> = {
   'Gila': 5833,
   'Modric': 2606,
   'Di Lorenzo': 2816,
-  'SoulÃ¨': 5734,
+  'Soulè': 5734,
   'Adams A.': 7484,
   'Mastantuono': 7078
 }
@@ -1092,8 +1085,8 @@ const APP_THEME_CSS = `
   }
 
   /* =========================================================
-     MASTER ULTIMATE ONE-SHOT â€” ALL FEATURES / PERFORMANCE / DESIGN
-     PiÃ¹ pulita, moderna e leggibile durante l'asta
+     MASTER ULTIMATE ONE-SHOT — ALL FEATURES / PERFORMANCE / DESIGN
+     Più pulita, moderna e leggibile durante l'asta
      ========================================================= */
 
   :root {
@@ -1143,7 +1136,7 @@ const APP_THEME_CSS = `
     padding-top: 11px !important;
   }
 
-  /* Header piÃ¹ sobrio: niente effetto "gaming dashboard" */
+  /* Header più sobrio: niente effetto "gaming dashboard" */
   .topbar {
     border-color: rgba(255,255,255,.07) !important;
     background:
@@ -1161,7 +1154,7 @@ const APP_THEME_CSS = `
     color: #7e8999 !important;
   }
 
-  /* Card: superfici piÃ¹ piatte e gerarchia piÃ¹ chiara */
+  /* Card: superfici più piatte e gerarchia più chiara */
   .section {
     border-color: rgba(255,255,255,.065) !important;
     background:
@@ -1185,7 +1178,7 @@ const APP_THEME_CSS = `
     background: rgba(169,140,255,.075) !important;
   }
 
-  /* Titoli senza numeri/badge: tipografia piÃ¹ elegante */
+  /* Titoli senza numeri/badge: tipografia più elegante */
   .section-title {
     gap: 0 !important;
     color: #f1f4f8 !important;
@@ -1263,7 +1256,7 @@ const APP_THEME_CSS = `
     color: #75e6bd !important;
   }
 
-  /* Input piÃ¹ "native app" */
+  /* Input più "native app" */
   input,
   select {
     min-height: 45px !important;
@@ -1304,7 +1297,7 @@ const APP_THEME_CSS = `
     color: #c7b8ff !important;
   }
 
-  /* Badge piÃ¹ discreti */
+  /* Badge più discreti */
   .setup-badge {
     border-color: rgba(124,156,255,.15) !important;
     background: rgba(124,156,255,.07) !important;
@@ -1312,7 +1305,7 @@ const APP_THEME_CSS = `
     letter-spacing: .055em !important;
   }
 
-  /* Navigazione: pill glass piÃ¹ moderna */
+  /* Navigazione: pill glass più moderna */
   .app-nav {
     top: 7px;
     gap: 4px;
@@ -1422,8 +1415,8 @@ const APP_THEME_CSS = `
 
 
   /* =========================================================
-     PASSO 40 â€” MIDNIGHT SPECTRUM
-     Palette piÃ¹ varia ma controllata:
+     PASSO 40 — MIDNIGHT SPECTRUM
+     Palette più varia ma controllata:
      blu notte + cyan + indaco + viola + corallo + ambra + smeraldo
      ========================================================= */
 
@@ -1472,7 +1465,7 @@ const APP_THEME_CSS = `
       linear-gradient(180deg,#0b1423 0%,#09101c 48%,#070d17 100%) !important;
   }
 
-  /* Header: cyan -> violet, piÃ¹ riconoscibile */
+  /* Header: cyan -> violet, più riconoscibile */
   .topbar {
     border-color: rgba(121,159,211,.13) !important;
     background:
@@ -1706,7 +1699,7 @@ const APP_THEME_CSS = `
     color: #8296b0 !important;
   }
 
-  /* Nav: ogni tab ha un'identitÃ  cromatica leggera */
+  /* Nav: ogni tab ha un'identità cromatica leggera */
   .app-nav {
     border-color: rgba(139,169,209,.13) !important;
     background: rgba(9,17,29,.88) !important;
@@ -1754,7 +1747,7 @@ const APP_THEME_CSS = `
   }
 
 
-  /* PASSO 41 â€” MY TEAM */
+  /* PASSO 41 — MY TEAM */
   .app-nav .nav-caption {
     font-size: 7px;
     letter-spacing: .025em;
@@ -1778,7 +1771,7 @@ const APP_THEME_CSS = `
   }
 
 
-  /* PASSO 42A â€” Offline / update center */
+  /* PASSO 42A — Offline / update center */
   button:disabled {
     opacity: .48 !important;
     cursor: not-allowed !important;
@@ -1790,7 +1783,7 @@ const APP_THEME_CSS = `
   }
 
 
-  /* FINAL DESIGN â€” LIGHT VIBRANT */
+  /* FINAL DESIGN — LIGHT VIBRANT */
   :root {
     color-scheme: light;
     --app-bg: #f4f8ff;
@@ -1833,7 +1826,7 @@ const APP_THEME_CSS = `
   .back-button { background:#f4f7fb !important; color:#52617a !important; }
 
 
-  /* MASTER ULTIMATE DESIGN â€” HIGH CONTRAST AUCTION UI */
+  /* MASTER ULTIMATE DESIGN — HIGH CONTRAST AUCTION UI */
   :root {
     color-scheme: dark;
     --app-bg:#07111f;
@@ -1957,7 +1950,7 @@ const APP_THEME_CSS = `
     h1 { line-height: 1.12 !important; }
     h2, h3 { line-height: 1.18 !important; }
   }
-  /* FINAL CLEAN UI â€” meno ridondanza, piÃ¹ leggibilitÃ  */
+  /* FINAL CLEAN UI — meno ridondanza, più leggibilità */
 .section { margin-bottom: 10px !important; }
 .main-card + .main-card { margin-top: 7px; }
 .app-nav { position: sticky; bottom: 8px; z-index: 60; }
@@ -1966,6 +1959,13 @@ const APP_THEME_CSS = `
   .section { padding: 11px 10px !important; }
   .main-card { padding: 11px !important; }
   .app-nav { gap: 5px !important; }
+}
+
+/* ASTA TONIGHT — leggibilità e densità controllata */
+@media (max-width: 760px) {
+  .recommendation-score { min-width: 62px; }
+  .tip { font-size: 12px !important; line-height: 1.48 !important; }
+  .stat strong { font-size: 14px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1981,7 +1981,7 @@ const APP_THEME_CSS = `
 
 
 /* ========================================================================
-   FANTACALCIO WAR ROOM 2026/27 â€” ENGINE V2
+   FANTACALCIO WAR ROOM 2026/27 — ENGINE V2
    Unico layer compatibile: nessun dato inventato, null => N/D.
    Le funzioni sono esportate per restare modulari/testabili senza rompere
    l'App esistente e senza obbligare a cambiare la struttura del progetto.
@@ -2078,7 +2078,7 @@ export function normalizeSearchV2(value: string | null | undefined) {
   return (value ?? '')
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[â€™'`Â´]/g, '')
+    .replace(/[’'`´]/g, '')
     .replace(/\s+/g, ' ')
     .trim()
     .toLowerCase()
@@ -2375,15 +2375,15 @@ export function overallRatingV2(role: Role, input: {
   const fixtureEase = input.fixture == null ? null : 100 - clampV2(input.fixture)
   const riskAdj = input.risk == null ? null : 100 - clampV2(input.risk)
   const configs: Record<Role, Array<[string, number | null | undefined, number]>> = {
-    A: [['Bonus', input.bonus, .30], ['xFP', normalizedXfp, .20], ['TitolaritÃ ', input.titolarita, .15],
+    A: [['Bonus', input.bonus, .30], ['xFP', normalizedXfp, .20], ['Titolarità', input.titolarita, .15],
         ['Consistency', input.consistency, .10], ['Calendario', fixtureEase, .10], ['Upside', input.upside, .10], ['Rischio', riskAdj, .05]],
-    C: [['Bonus', input.bonus, .25], ['xFP', normalizedXfp, .20], ['TitolaritÃ ', input.titolarita, .15],
+    C: [['Bonus', input.bonus, .25], ['xFP', normalizedXfp, .20], ['Titolarità', input.titolarita, .15],
         ['Piazzati', input.setPieces, .10], ['Consistency', input.consistency, .10], ['Calendario', fixtureEase, .10],
         ['Upside/Risk', input.upside != null && riskAdj != null ? (input.upside + riskAdj) / 2 : input.upside ?? riskAdj, .10]],
-    D: [['xFP', normalizedXfp, .20], ['TitolaritÃ ', input.titolarita, .20], ['Clean sheet', input.cleanSheet, .15],
+    D: [['xFP', normalizedXfp, .20], ['Titolarità', input.titolarita, .20], ['Clean sheet', input.cleanSheet, .15],
         ['Bonus', input.bonus, .15], ['Consistency', input.consistency, .10], ['Calendario', fixtureEase, .10], ['Rischio', riskAdj, .10]],
-    P: [['Difesa squadra', input.teamDefense, .25], ['QualitÃ  parate', input.saveQuality, .20], ['Clean sheet', input.cleanSheet, .20],
-        ['Calendario', fixtureEase, .15], ['TitolaritÃ ', input.titolarita, .10], ['Rotazione', input.rotationValue, .10]],
+    P: [['Difesa squadra', input.teamDefense, .25], ['Qualità parate', input.saveQuality, .20], ['Clean sheet', input.cleanSheet, .20],
+        ['Calendario', fixtureEase, .15], ['Titolarità', input.titolarita, .10], ['Rotazione', input.rotationValue, .10]],
   }
   const valid = configs[role].filter(([, v]) => v != null) as Array<[string, number, number]>
   if (!valid.length) return { score: null, confidence: 0, quality: 'LOW', components: [], formula: `Overall ${role}: dati insufficienti` }
@@ -2515,10 +2515,10 @@ export function runWarRoomSelfTestsV2() {
   assert(expectedMinutesV2({ pStart: 100, avgMinutesStarter: 95, pSubIn: 0, avgMinutesSub: 0 }) === 90, 'xMin clamp 90')
   assert(clampV2(140) === 100 && clampV2(-4) === 0, 'rating clamp 0-100')
   const p = poissonAtLeastOneV2(1)
-  assert(p != null && p >= 0 && p <= 1, 'probabilitÃ  0-1')
+  assert(p != null && p >= 0 && p <= 1, 'probabilità 0-1')
   const merged = safeMergePlayerV2({ id: 'p1', team: 'A' }, { note: 'x' })
   assert(merged.id === 'p1' && merged.note === 'x', 'safe merge')
-  assert(normalizeSearchV2('Ã‡alhanoÄŸlu') === 'calhanoglu', 'ricerca accenti')
+  assert(normalizeSearchV2('Çalhanoğlu') === 'calhanoglu', 'ricerca accenti')
   return { ok: failures.length === 0, failures }
 }
 
@@ -2558,7 +2558,7 @@ export const WarRoomV2 = {
 
 
 /* ======================================================================
-   MASTER TOTALE â€” COMPLETAMENTO SPEC 102
+   MASTER TOTALE — COMPLETAMENTO SPEC 102
    Layer modulare finale. Non sostituisce i motori legacy: li completa.
    Ogni funzione usa solo dati disponibili; assenza dato => null / N/D.
    ====================================================================== */
@@ -2657,7 +2657,7 @@ export function deterministicCommentV2(input:{
   risk?:number|null; personalMax?:number|null; verdict?:VerdictV2|null
 }) {
   const a:string[]=[]
-  if(input.titolarita!=null) a.push(input.titolarita>=80?'TitolaritÃ  molto alta.':input.titolarita<50?'TitolaritÃ  incerta.':'TitolaritÃ  discreta.')
+  if(input.titolarita!=null) a.push(input.titolarita>=80?'Titolarità molto alta.':input.titolarita<50?'Titolarità incerta.':'Titolarità discreta.')
   if(input.bonus!=null&&input.bonus>=70) a.push('Potenziale bonus elevato.')
   if(input.fdr!=null) a.push(input.fdr<=40?'Calendario favorevole.':input.fdr>=70?'Calendario impegnativo.':'Calendario equilibrato.')
   if(input.risk!=null&&input.risk>=65) a.push('Profilo di rischio alto.')
@@ -2974,7 +2974,7 @@ function App() {
     const exact = dataUpdates[`${player.name}|${player.team}`]
     if (exact) return exact
 
-    // Fallback per trasferimenti: prova il nome se il team Ã¨ cambiato nel feed.
+    // Fallback per trasferimenti: prova il nome se il team è cambiato nel feed.
     return (Object.values(dataUpdates) as PlayerUpdateData[]).find(
       (item) => item.name?.toLowerCase() === player.name.toLowerCase()
     )
@@ -3403,7 +3403,7 @@ function App() {
 
     if (strategy === 'balanced') {
       if ((getFit(player) ?? 0) >= 80 && market <= average * 1.2)
-        return 'Ottimo per EQUILIBRATA: qualitÃ , fit e costo sono ben bilanciati'
+        return 'Ottimo per EQUILIBRATA: qualità, fit e costo sono ben bilanciati'
       return 'EQUILIBRATA: profilo valutato sul miglior compromesso complessivo'
     }
 
@@ -3412,7 +3412,7 @@ function App() {
         return 'Perfetto per AGGRESSIVA: attaccante premium su cui vale concentrare budget'
       if (player.role === 'C' && tier >= 82)
         return 'Molto adatto ad AGGRESSIVA: centrocampista di fascia alta'
-      return 'AGGRESSIVA: meno prioritÃ  ai profili che non spostano abbastanza'
+      return 'AGGRESSIVA: meno priorità ai profili che non spostano abbastanza'
     }
 
     if (strategy === 'value') {
@@ -3425,12 +3425,12 @@ function App() {
 
     if (strategy === 'patient') {
       if (progress < 0.35 && market <= average * 0.8)
-        return 'Ottimo per ATTENDISTA: occasione iniziale senza intaccare il potere dâ€™acquisto'
+        return 'Ottimo per ATTENDISTA: occasione iniziale senza intaccare il potere d’acquisto'
       if (progress < 0.35)
-        return 'ATTENDISTA: allâ€™inizio conviene evitare di inseguire troppo il prezzo'
+        return 'ATTENDISTA: all’inizio conviene evitare di inseguire troppo il prezzo'
       if (progress >= 0.65 && tier >= 82)
         return 'ATTENDISTA: ora puoi usare il budget conservato per un profilo forte'
-      return 'ATTENDISTA: profilo coerente con la fase attuale dellâ€™asta'
+      return 'ATTENDISTA: profilo coerente con la fase attuale dell’asta'
     }
 
     if (strategy === 'stars') {
@@ -3498,7 +3498,7 @@ function App() {
 
   function pairingPlayerSignal(player: Player, mode: PairingMode) {
     const update = dataUpdateFor(player)
-    const starter = update?.starterPct ?? player.starterPct ?? 50
+    const starter = update?.starterPct ?? 50
     const quotation = update?.quotation ?? player.quotation ?? 1
     const avg = update?.fantasyAverage ?? update?.averageRating ?? player.averageRating2526 ?? 6
     const goals = update?.goals ?? 0
@@ -3728,11 +3728,11 @@ function App() {
     const slots = rivalSlotsRemaining(rivalId)
 
     let behavior = 'ATTENDISTA'
-    if (intel.aggression >= 7.2 && maxOffer >= startingBudget * .16) behavior = 'RILANCERÃ€ FORTE'
-    else if (intel.profile === 'VALUE') behavior = 'CERCHERÃ€ OCCASIONI'
-    else if (intel.profile === 'SPENDACCIONE') behavior = 'PUÃ’ BRUCIARE BUDGET'
-    else if (intel.profile === 'RISPARMIATORE') behavior = 'CONSERVERÃ€ CASSA'
-    else if (slots <= 8) behavior = 'DOVRÃ€ ACCELERARE'
+    if (intel.aggression >= 7.2 && maxOffer >= startingBudget * .16) behavior = 'RILANCERÀ FORTE'
+    else if (intel.profile === 'VALUE') behavior = 'CERCHERÀ OCCASIONI'
+    else if (intel.profile === 'SPENDACCIONE') behavior = 'PUÒ BRUCIARE BUDGET'
+    else if (intel.profile === 'RISPARMIATORE') behavior = 'CONSERVERÀ CASSA'
+    else if (slots <= 8) behavior = 'DOVRÀ ACCELERARE'
 
     let counter = 'Non inseguirlo sui rilanci emotivi.'
     if (primary?.pressure && primary.pressure >= 78) {
@@ -3886,9 +3886,9 @@ function App() {
     else if (currentPrice <= myMax) entry = 'SOLO RILANZI SECCHI'
     else entry = 'STOP'
 
-    let tactic = 'Aspetta: il prezzo Ã¨ ancora troppo basso per mostrare interesse.'
+    let tactic = 'Aspetta: il prezzo è ancora troppo basso per mostrare interesse.'
     if (entry === 'PREPARATI') tactic = `Avvicinati solo quando supera circa ${entryThreshold}: evita rilanci inutili prima.`
-    if (entry === 'ENTRA ORA') tactic = 'Entra con decisione: sei nella finestra in cui il prezzo Ã¨ ancora difendibile.'
+    if (entry === 'ENTRA ORA') tactic = 'Entra con decisione: sei nella finestra in cui il prezzo è ancora difendibile.'
     if (entry === 'SOLO RILANZI SECCHI') tactic = 'Se vuoi chiuderlo, niente micro-rilanci emotivi: resta rigorosamente sotto il tuo MAX.'
     if (entry === 'STOP') tactic = 'Lascia andare: il prezzo ha superato il limite sostenibile.'
 
@@ -3974,7 +3974,7 @@ function App() {
       return {
         label: 'REPARTO PIENO',
         className: 'pass',
-        message: 'Non hai piÃ¹ slot disponibili in questo ruolo.',
+        message: 'Non hai più slot disponibili in questo ruolo.',
       }
 
     if (dynamicMax <= 0)
@@ -3995,7 +3995,7 @@ function App() {
       return {
         label: 'LASCIA SALIRE',
         className: 'warning',
-        message: 'Ãˆ unâ€™esca: lâ€™obiettivo Ã¨ far spendere i rivali, non vincere necessariamente il giocatore.',
+        message: 'È un’esca: l’obiettivo è far spendere i rivali, non vincere necessariamente il giocatore.',
       }
 
     if (suggestionMode === 'bet' && currentPrice <= market)
@@ -4071,7 +4071,7 @@ function App() {
   ) {
     const remaining = roleRemaining(currentRole)
 
-    if (remaining <= 0) return 'Reparto giÃ  completato'
+    if (remaining <= 0) return 'Reparto già completato'
 
     if (!bestPlayer)
       return 'Pochi profili disponibili: monitora il reparto senza forzare'
@@ -4080,21 +4080,21 @@ function App() {
       return 'La strategia AGGRESSIVA richiede di concentrare risorse sugli attaccanti forti'
 
     if (strategy === 'value' && getMarket(bestPlayer) <= adaptiveAverage(currentRole))
-      return 'Occasione coerente con VALUE: il miglior profilo Ã¨ sostenibile per il budget del ruolo'
+      return 'Occasione coerente con VALUE: il miglior profilo è sostenibile per il budget del ruolo'
 
     if (strategy === 'patient' && purchases.length < 9)
-      return 'Fase iniziale ATTENDISTA: prioritÃ  ai reparti acquistabili senza bruciare budget'
+      return 'Fase iniziale ATTENDISTA: priorità ai reparti acquistabili senza bruciare budget'
 
     if (strategy === 'stars' && tierScore(bestPlayer) >= 82)
-      return 'STELLE & SCOMMESSE: Ã¨ disponibile un profilo premium su cui valutare lâ€™affondo'
+      return 'STELLE & SCOMMESSE: è disponibile un profilo premium su cui valutare l’affondo'
 
     if (urgency >= 8)
-      return 'PrioritÃ  alta: molti slot ancora aperti e buon target disponibile'
+      return 'Priorità alta: molti slot ancora aperti e buon target disponibile'
 
     if (calculateTargetScore(bestPlayer) >= 82)
       return 'Target molto forte disponibile: finestra interessante per intervenire'
 
-    return 'Reparto da tenere attivo, ma senza necessitÃ  di forzare la chiamata'
+    return 'Reparto da tenere attivo, ma senza necessità di forzare la chiamata'
   }
 
   function buildRoleMove(currentRole: Role) {
@@ -4117,7 +4117,7 @@ function App() {
         urgency: 0,
         bestPlayer: null as Player | null,
         bestScore: 0,
-        reason: 'Reparto giÃ  completato',
+        reason: 'Reparto già completato',
       }
     }
 
@@ -4229,7 +4229,7 @@ function App() {
     if (reliability.includes('ALTA')) value += 18
     else if (reliability.includes('MEDIA')) value += 8
     else if (reliability.includes('BASSA')) value -= 16
-    if (use.includes('1Â°') || use.includes('PRIMO') || use.includes('TITOLAR')) value += 8
+    if (use.includes('1°') || use.includes('PRIMO') || use.includes('TITOLAR')) value += 8
     if (use.includes('PROFONDIT')) value -= 14
     if (tierScore(player) >= 82) value += 7
     if (tierScore(player) <= 50) value -= 6
@@ -4420,8 +4420,8 @@ function App() {
     else action = 'ASPETTA'
 
     const reasons: string[] = []
-    if (isStarred(player)) reasons.push('obiettivo â˜…')
-    if (live.availability < 65) reasons.push('rischio disponibilitÃ ')
+    if (isStarred(player)) reasons.push('obiettivo ★')
+    if (live.availability < 65) reasons.push('rischio disponibilità')
     if (scarcity >= 78) reasons.push('poche alternative equivalenti')
     if (pressure.level === 'ALTA') reasons.push('forte pressione rivali')
     if (temperature.sample >= 2 && temperature.pct >= 10) reasons.push('reparto surriscaldato')
@@ -4542,24 +4542,24 @@ function App() {
     const max = calculateDynamicMax(player)
     const starter = estimatedStarterPct(player)
     const parts = [
-      wish?.starred ? 'â˜… Ãˆ uno dei tuoi obiettivi prioritari' : `Ãˆ il profilo ${player.role} piÃ¹ coerente con la situazione attuale`,
+      wish?.starred ? '★ È uno dei tuoi obiettivi prioritari' : `È il profilo ${player.role} più coerente con la situazione attuale`,
       `${roleLeft} slot del ruolo ancora liberi`,
-      `titolaritÃ  stimata ${starter}%`,
+      `titolarità stimata ${starter}%`,
       `mercato ${market} e MAX sostenibile ${max}`,
     ]
-    if (player.penalties) parts.push('ha prioritÃ  anche per i rigori')
+    if (player.penalties) parts.push('ha priorità anche per i rigori')
     if (player.setPieces) parts.push('porta calci piazzati')
-    return `${parts.join(' Â· ')}. Chiamarlo ora serve a controllare il timing: se il prezzo resta nella fascia sostenibile puoi attaccare; se sale troppo, fai spendere gli altri senza compromettere il budget protetto per gli obiettivi con â˜….`
+    return `${parts.join(' · ')}. Chiamarlo ora serve a controllare il timing: se il prezzo resta nella fascia sostenibile puoi attaccare; se sale troppo, fai spendere gli altri senza compromettere il budget protetto per gli obiettivi con ★.`
   }
 
   function commandDecoyWhy(player: Player) {
     const temp = roleMarketTemperature(player.role)
     const market = getMarket(player)
-    return `Non Ã¨ marcato â˜… e quindi puÃ² essere sacrificato come leva d'asta. Ha mercato ${market}; ${temp.sample >= 2 ? `il reparto Ã¨ ${temp.label.toLowerCase()} (${temp.pct > 0 ? '+' : ''}${temp.pct}%)` : 'il reparto ha ancora pochi prezzi registrati'}. L'obiettivo Ã¨ far uscire crediti ai rivali interessati al ruolo, conservando il tuo budget per i giocatori prioritari.`
+    return `Non è marcato ★ e quindi può essere sacrificato come leva d'asta. Ha mercato ${market}; ${temp.sample >= 2 ? `il reparto è ${temp.label.toLowerCase()} (${temp.pct > 0 ? '+' : ''}${temp.pct}%)` : 'il reparto ha ancora pochi prezzi registrati'}. L'obiettivo è far uscire crediti ai rivali interessati al ruolo, conservando il tuo budget per i giocatori prioritari.`
   }
 
   function formatLiveStat(value: number | null | undefined, digits = 0) {
-    if (value === null || value === undefined || Number.isNaN(value)) return 'â€”'
+    if (value === null || value === undefined || Number.isNaN(value)) return '—'
     return digits > 0 ? value.toFixed(digits) : String(Math.round(value))
   }
   function evaluationComment(player: Player) {
@@ -4568,14 +4568,14 @@ function App() {
     const fit = calculateStrategyFit(player)
     const starter = estimatedStarterPct(player)
     if (market <= max * 0.78 && fit >= 75)
-      return `Profilo molto interessante: il prezzo di mercato Ã¨ sotto il tuo limite e il fit con ${currentStrategy.name} Ã¨ alto. Puoi essere aggressivo senza perdere equilibrio.`
+      return `Profilo molto interessante: il prezzo di mercato è sotto il tuo limite e il fit con ${currentStrategy.name} è alto. Puoi essere aggressivo senza perdere equilibrio.`
     if (player.penalties && player.setPieces && starter >= 75)
-      return 'Profilo completo per bonus: buona titolaritÃ  stimata, rigori e piazzati aumentano il potenziale. Vale un piccolo premio rispetto al mercato.'
+      return 'Profilo completo per bonus: buona titolarità stimata, rigori e piazzati aumentano il potenziale. Vale un piccolo premio rispetto al mercato.'
     if (market > max)
-      return `Profilo valido, ma al prezzo di mercato rischia di comprimere il reparto. Prova a restare entro ${max} crediti oppure cerca unâ€™alternativa con miglior rapporto qualitÃ /prezzo.`
+      return `Profilo valido, ma al prezzo di mercato rischia di comprimere il reparto. Prova a restare entro ${max} crediti oppure cerca un’alternativa con miglior rapporto qualità/prezzo.`
     if (starter < 60)
-      return 'Profilo da usare come upside, non come certezza: la titolaritÃ  stimata Ã¨ piÃ¹ bassa. Acquistalo solo con margine di prezzo.'
-    return `Acquisto coerente con la strategia ${currentStrategy.name}: il punto chiave Ã¨ non superare ${max} crediti e preservare il budget per gli slot ancora liberi.`
+      return 'Profilo da usare come upside, non come certezza: la titolarità stimata è più bassa. Acquistalo solo con margine di prezzo.'
+    return `Acquisto coerente con la strategia ${currentStrategy.name}: il punto chiave è non superare ${max} crediti e preservare il budget per gli slot ancora liberi.`
   }
 
   function freeMarketPercentile(player: Player) {
@@ -4638,13 +4638,13 @@ function App() {
     const penalty = player.penalties ? 100 : 30
     const setPiece = player.setPieces ? 100 : 30
 
-    // TOP â€” nessun vincolo economico: solo i migliori profili disponibili.
+    // TOP — nessun vincolo economico: solo i migliori profili disponibili.
     if (category === 'top') {
       return quality
     }
 
-    // TITOLARE â€” deve essere affidabile e collocarsi in una fascia di costo media.
-    // 50Â° percentile = fascia ideale; il punteggio scende andando verso gli estremi.
+    // TITOLARE — deve essere affidabile e collocarsi in una fascia di costo media.
+    // 50° percentile = fascia ideale; il punteggio scende andando verso gli estremi.
     if (category === 'starter') {
       const mediumCostFit = Math.max(0, 100 - Math.abs(pricePct - 50) * 2)
       return (
@@ -4655,8 +4655,8 @@ function App() {
       )
     }
 
-    // SCOMMESSA â€” costo basso, ma potenziale tecnico elevato.
-    // Premia profili non ancora pienamente titolari, evitando perÃ² riserve pure.
+    // SCOMMESSA — costo basso, ma potenziale tecnico elevato.
+    // Premia profili non ancora pienamente titolari, evitando però riserve pure.
     if (category === 'bet') {
       const cheapness = 100 - pricePct
       const upside =
@@ -4677,7 +4677,7 @@ function App() {
       )
     }
 
-    // LOW BUDGET â€” pochissimi crediti ma con reale probabilitÃ  di giocare.
+    // LOW BUDGET — pochissimi crediti ma con reale probabilità di giocare.
     if (category === 'low') {
       const cheapness = 100 - pricePct
       const starterGate =
@@ -4699,8 +4699,8 @@ function App() {
       )
     }
 
-    // ESCA â€” nomi appetibili e costosi, che hanno probabilitÃ  di attirare rilanci.
-    // Qui il prezzo alto Ã¨ volutamente un pregio, perchÃ© l'obiettivo Ã¨ far spendere i rivali.
+    // ESCA — nomi appetibili e costosi, che hanno probabilità di attirare rilanci.
+    // Qui il prezzo alto è volutamente un pregio, perché l'obiettivo è far spendere i rivali.
     return (
       pricePct * 0.46 +
       quality * 0.30 +
@@ -4787,7 +4787,7 @@ function App() {
         if (sameTeamGoalkeepers < 2) {
           bonus = Math.max(bonus, 18)
           reasons.push(
-            `Completa il blocco ${player.team}: copertura diretta del portiere giÃ  acquistato ${owned.name}.`
+            `Completa il blocco ${player.team}: copertura diretta del portiere già acquistato ${owned.name}.`
           )
         }
       }
@@ -4830,7 +4830,7 @@ function App() {
     if (!usefulMate) {
       return {
         bonus: -4,
-        reasons: [`Hai giÃ  un ${player.role} del ${player.team}: aumenta la concentrazione sullo stesso club.`],
+        reasons: [`Hai già un ${player.role} del ${player.team}: aumenta la concentrazione sullo stesso club.`],
       }
     }
 
@@ -4867,7 +4867,7 @@ function App() {
         )
       } else if (teamCount >= 2) {
         bonus -= 3
-        cautions.push(`Hai giÃ  ${teamCount} giocatori del ${player.team}: attenzione alla correlazione di calendario.`)
+        cautions.push(`Hai già ${teamCount} giocatori del ${player.team}: attenzione alla correlazione di calendario.`)
       }
     }
 
@@ -4885,7 +4885,7 @@ function App() {
       if (modifier >= 78) {
         bonus += 9
         positives.push(
-          `Profilo molto interessante da modificatore (${Math.round(modifier)}/100): combina voto, affidabilitÃ  e titolaritÃ .`
+          `Profilo molto interessante da modificatore (${Math.round(modifier)}/100): combina voto, affidabilità e titolarità.`
         )
       } else if (modifier >= 65) {
         bonus += 5
@@ -4898,12 +4898,12 @@ function App() {
       bonus += 10
       positives.push(
         player.role === 'D'
-          ? 'Possibile profilo â€œbuggatoâ€: listato difensore ma con caratteristiche/posizione piÃ¹ offensiva.'
-          : 'Possibile profilo â€œbuggatoâ€: listato centrocampista ma con utilizzo avanzato/offensivo.'
+          ? 'Possibile profilo “buggato”: listato difensore ma con caratteristiche/posizione più offensiva.'
+          : 'Possibile profilo “buggato”: listato centrocampista ma con utilizzo avanzato/offensivo.'
       )
     }
 
-    // Specialisti: utili soprattutto se la rosa non ne possiede giÃ  molti.
+    // Specialisti: utili soprattutto se la rosa non ne possiede già molti.
     const ownedPenalty = purchases.filter((purchase) => purchase.player.penalties).length
     const ownedSetPieces = purchases.filter((purchase) => purchase.player.setPieces).length
 
@@ -4913,7 +4913,7 @@ function App() {
       positives.push(
         ownedPenalty === 0
           ? 'Aggiunge il primo rigorista della tua rosa.'
-          : `Aumenta la copertura rigori: hai giÃ  ${ownedPenalty} rigorist${ownedPenalty === 1 ? 'a' : 'i'}.`
+          : `Aumenta la copertura rigori: hai già ${ownedPenalty} rigorist${ownedPenalty === 1 ? 'a' : 'i'}.`
       )
     }
 
@@ -4935,14 +4935,14 @@ function App() {
       positives.push(`Aiuta a riequilibrare il reparto ${player.role}, oggi meno completo rispetto al resto della rosa.`)
     }
 
-    // TitolaritÃ  / copertura generale.
+    // Titolarità / copertura generale.
     const starter = estimatedStarterPct(player)
     if (starter >= 82) {
       bonus += 5
-      positives.push(`TitolaritÃ  stimata molto alta (${starter}%): aumenta la stabilitÃ  della rosa.`)
+      positives.push(`Titolarità stimata molto alta (${starter}%): aumenta la stabilità della rosa.`)
     } else if (starter < 45) {
       bonus -= 5
-      cautions.push(`TitolaritÃ  stimata ${starter}%: richiede copertura e tolleranza al rischio.`)
+      cautions.push(`Titolarità stimata ${starter}%: richiede copertura e tolleranza al rischio.`)
     }
 
     return {
@@ -4971,7 +4971,7 @@ function App() {
     const item = wishlistItemFor(player)
     if (!item) return 0
     const priorityBonus = Math.max(3, 17 - (Math.max(1, Math.min(20, item.priority)) - 1) * 0.75)
-    // La stella Ã¨ un obiettivo d'asta: pesa in tutti i suggerimenti senza superare i limiti strutturali.
+    // La stella è un obiettivo d'asta: pesa in tutti i suggerimenti senza superare i limiti strutturali.
     return priorityBonus + (item.starred ? 24 : 0)
   }
 
@@ -4997,20 +4997,20 @@ function App() {
 
     if (wish) {
       reasons.unshift(wish.starred
-        ? `â˜… OBIETTIVO PRIORITARIO: Ã¨ marcato con la stella. Il piano d'asta protegge budget e timing per aumentare le probabilitÃ  di prenderlo senza sforare il MAX sostenibile.`
-        : `Ãˆ nella tua MY TEAM con prioritÃ  ${wish.priority}: il motore lo considera esplicitamente tra i tuoi obiettivi.`)
+        ? `★ OBIETTIVO PRIORITARIO: è marcato con la stella. Il piano d'asta protegge budget e timing per aumentare le probabilità di prenderlo senza sforare il MAX sostenibile.`
+        : `È nella tua MY TEAM con priorità ${wish.priority}: il motore lo considera esplicitamente tra i tuoi obiettivi.`)
     }
 
     const categoryIntro =
       category === 'top'
-        ? 'Ãˆ un TOP che si integra bene con ciÃ² che hai giÃ  costruito.'
+        ? 'È un TOP che si integra bene con ciò che hai già costruito.'
         : category === 'starter'
-        ? 'Ãˆ un TITOLARE che migliora equilibrio e affidabilitÃ  della rosa.'
+        ? 'È un TITOLARE che migliora equilibrio e affidabilità della rosa.'
         : category === 'bet'
-        ? 'Ãˆ una SCOMMESSA con upside coerente con le coperture giÃ  presenti.'
+        ? 'È una SCOMMESSA con upside coerente con le coperture già presenti.'
         : category === 'low'
-        ? 'Ãˆ un LOW BUDGET che prova a massimizzare minuti e utilitÃ  per credito.'
-        : 'Ãˆ unâ€™ESCA utile per spostare budget degli avversari senza diventare una necessitÃ  per la tua rosa.'
+        ? 'È un LOW BUDGET che prova a massimizzare minuti e utilità per credito.'
+        : 'È un’ESCA utile per spostare budget degli avversari senza diventare una necessità per la tua rosa.'
 
     const positiveText =
       reasons.length > 0
@@ -5023,7 +5023,7 @@ function App() {
         : ''
 
     const live = chirurgoScore(player)
-    const liveText = ` Dati live: forma ${scoreOutOf10(live.liveForm)}/10 Â· disponibilitÃ  ${scoreOutOf10(live.availability)}/10 Â· Chirurgo Score ${scoreOutOf10(live.total)}/10.`
+    const liveText = ` Dati live: forma ${scoreOutOf10(live.liveForm)}/10 · disponibilità ${scoreOutOf10(live.availability)}/10 · Chirurgo Score ${scoreOutOf10(live.total)}/10.`
 
     return `${categoryIntro} ${positiveText}${warningText}${liveText}`
   }
@@ -5184,11 +5184,11 @@ function App() {
   else if (remainingBudgetShare + .10 < remainingSlotShare) predictiveMode = 'VALUE'
   else if (dominantRival && dominantRival.threat >= 8) predictiveMode = 'ANTI-RIVALE'
 
-  let predictiveModeText = 'Mantieni flessibilitÃ : compra solo entro prezzo corretto e osserva i rivali.'
+  let predictiveModeText = 'Mantieni flessibilità: compra solo entro prezzo corretto e osserva i rivali.'
   if (predictiveMode === 'ATTACCO') predictiveModeText = 'Hai potere di cassa: anticipa i target forti prima che i rivali possano riallinearsi.'
   if (predictiveMode === 'VALUE') predictiveModeText = 'La cassa va protetta: cerca titolari sostenibili e sfrutta le occasioni sotto mercato.'
   if (predictiveMode === 'ANTI-RIVALE') predictiveModeText = dominantRival
-    ? `${dominantRival.name} Ã¨ la minaccia principale: evita guerre inutili, ma colpisci i reparti dove ha piÃ¹ bisogno.`
+    ? `${dominantRival.name} è la minaccia principale: evita guerre inutili, ma colpisci i reparti dove ha più bisogno.`
     : predictiveModeText
   if (predictiveMode === 'CHIUSURA') predictiveModeText = 'Fase finale: completa gli slot senza lasciare crediti inutilizzati e proteggi almeno 1 credito per ogni posto residuo.'
 
@@ -5290,10 +5290,10 @@ function App() {
 
   let endgameInstruction = 'Mantieni il piano e continua a rispettare i MAX dinamici.'
   if (endgameMode === 'ENDGAME') {
-    endgameInstruction = `Puoi aumentare l'aggressivitÃ : hai circa ${endgameAttackPerOpenSlot} crediti di attacco per slot ancora aperto oltre alla riserva minima.`
+    endgameInstruction = `Puoi aumentare l'aggressività: hai circa ${endgameAttackPerOpenSlot} crediti di attacco per slot ancora aperto oltre alla riserva minima.`
   }
   if (endgameMode === 'SPENDI ORA') {
-    endgameInstruction = `Rischi di lasciare ${projectedUnusedCredits} crediti inutilizzati: alza i MAX sui veri target e chiudi qualitÃ  adesso.`
+    endgameInstruction = `Rischi di lasciare ${projectedUnusedCredits} crediti inutilizzati: alza i MAX sui veri target e chiudi qualità adesso.`
   }
   if (endgameMode === 'EMERGENZA') {
     endgameInstruction = 'Proteggi un credito per ogni slot residuo e interrompi subito le aste non indispensabili.'
@@ -5329,7 +5329,7 @@ function App() {
     )
 
     if (sameRoleEntries.length >= wishlistLimits[player.role]) {
-      window.alert(`MY TEAM puÃ² contenere al massimo ${wishlistLimits[player.role]} ${roleNames[player.role].toLowerCase()}.`)
+      window.alert(`MY TEAM può contenere al massimo ${wishlistLimits[player.role]} ${roleNames[player.role].toLowerCase()}.`)
       return
     }
 
@@ -5378,13 +5378,13 @@ function App() {
     const update = dataUpdateFor(player)
 
     if (update?.injuryStatus === 'injured') {
-      details.push(`âš• ${update.injury || 'Infortunato'}${update.recoveryTime ? ` Â· ${update.recoveryTime}` : update.expectedReturn ? ` Â· rientro ${update.expectedReturn}` : ''}`)
+      details.push(`⚕ ${update.injury || 'Infortunato'}${update.recoveryTime ? ` · ${update.recoveryTime}` : update.expectedReturn ? ` · rientro ${update.expectedReturn}` : ''}`)
     } else if (update?.injuryStatus === 'doubt') {
-      details.push(`âš  Condizione da monitorare${update.injury ? ` Â· ${update.injury}` : ''}`)
+      details.push(`⚠ Condizione da monitorare${update.injury ? ` · ${update.injury}` : ''}`)
     } else if (update?.injuryStatus === 'recovering') {
-      details.push(`â†— Recupero${update.expectedReturn ? ` Â· ${update.expectedReturn}` : ''}`)
+      details.push(`↗ Recupero${update.expectedReturn ? ` · ${update.expectedReturn}` : ''}`)
     } else if (update?.injuryStatus === 'suspended') {
-      details.push('â›” Squalificato')
+      details.push('⛔ Squalificato')
     }
 
     if (update?.usefulDetails?.trim()) details.push(update.usefulDetails.trim())
@@ -5396,14 +5396,14 @@ function App() {
       if (modifier >= 65) details.push(`Mod ${Math.round(modifier)}/100`)
     }
     if (bugRolePotential(player) >= 100) details.push('Ruolo bug')
-    if (starter >= 82) details.push('Alta titolaritÃ ')
+    if (starter >= 82) details.push('Alta titolarità')
 
     const specific = squadSpecificAnalysis(player)
     if (specific.positives.length > 0) {
       details.push(specific.positives[0])
     }
 
-    return details.length > 0 ? details.slice(0, 3).join(' Â· ') : 'Profilo da monitorare'
+    return details.length > 0 ? details.slice(0, 3).join(' · ') : 'Profilo da monitorare'
   }
 
   async function refreshApplicationVersion() {
@@ -5466,7 +5466,7 @@ function App() {
           if (!response.ok) {
             let detail = ''
             try { detail = ((await response.json()) as { error?: string }).error ?? '' } catch { /* no body */ }
-            lastError = `HTTP ${response.status}${detail ? ` Â· ${detail}` : ''}`
+            lastError = `HTTP ${response.status}${detail ? ` · ${detail}` : ''}`
             continue
           }
           const candidate = await response.json() as UpdatePayload
@@ -5498,13 +5498,13 @@ function App() {
         playerCount: normalized.length,
       }
 
-      // Persistenza leggera: niente backup duplicati del database e niente reload.
-      // Ãˆ proprio la duplicazione delle sorgenti in localStorage a poter causare QuotaExceeded su iPhone/Safari.
-      saveSourceJsonSafely(DATA_UPDATE_KEY, normalized)
-      saveSourceJsonSafely(DATA_UPDATE_META_KEY, meta)
-
+      // Prima rendiamo SUBITO attivi i nuovi dati in memoria: l'asta non deve dipendere dalla quota storage del telefono.
       setDataUpdates(map)
       setUpdateMeta(meta)
+
+      // Persistenza best-effort e compatta. Se Safari/iOS ha la memoria piena, l'update resta valido per la sessione corrente.
+      const dataSaved = saveSourceJsonSafely(DATA_UPDATE_KEY, normalized)
+      const metaSaved = saveSourceJsonSafely(DATA_UPDATE_META_KEY, meta)
       setUpdateChanges((payload.changes ?? []).slice(0, 100))
       setPhase1ChangeCount(Math.min(100, payload.changes?.length ?? 0))
       setDataManifest((current) => ({
@@ -5519,13 +5519,20 @@ function App() {
         },
       }))
 
-      if (!silent) setUpdateStatus('success')
+      if (!silent) {
+        setUpdateStatus('success')
+        setUpdateError(
+          dataSaved && metaSaved
+            ? ''
+            : 'Dati aggiornati e attivi. La memoria del telefono è piena: il pacchetto potrebbe non restare salvato dopo la chiusura dell’app.'
+        )
+      }
     } catch (error) {
       if (!silent) {
         setUpdateStatus('error')
         setUpdateError(
           isStorageQuotaError(error)
-            ? 'Memoria locale piena. Ho evitato di toccare rosa e asta: usa â€œPulisci dati scaricatiâ€ e riprova.'
+            ? 'Memoria locale piena. Ho evitato di toccare rosa e asta: usa “Pulisci dati scaricati” e riprova.'
             : error instanceof Error ? error.message : 'Aggiornamento non riuscito.'
         )
       }
@@ -5548,7 +5555,7 @@ function App() {
       try {
         const backup = JSON.parse(await file.text()) as UserBackup
         restoreUserBackup(backup)
-        window.alert('Backup ripristinato. Lâ€™app verrÃ  ricaricata.')
+        window.alert('Backup ripristinato. L’app verrà ricaricata.')
         window.location.reload()
       } catch {
         window.alert('Backup non valido o illeggibile.')
@@ -5573,14 +5580,14 @@ function App() {
   }
 
   function updateStatusLabel() {
-    if (updateStatus === 'updating') return 'AGGIORNAMENTO IN CORSOâ€¦'
+    if (updateStatus === 'updating') return 'AGGIORNAMENTO IN CORSO…'
     if (updateStatus === 'success') return 'APP E DATI AGGIORNATI'
     if (updateStatus === 'error') return 'AGGIORNAMENTO NON RIUSCITO'
     return updateMeta ? 'DATABASE LOCALE PRONTO' : 'DATABASE BASE'
   }
 
   function formatUpdateDate(value?: string | null) {
-    if (!value) return 'â€”'
+    if (!value) return '—'
     const date = new Date(value)
     if (Number.isNaN(date.getTime())) return value
     return date.toLocaleString('it-IT', {
@@ -5635,10 +5642,10 @@ function App() {
 
   const liveCallType = livePlayer
     ? liveDecoyValue >= liveTargetValue + 8 && liveDecoyValue >= liveBetValue + 5
-      ? { label: 'ESCA', icon: 'ðŸª¤', score: liveDecoyValue }
+      ? { label: 'ESCA', icon: '🪤', score: liveDecoyValue }
       : liveBetValue >= liveTargetValue + 5
-      ? { label: 'SCOMMESSA', icon: 'ðŸŽ²', score: liveBetValue }
-      : { label: 'TARGET', icon: 'ðŸŽ¯', score: liveTargetValue }
+      ? { label: 'SCOMMESSA', icon: '🎲', score: liveBetValue }
+      : { label: 'TARGET', icon: '🎯', score: liveTargetValue }
     : null
 
   const liveBudgetImpact =
@@ -5826,7 +5833,7 @@ function App() {
     if (newBudget === startingBudget) return
     if (purchases.length > 0 || rivalSales.length > 0) {
       const confirmed = window.confirm(
-        'Cambiare il budget iniziale azzera lâ€™asta corrente. Continuare?'
+        'Cambiare il budget iniziale azzera l’asta corrente. Continuare?'
       )
       if (!confirmed) return
     }
@@ -5958,20 +5965,20 @@ function App() {
 
   function injuryLine(player: Player) {
     const update = dataUpdateFor(player)
-    if (!update?.injury && !update?.injuryStatus) return 'Disponibile / nessun infortunio segnalato'
+    if (!update?.injury && !update?.injuryStatus) return 'N/D · nessun dato infortunio disponibile nel feed'
     const status = update.injuryStatus === 'injured' ? 'INFORTUNATO' :
       update.injuryStatus === 'recovering' ? 'RECUPERO' :
       update.injuryStatus === 'doubt' ? 'IN DUBBIO' :
       update.injuryStatus === 'suspended' ? 'SQUALIFICATO' : 'DISPONIBILE'
     const timing = update.recoveryTime || (update.expectedReturn ? `rientro ${update.expectedReturn}` : '')
-    return [status, update.injury, timing].filter(Boolean).join(' Â· ')
+    return [status, update.injury, timing].filter(Boolean).join(' · ')
   }
 
   function setPieceLine(player: Player) {
     const update = dataUpdateFor(player)
     const penalties = update?.penalties ?? player.penalties ?? false
     const setPieces = update?.setPieces ?? player.setPieces ?? false
-    if (penalties && setPieces) return 'Rigorista Â· calci piazzati'
+    if (penalties && setPieces) return 'Rigorista · calci piazzati'
     if (penalties) return 'Rigorista'
     if (setPieces) return 'Calci piazzati'
     return 'Nessuna gerarchia certa disponibile'
@@ -5981,10 +5988,18 @@ function App() {
     const update = dataUpdateFor(player)
     const score = chirurgoScore(player)
     const pros = update?.pro?.trim() || player.profile?.trim() ||
-      `Rating ${score.total}/100 nel ruolo; titolaritÃ  stimata ${score.starter}%; ${setPieceLine(player).toLowerCase()}.`
+      `Rating ${score.total}/100 nel ruolo; titolarità stimata ${score.starter}%; ${setPieceLine(player).toLowerCase()}.`
     const cons = update?.contra?.trim() || player.note?.trim() ||
-      (score.availability < 70 ? injuryLine(player) : `Valuta il prezzo: oltre il MAX personale il rapporto qualitÃ /prezzo peggiora.`)
+      (score.availability < 70 ? injuryLine(player) : `Valuta il prezzo: oltre il MAX personale il rapporto qualità/prezzo peggiora.`)
     return { pros, cons }
+  }
+
+  function livePriceZone(player: Player, currentPrice: number) {
+    const intel = buyNowIntelligence(player, currentPrice)
+    if (currentPrice > intel.max) return { label: 'ROSSO · STOP', detail: `Non rilanciare oltre ${intel.max}.` }
+    if (currentPrice > intel.attackPrice) return { label: 'ARANCIO · SOLO SE SERVE', detail: `Sei oltre la fascia d’attacco (${intel.attackPrice}); massimo assoluto ${intel.max}.` }
+    if (currentPrice > intel.fairPrice) return { label: 'GIALLO · DISCIPLINA', detail: `Prezzo sopra il valore ideale (${intel.fairPrice}), ma ancora gestibile.` }
+    return { label: 'VERDE · VALUE', detail: `Prezzo entro la fascia ideale; prossimo rilancio ${currentPrice + 1}.` }
   }
 
   function unifiedAuctionDecision(player: Player, currentPrice: number) {
@@ -6045,13 +6060,13 @@ function App() {
   function registerPurchase() {
     if (!selectedPlayer) return
     if (roleCount(selectedPlayer.role) >= slotLimits[selectedPlayer.role]) {
-      setMessage('Il reparto Ã¨ giÃ  completo.')
+      setMessage('Il reparto è già completo.')
       return
     }
     const bought = selectedPlayer
     setPurchases((current) => [...current, { player: bought, price }])
     setBudget((current) => current - price)
-    setMessage(`âœ“ ${bought.name} acquistato a ${price}. Strategia ricalcolata.`)
+    setMessage(`✓ ${bought.name} acquistato a ${price}. Strategia ricalcolata.`)
     setSelectedName('')
     setPlayerSearch('')
   }
@@ -6063,7 +6078,7 @@ function App() {
       ...current,
       { player: sold, price: paid, rivalId: selectedRivalId },
     ])
-    setMessage(`âœ• ${sold.name} â†’ ${rivalNames[selectedRivalId]} a ${paid}. Analisi rivali aggiornata.`)
+    setMessage(`✕ ${sold.name} → ${rivalNames[selectedRivalId]} a ${paid}. Analisi rivali aggiornata.`)
     setSelectedName('')
     setPlayerSearch('')
     setPrice(1)
@@ -6080,7 +6095,7 @@ function App() {
     if (!nextOpen) {
       setSuggestionRole('ALL')
       setWarRoleChosen(false)
-      setMessage('âœ“ Rosa completa.')
+      setMessage('✓ Rosa completa.')
       return
     }
 
@@ -6102,7 +6117,7 @@ function App() {
   function liveSoldToMe() {
     if (!livePlayer) return
     if (roleCount(livePlayer.role) >= slotLimits[livePlayer.role]) {
-      setLiveMessage(`âš  Reparto ${livePlayer.role} giÃ  completo.`)
+      setLiveMessage(`⚠ Reparto ${livePlayer.role} già completo.`)
       return
     }
     const bought = livePlayer
@@ -6112,7 +6127,7 @@ function App() {
     setLiveSearch('')
     setLiveSelectedName('')
     setLivePrice(1)
-    setLiveMessage(`âœ“ ${bought.name} acquistato da te a ${paid}.`)
+    setLiveMessage(`✓ ${bought.name} acquistato da te a ${paid}.`)
   }
 
   function liveSoldToRival() {
@@ -6126,7 +6141,7 @@ function App() {
     setLiveSearch('')
     setLiveSelectedName('')
     setLivePrice(1)
-    setLiveMessage(`âœ• ${sold.name} â†’ ${rivalNames[selectedRivalId]} a ${paid}.`)
+    setLiveMessage(`✕ ${sold.name} → ${rivalNames[selectedRivalId]} a ${paid}.`)
   }
 
   function undoLastRivalSale() {
@@ -6148,7 +6163,7 @@ function App() {
     const issues: string[] = []
 
     if (budget < 0) issues.push('Budget residuo negativo')
-    if (purchases.length > 25) issues.push('PiÃ¹ di 25 giocatori nella tua rosa')
+    if (purchases.length > 25) issues.push('Più di 25 giocatori nella tua rosa')
 
     roles.forEach((currentRole) => {
       if (roleCount(currentRole) > slotLimits[currentRole]) {
@@ -6167,7 +6182,7 @@ function App() {
       (key, index) => allKeys.indexOf(key) !== index
     )
 
-    if (duplicates.length > 0) issues.push('Un giocatore risulta assegnato piÃ¹ volte')
+    if (duplicates.length > 0) issues.push('Un giocatore risulta assegnato più volte')
 
     return issues
   }
@@ -6255,7 +6270,7 @@ function App() {
           setWishlist(data.wishlist ?? [])
           setMessage('Backup importato correttamente.')
         } catch {
-          window.alert('Questo file di backup non Ã¨ valido.')
+          window.alert('Questo file di backup non è valido.')
         }
       }
       reader.readAsText(file)
@@ -6385,10 +6400,10 @@ function App() {
 
   function squadVerdict() {
     if (purchases.length === 0)
-      return 'Registra i primi acquisti per iniziare lâ€™analisi della rosa.'
+      return 'Registra i primi acquisti per iniziare l’analisi della rosa.'
 
     if (purchases.length < 10)
-      return 'Analisi preliminare: la rosa Ã¨ ancora troppo incompleta per un giudizio definitivo.'
+      return 'Analisi preliminare: la rosa è ancora troppo incompleta per un giudizio definitivo.'
 
     if (squadOverallScore >= 85 && squadStrategyFit >= 82)
       return `Rosa di livello molto alto e fortemente coerente con ${currentStrategy.name}.`
@@ -6400,9 +6415,9 @@ function App() {
       return `La rosa si sta allontanando dalla strategia ${currentStrategy.name}: conviene correggere i prossimi acquisti.`
 
     if (squadValueScore < 60)
-      return 'La qualitÃ  Ã¨ presente, ma stai pagando diversi giocatori sopra il loro valore stimato.'
+      return 'La qualità è presente, ma stai pagando diversi giocatori sopra il loro valore stimato.'
 
-    return 'Rosa equilibrata, con alcuni reparti da rinforzare prima della chiusura dellâ€™asta.'
+    return 'Rosa equilibrata, con alcuni reparti da rinforzare prima della chiusura dell’asta.'
   }
 
   const purchaseEvaluations = purchases.map((purchase) => {
@@ -6455,7 +6470,7 @@ function App() {
 
   function finalReportVerdict() {
     if (purchases.length === 0)
-      return 'Il report finale si attiverÃ  con gli acquisti.'
+      return 'Il report finale si attiverà con gli acquisti.'
 
     if (purchases.length < 25)
       return `Report provvisorio: mancano ${25 - purchases.length} slot per completare la rosa.`
@@ -6475,7 +6490,7 @@ function App() {
     if (squadValueScore < 60)
       return 'Rosa completata, ma diversi acquisti sono stati pagati sopra il valore stimato.'
 
-    return 'Asta sufficiente: la rosa Ã¨ completa ma presenta margini di miglioramento.'
+    return 'Asta sufficiente: la rosa è completa ma presenta margini di miglioramento.'
   }
 
   function rivalSquadScore(rivalId: number) {
@@ -6590,15 +6605,15 @@ function App() {
 
   function rankingVerdict() {
     if (purchases.length === 0 && rivalSales.length === 0)
-      return 'La classifica si aggiornerÃ  appena registri i primi acquisti.'
+      return 'La classifica si aggiornerà appena registri i primi acquisti.'
 
     if (myLeaguePosition === 1)
-      return 'Al momento la tua costruzione Ã¨ la migliore della lega secondo i dati registrati.'
+      return 'Al momento la tua costruzione è la migliore della lega secondo i dati registrati.'
 
     if (myLeaguePosition <= 3)
       return `Sei in zona alta: posizione stimata ${myLeaguePosition} su ${leagueSize}.`
 
-    return `Posizione stimata ${myLeaguePosition} su ${leagueSize}: il Regista dâ€™Asta puÃ² aiutarti a recuperare terreno.`
+    return `Posizione stimata ${myLeaguePosition} su ${leagueSize}: il Regista d’Asta può aiutarti a recuperare terreno.`
   }
 
   type SmartAlert = {
@@ -6628,7 +6643,7 @@ function App() {
           id: `overspend-${currentRole}`,
           level: 'danger',
           title: `Spesa alta nel reparto ${currentRole}`,
-          text: `Hai giÃ  speso ${spentValue} contro ${planned} pianificati. I prossimi ${missing} slot vanno gestiti con piÃ¹ disciplina.`,
+          text: `Hai già speso ${spentValue} contro ${planned} pianificati. I prossimi ${missing} slot vanno gestiti con più disciplina.`,
           priority: 92,
         })
       }
@@ -6638,7 +6653,7 @@ function App() {
           id: `surplus-${currentRole}`,
           level: 'opportunity',
           title: `Hai margine da investire in ${currentRole}`,
-          text: `Il budget adattivo del reparto Ã¨ salito a ${Math.round(adaptive)} crediti. Puoi permetterti di attaccare un profilo piÃ¹ forte.`,
+          text: `Il budget adattivo del reparto è salito a ${Math.round(adaptive)} crediti. Puoi permetterti di attaccare un profilo più forte.`,
           priority: 76,
         })
       }
@@ -6648,7 +6663,7 @@ function App() {
           id: `late-role-${currentRole}`,
           level: 'warning',
           title: `Reparto ${currentRole} in ritardo`,
-          text: `Hai coperto solo ${count}/${slotLimits[currentRole]} slot mentre lâ€™asta Ã¨ giÃ  avanzata. Aumenta la prioritÃ  del reparto.`,
+          text: `Hai coperto solo ${count}/${slotLimits[currentRole]} slot mentre l’asta è già avanzata. Aumenta la priorità del reparto.`,
           priority: 84,
         })
       }
@@ -6659,7 +6674,7 @@ function App() {
         id: 'budget-frozen',
         level: 'opportunity',
         title: 'Hai molto budget ancora fermo',
-        text: `Hai ancora ${budget} crediti dopo ${purchases.length} acquisti. Puoi aumentare lâ€™aggressivitÃ  sui prossimi target di qualitÃ .`,
+        text: `Hai ancora ${budget} crediti dopo ${purchases.length} acquisti. Puoi aumentare l’aggressività sui prossimi target di qualità.`,
         priority: 88,
       })
     }
@@ -6678,10 +6693,10 @@ function App() {
       alerts.push({
         id: `next-move-${nextAuctionMove.role}`,
         level: 'opportunity',
-        title: `Ãˆ il momento di muoversi in ${nextAuctionMove.role}`,
+        title: `È il momento di muoversi in ${nextAuctionMove.role}`,
         text: nextAuctionMove.bestPlayer
-          ? `${nextAuctionMove.bestPlayer.name} Ã¨ il target suggerito dal Regista dâ€™Asta con prioritÃ  ${nextAuctionMove.urgency.toFixed(1)}/10.`
-          : `Il reparto ${nextAuctionMove.role} ha prioritÃ  ${nextAuctionMove.urgency.toFixed(1)}/10.`,
+          ? `${nextAuctionMove.bestPlayer.name} è il target suggerito dal Regista d’Asta con priorità ${nextAuctionMove.urgency.toFixed(1)}/10.`
+          : `Il reparto ${nextAuctionMove.role} ha priorità ${nextAuctionMove.urgency.toFixed(1)}/10.`,
         priority: 90,
       })
     }
@@ -6695,7 +6710,7 @@ function App() {
         id: `rival-${strongestRival.id}`,
         level: 'warning',
         title: `${strongestRival.name} sta costruendo bene`,
-        text: `Ãˆ il rivale piÃ¹ forte registrato: voto stimato ${scoreOutOf10(strongestRival.score)}/10 e budget residuo ${strongestRival.remaining}.`,
+        text: `È il rivale più forte registrato: voto stimato ${scoreOutOf10(strongestRival.score)}/10 e budget residuo ${strongestRival.remaining}.`,
         priority: 82,
       })
     }
@@ -6706,8 +6721,8 @@ function App() {
         alerts.push({
           id: `danger-rival-${rivalId}`,
           level: 'danger',
-          title: `${name} Ã¨ molto pericoloso in asta`,
-          text: `PericolositÃ  ${intel.threatScore.toFixed(1)}/10, profilo ${intel.profile}. Evita rilanci emotivi contro questo rivale.`,
+          title: `${name} è molto pericoloso in asta`,
+          text: `Pericolosità ${intel.threatScore.toFixed(1)}/10, profilo ${intel.profile}. Evita rilanci emotivi contro questo rivale.`,
           priority: 86,
         })
       }
@@ -6718,7 +6733,7 @@ function App() {
         id: 'strategy-drift',
         level: 'warning',
         title: `Ti stai allontanando da ${currentStrategy.name}`,
-        text: `Il fit medio della rosa con la strategia Ã¨ ${scoreOutOf10(squadStrategyFit)}/10. I prossimi acquisti dovrebbero correggere la direzione.`,
+        text: `Il fit medio della rosa con la strategia è ${scoreOutOf10(squadStrategyFit)}/10. I prossimi acquisti dovrebbero correggere la direzione.`,
         priority: 89,
       })
     }
@@ -6728,7 +6743,7 @@ function App() {
         id: 'value-good',
         level: 'info',
         title: 'Stai comprando bene',
-        text: `Il Value medio degli acquisti Ã¨ ${scoreOutOf10(squadValueScore)}/10. Non serve forzare: mantieni la disciplina.`,
+        text: `Il Value medio degli acquisti è ${scoreOutOf10(squadValueScore)}/10. Non serve forzare: mantieni la disciplina.`,
         priority: 58,
       })
     }
@@ -6743,7 +6758,7 @@ function App() {
   function alertAppearance(level: SmartAlert['level']) {
     if (level === 'danger') {
       return {
-        icon: 'ðŸš¨',
+        icon: '🚨',
         color: '#ff8b8b',
         border: '#753f48',
         background: '#2b171c',
@@ -6752,7 +6767,7 @@ function App() {
 
     if (level === 'warning') {
       return {
-        icon: 'âš ï¸',
+        icon: '⚠️',
         color: '#f2c66d',
         border: '#6b5830',
         background: '#282315',
@@ -6761,7 +6776,7 @@ function App() {
 
     if (level === 'opportunity') {
       return {
-        icon: 'ðŸŽ¯',
+        icon: '🎯',
         color: '#70d6a1',
         border: '#315a49',
         background: '#10251d',
@@ -6769,7 +6784,7 @@ function App() {
     }
 
     return {
-      icon: 'ðŸ’¡',
+      icon: '💡',
       color: '#79b8ff',
       border: '#334f72',
       background: '#111f31',
@@ -6916,11 +6931,11 @@ function App() {
         <style>{APP_THEME_CSS}</style>
 
         <div className="setup-hero">
-          <span className="setup-badge">â— AUCTION CONTROL</span>
+          <span className="setup-badge">● AUCTION CONTROL</span>
           <h1>Prepara la tua asta.</h1>
           <p>
             Imposta partecipanti e crediti. La strategia si gestisce direttamente
-            dalla WAR ROOM e puÃ² essere cambiata anche durante lâ€™asta.
+            dalla WAR ROOM e può essere cambiata anche durante l’asta.
           </p>
         </div>
 
@@ -6992,7 +7007,7 @@ function App() {
             setView('war')
           }}
         >
-          INIZIA ASTA â†’
+          INIZIA ASTA →
         </button>
 
         <p className="tip" style={{ textAlign: 'center', marginTop: '10px' }}>
@@ -7020,26 +7035,26 @@ function App() {
             }
           }}
         >
-          â† INDIETRO
+          ← INDIETRO
         </button>
       </div>
 
       <div className="app-nav" style={{ gridTemplateColumns: 'repeat(4,1fr)' }}>
         <button type="button" style={navStyle(view === 'war')} onClick={() => setView('war')}>
-          <span>âŒ‚</span><span className="nav-caption">WAR</span>
+          <span>⌂</span><span className="nav-caption">WAR</span>
         </button>
         <button type="button" style={navStyle(view === 'live')} onClick={() => setView('live')}>
-          <span>â—</span><span className="nav-caption">ASTA</span>
+          <span>●</span><span className="nav-caption">ASTA</span>
         </button>
         <button type="button" style={navStyle(view === 'myteam')} onClick={() => setView('myteam')}>
-          <span>â˜…</span><span className="nav-caption">MY TEAM</span>
+          <span>★</span><span className="nav-caption">MY TEAM</span>
         </button>
         <button
           type="button"
           style={navStyle(view === 'more' || view === 'analysis' || view === 'compare' || view === 'pairings' || view === 'history' || view === 'settings' || view === 'rivals' || view === 'squad')}
           onClick={() => setView('more')}
         >
-          <span>â€¢â€¢â€¢</span><span className="nav-caption">ALTRO</span>
+          <span>•••</span><span className="nav-caption">ALTRO</span>
         </button>
       </div>
 
@@ -7058,7 +7073,7 @@ function App() {
             color: isOnline ? '#6ce6b3' : '#f5ca78',
           }}
         >
-          {isOnline ? 'â— ONLINE' : 'â— OFFLINE Â· DATI LOCALI'}
+          {isOnline ? '● ONLINE' : '● OFFLINE · DATI LOCALI'}
         </span>
       </div>
 
@@ -7066,7 +7081,7 @@ function App() {
         <>
           {!warRoleChosen || suggestionRole === 'ALL' ? (
             <section className="section" style={{ padding: '14px 12px' }}>
-              <div className="section-title">âš”ï¸ WAR ROOM</div>
+              <div className="section-title">⚔️ WAR ROOM</div>
               <p className="tip" style={{ margin: '0 0 10px', lineHeight: 1.6 }}>
                 Seleziona il reparto in asta. Da qui in poi vedrai solo giocatori, suggerimenti e decisioni relativi a quel reparto.
               </p>
@@ -7089,7 +7104,7 @@ function App() {
                     <strong style={{ display: 'block', fontSize: '22px' }}>{role}</strong>
                     <span style={{ display: 'block', marginTop: '3px' }}>{roleNames[role]}</span>
                     <small style={{ display: 'block', marginTop: '4px' }}>
-                      {roleRemaining(role)} slot Â· budget {Math.max(0, adaptiveRoleBudget(role) - spentByRole(role))}
+                      {roleRemaining(role)} slot · budget {Math.max(0, adaptiveRoleBudget(role) - spentByRole(role))}
                     </small>
                   </button>
                 ))}
@@ -7102,7 +7117,7 @@ function App() {
                   <div>
                     <small className="small-label">REPARTO IN ASTA</small>
                     <strong style={{ display: 'block', fontSize: '18px', marginTop: '2px' }}>
-                      {suggestionRole} Â· {roleNames[suggestionRole]}
+                      {suggestionRole} · {roleNames[suggestionRole]}
                     </strong>
                   </div>
                   <button
@@ -7140,7 +7155,7 @@ function App() {
                           style={{ width: '100%', marginTop: '7px' }}
                           onClick={goNextAuctionRole}
                         >
-                          REPARTO COMPLETO Â· VAI AL SUCCESSIVO
+                          REPARTO COMPLETO · VAI AL SUCCESSIVO
                         </button>
                       )}
                     </>
@@ -7160,14 +7175,14 @@ function App() {
 
                 return (
                   <section className="section" style={{ padding: '11px 12px' }}>
-                    <div className="section-title">ðŸŽ™ï¸ TARGET N.1 Â· {suggestionRole}</div>
+                    <div className="section-title">🎙️ TARGET N.1 · {suggestionRole}</div>
                     <div className="main-card" style={{ border: '1px solid rgba(66,214,164,.28)' }}>
                       <div style={{ display: 'grid', gridTemplateColumns: 'auto 1fr auto', gap: '9px', alignItems: 'center' }}>
                         <PlayerPhoto player={player} size={48} />
                         <div style={{ minWidth: 0 }}>
-                          <strong style={{ display: 'block', fontSize: '15px' }}>{isStarred(player) ? 'â˜… ' : ''}{player.name}</strong>
-                          <small>{player.team} Â· mercato {getMarket(player)}</small>
-                          <small style={{ display: 'block', marginTop: '3px' }}>{intel.action} Â· prioritÃ  {intel.priority.toLowerCase()}</small>
+                          <strong style={{ display: 'block', fontSize: '15px' }}>{isStarred(player) ? '★ ' : ''}{player.name}</strong>
+                          <small>{player.team} · mercato {getMarket(player)}</small>
+                          <small style={{ display: 'block', marginTop: '3px' }}>{intel.action} · priorità {intel.priority.toLowerCase()}</small>
                         </div>
                         <div className="recommendation-score"><span>STOP</span><strong>{intel.max}</strong></div>
                       </div>
@@ -7194,7 +7209,7 @@ function App() {
                             style={{ width: '100%', display: 'flex', justifyContent: 'space-between', gap: '8px', alignItems: 'center' }}
                             onClick={() => openWarTarget(item.player)}
                           >
-                            <span>{index + 2}Âª scelta Â· {item.player.name}</span>
+                            <span>{index + 2}ª scelta · {item.player.name}</span>
                             <span>MAX {buyNowIntelligence(item.player, getMarket(item.player)).max}</span>
                           </button>
                         ))}
@@ -7205,7 +7220,7 @@ function App() {
               })()}
 
               <section className="section" style={{ padding: '11px 12px' }}>
-                <div className="section-title">ðŸ”Ž CERCA {suggestionRole}</div>
+                <div className="section-title">🔎 CERCA {suggestionRole}</div>
                 <input
                   type="text"
                   placeholder={`Cerca ${roleNames[suggestionRole].toLowerCase()}...`}
@@ -7215,7 +7230,7 @@ function App() {
 
                 {playerSearch && (
                   <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '5px' }}>
-                    <button type="button" className="back-button" onClick={() => { setPlayerSearch(''); setDebouncedPlayerSearch(''); setSelectedName('') }}>Ã— PULISCI</button>
+                    <button type="button" className="back-button" onClick={() => { setPlayerSearch(''); setDebouncedPlayerSearch(''); setSelectedName('') }}>× PULISCI</button>
                   </div>
                 )}
 
@@ -7236,13 +7251,13 @@ function App() {
                             padding: '9px',
                             borderRadius: '11px',
                             border: '1px solid rgba(64,92,160,.15)',
-                            background: 'rgba(255,255,255,.76)',
-                            color: '#15203a',
+                            background: 'rgba(255,255,255,.035)',
+                            color: '#f4f7fb',
                             textAlign: 'left',
                           }}
                         >
                           <span>
-                            <strong>{isStarred(player) ? 'â˜… ' : ''}{player.name}</strong>
+                            <strong>{isStarred(player) ? '★ ' : ''}{player.name}</strong>
                             <small style={{ display: 'block' }}>{player.team}</small>
                           </span>
                           <strong>{getMarket(player)}</strong>
@@ -7263,14 +7278,14 @@ function App() {
                         <PlayerPhoto player={selectedPlayer} size={58} />
                         <div>
                           <strong style={{ display: 'block', fontSize: '17px' }}>{selectedPlayer.name}</strong>
-                          <small>{selectedPlayer.team} Â· {selectedPlayer.role}</small>
+                          <small>{selectedPlayer.team} · {selectedPlayer.role}</small>
                         </div>
                         <div className="recommendation-score"><span>RATING</span><strong>{score.total}</strong></div>
                       </div>
 
                       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: '6px', marginTop: '9px' }}>
-                        <div className="stat highlight-stat"><span>TITOLARITÃ€</span><strong>{score.starter}%</strong></div>
-                        <div className="stat"><span>RANK RUOLO</span><strong>{rank.position}Â° / {rank.total}</strong></div>
+                        <div className="stat highlight-stat"><span>TITOLARITÀ ST.</span><strong>{score.starter}%</strong></div>
+                        <div className="stat"><span>RANK RUOLO</span><strong>{rank.position}° / {rank.total}</strong></div>
                       </div>
 
                       <div className="main-card" style={{ marginTop: '7px' }}>
@@ -7279,7 +7294,7 @@ function App() {
                       </div>
 
                       <div className="main-card" style={{ marginTop: '7px', borderColor: update?.injuryStatus === 'injured' ? 'rgba(255,115,135,.38)' : 'rgba(71,214,157,.20)' }}>
-                        <small className="small-label">INFORTUNI / DISPONIBILITÃ€</small>
+                        <small className="small-label">INFORTUNI / DISPONIBILITÀ</small>
                         <strong style={{ display: 'block', marginTop: '4px' }}>{injuryLine(selectedPlayer)}</strong>
                       </div>
 
@@ -7290,13 +7305,24 @@ function App() {
 
                       <label>PREZZO ATTUALE ASTA</label>
                       <div style={{ display: 'grid', gridTemplateColumns: '44px 1fr 44px', gap: '6px' }}>
-                        <button type="button" className="back-button" onClick={() => setPrice((value) => Math.max(1, value - 1))}>âˆ’</button>
+                        <button type="button" className="back-button" onClick={() => setPrice((value) => Math.max(1, value - 1))}>−</button>
                         <input type="number" min="1" value={price} onChange={(event) => setPrice(Math.max(1, Number(event.target.value) || 1))} />
                         <button type="button" className="back-button" onClick={() => setPrice((value) => value + 1)}>+</button>
                       </div>
 
+                      {(() => {
+                        const zone = livePriceZone(selectedPlayer, price)
+                        return (
+                          <div className="main-card" style={{ marginTop: '8px', borderColor: zone.label.startsWith('ROSSO') ? 'rgba(255,115,135,.38)' : zone.label.startsWith('VERDE') ? 'rgba(71,214,157,.30)' : 'rgba(242,189,92,.30)' }}>
+                            <small className="small-label">SEMAFORO PREZZO LIVE</small>
+                            <strong style={{ display: 'block', marginTop: '4px' }}>{zone.label}</strong>
+                            <p className="tip" style={{ margin: '5px 0 0' }}>{zone.detail}</p>
+                          </div>
+                        )
+                      })()}
+
                       <div className="main-card" style={{ marginTop: '8px' }}>
-                        <small className="small-label">ðŸ©º DECISIONE ASTA</small>
+                        <small className="small-label">🩺 DECISIONE ASTA</small>
                         <strong style={{ display: 'block', fontSize: '22px', marginTop: '4px' }}>{decision.verdict}</strong>
                         <p className="tip" style={{ margin: '6px 0 0', lineHeight: 1.5 }}>{decision.nextMove}</p>
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '5px', marginTop: '7px' }}>
@@ -7314,13 +7340,14 @@ function App() {
                       </div>
 
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px', marginTop: '8px' }}>
-                        <button type="button" className="primary-button" onClick={registerPurchase}>âœ“ MIO A {price}</button>
+                        <button type="button" className="primary-button" onClick={registerPurchase}>✓ MIO A {price}</button>
                         <select value={selectedRivalId} onChange={(event) => setSelectedRivalId(Number(event.target.value))}>
                           {rivalNames.slice(0, leagueSize - 1).map((name, index) => <option key={`war-rival-${index}`} value={index}>{name}</option>)}
                         </select>
                       </div>
                       <button type="button" className="back-button" style={{ width: '100%', marginTop: '6px' }} onClick={registerWarRivalPurchase}>
-                        âœ• AGGIUDICATO A {rivalNames[selectedRivalId]} Â· {price}
+                        ✕ AGGIUDICATO A
+ {rivalNames[selectedRivalId]} · {price}
                       </button>
                       {message && <div className="message">{message}</div>}
                     </div>
@@ -7329,19 +7356,19 @@ function App() {
               </section>
 
               <section className="section" style={{ padding: '11px 12px' }}>
-                <div className="section-title">ðŸš¨ ALERT {suggestionRole}</div>
+                <div className="section-title">🚨 ALERT {suggestionRole}</div>
                 <p className="tip" style={{ margin: 0, lineHeight: 1.6 }}>
                   {auctionMoves.find((move) => move.role === suggestionRole)?.reason ?? endgameInstruction}
                 </p>
                 {dominantRival?.primary?.role === suggestionRole && (
                   <p className="tip" style={{ margin: '5px 0 0', lineHeight: 1.6 }}>
-                    Attenzione a <strong>{dominantRival.name}</strong>: ha bisogno proprio di {suggestionRole} e puÃ² alzare i prezzi.
+                    Attenzione a <strong>{dominantRival.name}</strong>: ha bisogno proprio di {suggestionRole} e può alzare i prezzi.
                   </p>
                 )}
                 {(purchases.length > 0 || rivalSales.length > 0) && (
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px', marginTop: '8px' }}>
-                    {purchases.length > 0 && <button type="button" className="back-button" onClick={() => undoMyPurchase(purchases.length - 1)}>â†¶ ANNULLA MIO</button>}
-                    {rivalSales.length > 0 && <button type="button" className="back-button" onClick={undoLastRivalSale}>â†¶ ANNULLA RIVALE</button>}
+                    {purchases.length > 0 && <button type="button" className="back-button" onClick={() => undoMyPurchase(purchases.length - 1)}>↶ ANNULLA MIO</button>}
+                    {rivalSales.length > 0 && <button type="button" className="back-button" onClick={undoLastRivalSale}>↶ ANNULLA RIVALE</button>}
                   </div>
                 )}
               </section>
@@ -7354,21 +7381,21 @@ function App() {
         <>
           <header className="topbar">
             <div>
-              <p className="eyebrow">CALENDARIO SERIE A 2026/27 Â· 38 GIORNATE</p>
-              <h1>âš½ ABBINAMENTI</h1>
+              <p className="eyebrow">CALENDARIO SERIE A 2026/27 · 38 GIORNATE</p>
+              <h1>⚽ ABBINAMENTI</h1>
             </div>
           </header>
 
           <section className="section">
             <div className="main-card" style={{ padding: '12px' }}>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-                <button type="button" style={smallChoiceStyle(pairingMode === 'goalkeepers')} onClick={() => setPairingMode('goalkeepers')}>ðŸ§¤ PORTIERI</button>
-                <button type="button" style={smallChoiceStyle(pairingMode === 'attackers')} onClick={() => setPairingMode('attackers')}>âš½ ATTACCANTI</button>
+                <button type="button" style={smallChoiceStyle(pairingMode === 'goalkeepers')} onClick={() => setPairingMode('goalkeepers')}>🧤 PORTIERI</button>
+                <button type="button" style={smallChoiceStyle(pairingMode === 'attackers')} onClick={() => setPairingMode('attackers')}>⚽ ATTACCANTI</button>
               </div>
               <p className="tip" style={{ marginBottom: 0 }}>
                 {pairingMode === 'goalkeepers'
-                  ? 'Scegli 2 o 3 squadre: per ogni giornata il motore seleziona il portiere con il calendario piÃ¹ favorevole.'
-                  : 'Scegli 2 o 3 squadre: per ogni giornata il motore seleziona lâ€™attacco con il matchup piÃ¹ favorevole.'}
+                  ? 'Scegli 2 o 3 squadre: per ogni giornata il motore seleziona il portiere con il calendario più favorevole.'
+                  : 'Scegli 2 o 3 squadre: per ogni giornata il motore seleziona l’attacco con il matchup più favorevole.'}
               </p>
             </div>
 
@@ -7382,7 +7409,7 @@ function App() {
                     onChange={(event) => updatePairingTeam(index, event.target.value)}
                     style={{ width: '100%', minWidth: 0, fontWeight: 900 }}
                   >
-                    {index === 2 && <option value="">â€” 2 SQUADRE â€”</option>}
+                    {index === 2 && <option value="">— 2 SQUADRE —</option>}
                     {SERIE_A_TEAMS_2026_27.map((team) => <option key={`${index}-${team}`} value={team}>{team}</option>)}
                   </select>
                 ))}
@@ -7397,7 +7424,7 @@ function App() {
                 <div>
                   <span className="eyebrow">INDICE ABBINAMENTO</span>
                   <strong style={{ display: 'block', marginTop: '4px', fontSize: '18px' }}>{activePairing.teams.join(' + ') || 'Scegli le squadre'}</strong>
-                  <small style={{ color: 'var(--muted)' }}>Motore proprietario Â· forza squadre aggiornata dai dati disponibili</small>
+                  <small style={{ color: 'var(--muted)' }}>Motore proprietario · forza squadre aggiornata dai dati disponibili</small>
                 </div>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5,1fr)', gap: '6px', marginTop: '12px' }}>
@@ -7410,7 +7437,7 @@ function App() {
             </div>
 
             <div className="main-card">
-              <div className="section-title">GIORNATE 1â€“38</div>
+              <div className="section-title">GIORNATE 1–38</div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(92px,1fr))', gap: '6px' }}>
                 {activePairing.rounds.map((item) => (
                   <div key={`pairing-round-${item.round}`} style={{ border: '1px solid #304863', borderRadius: '10px', padding: '8px', background: item.level === 'FACILE' ? 'rgba(71,214,157,.08)' : item.level === 'MEDIA' ? 'rgba(242,189,92,.07)' : 'rgba(255,107,107,.07)' }}>
@@ -7424,7 +7451,7 @@ function App() {
             </div>
 
             <div className="main-card">
-              <div className="section-title">ðŸ† TOP 8 TRIS AUTOMATICI</div>
+              <div className="section-title">🏆 TOP 8 TRIS AUTOMATICI</div>
               <p className="tip">Calcolati su tutte le combinazioni delle 20 squadre. Non sono copiati da altri servizi.</p>
               <div style={{ display: 'grid', gap: '7px' }}>
                 {topPairings.map((item, index) => (
@@ -7436,7 +7463,7 @@ function App() {
                     style={{ display: 'grid', gridTemplateColumns: 'auto 1fr auto', gap: '8px', alignItems: 'center', textAlign: 'left' }}
                   >
                     <strong>#{index + 1}</strong>
-                    <span>{item.teams.join(' Â· ')}</span>
+                    <span>{item.teams.join(' · ')}</span>
                     <strong>{item.index}%</strong>
                   </button>
                 ))}
@@ -7445,7 +7472,7 @@ function App() {
 
             <div className="main-card">
               <small style={{ color: 'var(--muted)' }}>
-                Metodo: calendario ufficiale Serie A 2026/27 + forza relativa delle squadre ricavata dai giocatori e dai dati live disponibili nellâ€™app. Se un dato manca, il motore usa solo i dati presenti e non inventa statistiche individuali.
+                Metodo: calendario ufficiale Serie A 2026/27 + forza relativa delle squadre ricavata dai giocatori e dai dati live disponibili nell’app. Se un dato manca, il motore usa solo i dati presenti e non inventa statistiche individuali.
               </small>
             </div>
           </section>
@@ -7455,11 +7482,11 @@ function App() {
       {view === 'analysis' && (
         <>
           <section className="section">
-            <div className="section-title">ðŸ§  ANALISI AVVERSARI</div>
+            <div className="section-title">🧠 ANALISI AVVERSARI</div>
             {suggestionRole !== 'ALL' && (
               <div className="main-card" style={{ marginBottom: '8px' }}>
                 <small className="small-label">FOCUS ASTA ATTUALE</small>
-                <strong style={{ display: 'block', marginTop: '4px' }}>{suggestionRole} Â· {roleNames[suggestionRole]}</strong>
+                <strong style={{ display: 'block', marginTop: '4px' }}>{suggestionRole} · {roleNames[suggestionRole]}</strong>
                 <small style={{ display: 'block', marginTop: '4px' }}>
                   Rivali con bisogno nel reparto: {rivalPredictions.filter((rival) => rival.primary?.role === suggestionRole || rival.secondary?.role === suggestionRole).length}
                 </small>
@@ -7474,18 +7501,18 @@ function App() {
                     <div style={{ display: 'flex', justifyContent: 'space-between', gap: '8px' }}>
                       <div>
                         <strong style={{ display: 'block' }}>{rival.name}</strong>
-                        <small>{rival.profile} Â· {rival.behavior}</small>
+                        <small>{rival.profile} · {rival.behavior}</small>
                       </div>
                       <div className="recommendation-score"><span>MINACCIA</span><strong>{scoreOutOf10(rival.threat)}</strong></div>
                     </div>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '5px', marginTop: '7px' }}>
                       <div className="stat"><span>BUDGET</span><strong>{rival.remaining}</strong></div>
                       <div className="stat"><span>MAX</span><strong>{rival.maxOffer}</strong></div>
-                      <div className="stat"><span>RUOLO</span><strong>{rival.primary?.role ?? 'â€”'}</strong></div>
+                      <div className="stat"><span>RUOLO</span><strong>{rival.primary?.role ?? '—'}</strong></div>
                       <div className="stat"><span>AGGR.</span><strong>{scoreOutOf10(rival.aggression * 10)}</strong></div>
                     </div>
                     <p className="tip" style={{ margin: '7px 0 0', lineHeight: 1.6 }}>
-                      Memoria: {rivalMemory(rival.rivalId).tendency} Â· scostamento mercato {rivalMemory(rival.rivalId).avgOverMarket >= 0 ? '+' : ''}{rivalMemory(rival.rivalId).avgOverMarket.toFixed(0)}%.
+                      Memoria: {rivalMemory(rival.rivalId).tendency} · scostamento mercato {rivalMemory(rival.rivalId).avgOverMarket >= 0 ? '+' : ''}{rivalMemory(rival.rivalId).avgOverMarket.toFixed(0)}%.
                     </p>
                     <p className="tip" style={{ margin: '5px 0 0', lineHeight: 1.6 }}><strong>Contromossa:</strong> {rival.counter}</p>
                   </div>
@@ -7495,9 +7522,9 @@ function App() {
           </section>
 
           <section className="section">
-            <div className="section-title">ðŸ“Š STRATEGIA & CHIUSURA</div>
+            <div className="section-title">📊 STRATEGIA & CHIUSURA</div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '5px' }}>
-              <div className="stat"><span>MODALITÃ€</span><strong style={{ fontSize: '9px' }}>{predictiveMode}</strong></div>
+              <div className="stat"><span>MODALITÀ</span><strong style={{ fontSize: '9px' }}>{predictiveMode}</strong></div>
               <div className="stat"><span>ENDGAME</span><strong style={{ fontSize: '9px' }}>{endgameMode}</strong></div>
               <div className="stat"><span>CREDITI RISCHIO</span><strong>{projectedUnusedCredits}</strong></div>
               <div className="stat"><span>ATTACCO/SLOT</span><strong>{endgameAttackPerOpenSlot}</strong></div>
@@ -7511,10 +7538,10 @@ function App() {
                   <div style={{ display: 'flex', justifyContent: 'space-between', gap: '8px' }}>
                     <strong>{item.role}</strong><strong>{item.missing} slot</strong>
                   </div>
-                  <small>Budget residuo {item.budgetRoom} Â· attacco {item.attackRoom}</small>
+                  <small>Budget residuo {item.budgetRoom} · attacco {item.attackRoom}</small>
                   {item.topAffordable && item.missing > 0 && (
                     <small style={{ display: 'block', marginTop: '3px' }}>
-                      Miglior profilo sostenibile: {item.topAffordable.player.name} Â· MAX {item.topAffordable.max}
+                      Miglior profilo sostenibile: {item.topAffordable.player.name} · MAX {item.topAffordable.max}
                     </small>
                   )}
                 </div>
@@ -7527,8 +7554,8 @@ function App() {
       {view === 'compare' && (
         <section className="section">
           <div style={{ display: 'flex', justifyContent: 'space-between', gap: '8px', alignItems: 'center' }}>
-            <div className="section-title" style={{ marginBottom: 0 }}>âš–ï¸ CONFRONTO GIOCATORI</div>
-            {comparisonNames.length > 0 && <button type="button" className="back-button" onClick={resetComparison}>â†º RESET</button>}
+            <div className="section-title" style={{ marginBottom: 0 }}>⚖️ CONFRONTO GIOCATORI</div>
+            {comparisonNames.length > 0 && <button type="button" className="back-button" onClick={resetComparison}>↺ RESET</button>}
           </div>
           <p className="tip">Confronta fino a 3 giocatori. Puoi aggiungerli direttamente da qui.</p>
 
@@ -7553,8 +7580,8 @@ function App() {
                     style={{ width: '100%', display: 'flex', justifyContent: 'space-between', gap: '8px' }}
                     onClick={() => toggleComparisonPlayer(player)}
                   >
-                    <span>+ {player.name} Â· {player.team}</span>
-                    <span>{player.role} Â· {getMarket(player)}</span>
+                    <span>+ {player.name} · {player.team}</span>
+                    <span>{player.role} · {getMarket(player)}</span>
                   </button>
                 ))}
             </div>
@@ -7575,8 +7602,8 @@ function App() {
                       <div style={{ display: 'grid', gridTemplateColumns: 'auto 1fr auto', gap: '9px', alignItems: 'center' }}>
                         <PlayerPhoto player={player} size={48} />
                         <div>
-                          <strong style={{ display: 'block' }}>{index === 0 ? 'ðŸ† ' : ''}{player.name}</strong>
-                          <small>{player.team} Â· {player.role}</small>
+                          <strong style={{ display: 'block' }}>{index === 0 ? '🏆 ' : ''}{player.name}</strong>
+                          <small>{player.team} · {player.role}</small>
                         </div>
                         <strong>{scoreOutOf10(buy.actionScore)}</strong>
                       </div>
@@ -7636,7 +7663,7 @@ function App() {
             <>
               {liveBidThresholds && (
             <section className="section">
-              <div className="section-title"><span>ðŸ’°</span>SOGLIE DI RILANCIO</div>
+              <div className="section-title"><span>💰</span>SOGLIE DI RILANCIO</div>
 
               <div className="main-card">
                 <div style={{
@@ -7706,8 +7733,8 @@ function App() {
                 </div>
 
                 <p className="tip" style={{ marginTop: '10px' }}>
-                  Mercato {getMarket(livePlayer)} Â· {liveBidThresholds.marketReference}.
-                  Le soglie si adattano a strategia, fit, fase dellâ€™asta e budget disponibile.
+                  Mercato {getMarket(livePlayer)} · {liveBidThresholds.marketReference}.
+                  Le soglie si adattano a strategia, fit, fase dell’asta e budget disponibile.
                 </p>
               </div>
             </section>
@@ -7720,7 +7747,7 @@ function App() {
                   <div style={{ display: 'flex', gap: '11px', alignItems: 'center' }}>
                     <PlayerPhoto player={livePlayer} size={88} card />
                     <div>
-                      <p className="small-label">{roleNames[livePlayer.role]} Â· {livePlayer.tier}</p>
+                      <p className="small-label">{roleNames[livePlayer.role]} · {livePlayer.tier}</p>
                       <h2>{livePlayer.name}</h2>
                       <p className="description">{livePlayer.team}</p>
                     </div>
@@ -7737,7 +7764,7 @@ function App() {
 
                 <div style={{ marginTop: '8px', padding: '10px', border: '1px solid #273149', borderRadius: '10px', background: '#0b111e' }}>
                   <span style={{ color: '#70d6a1', fontSize: '8px', fontWeight: 900 }}>
-                    PERCHÃ‰ PER {currentStrategy.name}
+                    PERCHÉ PER {currentStrategy.name}
                   </span>
                   <p style={{ margin: '5px 0 0', color: '#a8b1c2', fontSize: '11px', lineHeight: 1.55 }}>
                     {strategyReason(livePlayer)}
@@ -7755,7 +7782,7 @@ function App() {
                       </strong>
                     </div>
                     <div style={{ padding: '10px', border: '1px solid #273149', borderRadius: '10px' }}>
-                      <span style={{ color: '#78859b', fontSize: '8px', fontWeight: 900 }}>COMPATIBILITÃ€</span>
+                      <span style={{ color: '#78859b', fontSize: '8px', fontWeight: 900 }}>COMPATIBILITÀ</span>
                       <strong style={{ display: 'block', marginTop: '4px' }}>{scoreOutOf10(liveTargetValue)}/10</strong>
                     </div>
                     <div style={{ padding: '10px', border: '1px solid #273149', borderRadius: '10px' }}>
@@ -7771,9 +7798,9 @@ function App() {
                   <div style={{ marginTop: '8px', padding: '10px', border: '1px solid #273149', borderRadius: '10px' }}>
                     <span style={{ color: '#78859b', fontSize: '8px', fontWeight: 900 }}>SE LO COMPRI ORA</span>
                     <p style={{ margin: '5px 0 0', color: '#a8b1c2', fontSize: '11px', lineHeight: 1.6 }}>
-                      Restano <strong>{liveSlotsAfter}</strong> slot Â·
-                      <strong> {liveCreditsPerSlotAfter.toFixed(1)}</strong> cr/slot Â·
-                      reparto {livePlayer.role}: <strong>{Math.max(0, roleRemaining(livePlayer.role) - 1)}</strong> slot dopo lâ€™acquisto.
+                      Restano <strong>{liveSlotsAfter}</strong> slot ·
+                      <strong> {liveCreditsPerSlotAfter.toFixed(1)}</strong> cr/slot ·
+                      reparto {livePlayer.role}: <strong>{Math.max(0, roleRemaining(livePlayer.role) - 1)}</strong> slot dopo l’acquisto.
                     </p>
                   </div>
 
@@ -7796,7 +7823,7 @@ function App() {
                 {liveSimulation && (
                   <div style={{ marginTop: '12px', padding: '14px', border: '1px solid #33405c', borderRadius: '12px', background: '#0d1422' }}>
                     <span style={{ color: '#79b8ff', fontSize: '9px', fontWeight: 900 }}>
-                      ðŸ”® SE LO COMPRO A {livePrice}
+                      🔮 SE LO COMPRO A {livePrice}
                     </span>
 
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '7px', marginTop: '10px' }}>
@@ -7816,7 +7843,7 @@ function App() {
 
                     <div style={{ marginTop: '10px' }}>
                       <span style={{ color: '#78859b', fontSize: '8px', fontWeight: 900 }}>
-                        BUDGET ADATTIVO DOPO Lâ€™ACQUISTO
+                        BUDGET ADATTIVO DOPO L’ACQUISTO
                       </span>
                       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '6px', marginTop: '6px' }}>
                         {roles.map((currentRole) => (
@@ -7842,7 +7869,7 @@ function App() {
                             <div key={`sim-target-${currentRole}`} style={{ display: 'grid', gridTemplateColumns: '24px 1fr auto', gap: '7px', alignItems: 'center', padding: '5px 0', borderBottom: '1px solid #1d2638' }}>
                               <strong style={{ color: '#79b8ff' }}>{currentRole}</strong>
                               <span style={{ fontSize: '10px', color: target ? '#dce3ef' : '#657086' }}>
-                                {target ? `${target.name} Â· ${target.team}` : 'Reparto completato'}
+                                {target ? `${target.name} · ${target.team}` : 'Reparto completato'}
                               </span>
                               <small style={{ color: '#8e9ab0', fontSize: '8px' }}>
                                 {target ? `MKT ${getMarket(target)}` : ''}
@@ -7854,7 +7881,7 @@ function App() {
                     </div>
 
                     <p style={{ margin: '9px 0 0', color: '#8e9ab0', fontSize: '9px', lineHeight: 1.5 }}>
-                      Simulazione preventiva: non registra lâ€™acquisto e non modifica i dati dellâ€™asta.
+                      Simulazione preventiva: non registra l’acquisto e non modifica i dati dell’asta.
                     </p>
                   </div>
                 )}
@@ -7865,11 +7892,11 @@ function App() {
                     <strong style={{ display: 'block', marginTop: '4px', fontSize: '20px', color: pressureColor(livePressure.level) }}>{livePressure.level}</strong>
                     <p style={{ color: '#a8b1c2', fontSize: '11px', lineHeight: 1.6 }}>
                       Rivali interessati: <strong>{livePressure.rivals}</strong><br />
-                      PericolositÃ  media: <strong>{livePressure.avgDanger.toFixed(1)}/10</strong><br />
-                      PiÃ¹ pericoloso: <strong>{livePressure.strongest?.name ?? 'Nessuno'}</strong><br />
-                      Profilo: <strong>{livePressure.strongest?.profile ?? 'â€”'}</strong><br />
-                      PericolositÃ : <strong>{livePressure.strongest ? livePressure.strongest.danger.toFixed(1) + '/10' : 'â€”'}</strong><br />
-                      MAX teorico: <strong>{livePressure.strongest?.max ?? 'â€”'}</strong>
+                      Pericolosità media: <strong>{livePressure.avgDanger.toFixed(1)}/10</strong><br />
+                      Più pericoloso: <strong>{livePressure.strongest?.name ?? 'Nessuno'}</strong><br />
+                      Profilo: <strong>{livePressure.strongest?.profile ?? '—'}</strong><br />
+                      Pericolosità: <strong>{livePressure.strongest ? livePressure.strongest.danger.toFixed(1) + '/10' : '—'}</strong><br />
+                      MAX teorico: <strong>{livePressure.strongest?.max ?? '—'}</strong>
                     </p>
                   </div>
                 )}
@@ -7877,7 +7904,7 @@ function App() {
                 <label>Prezzo corrente</label>
                 <div className="price-row">
                   <input type="number" min="0" value={livePrice} onChange={(event) => setLivePrice(Math.max(0, Number(event.target.value) || 0))} />
-                  <button type="button" onClick={() => setLivePrice((current) => Math.max(0, current - 1))}>âˆ’1</button>
+                  <button type="button" onClick={() => setLivePrice((current) => Math.max(0, current - 1))}>−1</button>
                   <button type="button" onClick={() => setLivePrice((current) => current + 1)}>+1</button>
                 </div>
 
@@ -7893,7 +7920,7 @@ function App() {
                   <label>Se lo prende:</label>
                   <select value={selectedRivalId} onChange={(event) => setSelectedRivalId(Number(event.target.value))}>
                     {activeRivals.map((name, index) => (
-                      <option key={index} value={index}>{name} Â· {rivalBudget(index)} cr</option>
+                      <option key={index} value={index}>{name} · {rivalBudget(index)} cr</option>
                     ))}
                   </select>
                   <button type="button" onClick={liveSoldToRival}
@@ -7907,7 +7934,7 @@ function App() {
           )}
 
           {liveMessage && <div className="message">{liveMessage}</div>}
-          {rivalSales.length > 0 && <button type="button" className="undo-button" onClick={undoLastRivalSale}>â†¶ ANNULLA ULTIMA VENDITA A RIVALE</button>}
+          {rivalSales.length > 0 && <button type="button" className="undo-button" onClick={undoLastRivalSale}>↶ ANNULLA ULTIMA VENDITA A RIVALE</button>}
         </>
       )}
 
@@ -7918,7 +7945,7 @@ function App() {
               <p className="eyebrow">OBIETTIVI PERSONALI</p>
               <h1>MY TEAM</h1>
               <p className="tip" style={{ margin: '6px 0 0' }}>
-                Costruisci la tua lista dei desideri. Le prioritÃ  entrano automaticamente
+                Costruisci la tua lista dei desideri. Le priorità entrano automaticamente
                 nel motore dei suggerimenti.
               </p>
             </div>
@@ -7936,7 +7963,7 @@ function App() {
               <div>
                 <div className="section-title">LISTA DEI DESIDERI</div>
                 <p className="tip" style={{ margin: '5px 0 0' }}>
-                  {wishlist.length}/130 totali Â· P 20 Â· D 40 Â· C 40 Â· A 30 Â· PrioritÃ  1 = obiettivo principale.
+                  {wishlist.length}/130 totali · P 20 · D 40 · C 40 · A 30 · Priorità 1 = obiettivo principale.
                 </p>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px', marginTop: '7px' }}>
                   {roles.map((role) => (
@@ -7954,7 +7981,7 @@ function App() {
                 disabled={wishlistPlayers.filter((entry) => entry.player.role === wishlistAddRole).length >= wishlistLimits[wishlistAddRole]}
                 onClick={() => setWishlistAddOpen((value) => !value)}
               >
-                {wishlistAddOpen ? 'âˆ’' : '+'}
+                {wishlistAddOpen ? '−' : '+'}
               </button>
             </div>
 
@@ -8021,10 +8048,10 @@ function App() {
                       <div>
                         <strong style={{ display: 'block' }}>{player.name}</strong>
                         <small style={{ color: '#94a5bc' }}>
-                          {player.team} Â· Tit. {estimatedStarterPct(player)}%
+                          {player.team} · Tit. {estimatedStarterPct(player)}%
                         </small>
                       </div>
-                      <strong style={{ color: '#ff95c8' }}>ï¼‹</strong>
+                      <strong style={{ color: '#ff95c8' }}>＋</strong>
                     </button>
                   ))}
                 </div>
@@ -8118,23 +8145,23 @@ function App() {
                                 <strong>{player.name}</strong>
                               </div>
                               <small style={{ color: '#94a5bc' }}>
-                                {player.team} Â· TitolaritÃ  {estimatedStarterPct(player)}%
+                                {player.team} · Titolarità {estimatedStarterPct(player)}%
                               </small>
                               {boughtByMe && (
                                 <small style={{ display: 'block', color: '#6ce6b3', marginTop: '3px', fontWeight: 900 }}>
-                                  âœ“ ACQUISTATO
+                                  ✓ ACQUISTATO
                                 </small>
                               )}
                               {soldToRival && (
                                 <small style={{ display: 'block', color: '#ff958d', marginTop: '3px', fontWeight: 900 }}>
-                                  âœ• PRESO DA UN RIVALE
+                                  ✕ PRESO DA UN RIVALE
                                 </small>
                               )}
                             </div>
 
                             <div style={{ display: 'flex', gap: '5px' }}>
-                              <button type="button" onClick={() => toggleWishlistStar(item.playerKey)} aria-label={`Stella ${player.name}`} style={{ width: '39px', minWidth: '39px', height: '39px', padding: 0, margin: 0, borderRadius: '12px', border: item.starred ? '2px solid #ffb703' : '1px solid rgba(64,92,160,.18)', background: item.starred ? '#fff1ad' : 'rgba(255,255,255,.75)', color: item.starred ? '#e58b00' : '#8390aa', fontSize: '20px' }}>{item.starred ? 'â˜…' : 'â˜†'}</button>
-                              <button type="button" className="undo-button" style={{ width: '37px', minWidth: '37px', height: '37px', padding: 0, fontSize: '18px', margin: 0 }} onClick={() => removeFromWishlist(item.playerKey)} aria-label={`Rimuovi ${player.name}`}>âˆ’</button>
+                              <button type="button" onClick={() => toggleWishlistStar(item.playerKey)} aria-label={`Stella ${player.name}`} style={{ width: '39px', minWidth: '39px', height: '39px', padding: 0, margin: 0, borderRadius: '12px', border: item.starred ? '2px solid #ffb703' : '1px solid rgba(64,92,160,.18)', background: item.starred ? '#fff1ad' : 'rgba(255,255,255,.75)', color: item.starred ? '#e58b00' : '#8390aa', fontSize: '20px' }}>{item.starred ? '★' : '☆'}</button>
+                              <button type="button" className="undo-button" style={{ width: '37px', minWidth: '37px', height: '37px', padding: 0, fontSize: '18px', margin: 0 }} onClick={() => removeFromWishlist(item.playerKey)} aria-label={`Rimuovi ${player.name}`}>−</button>
                             </div>
                           </div>
 
@@ -8148,7 +8175,7 @@ function App() {
                             }}
                           >
                             <div>
-                              <label style={{ marginTop: 0 }}>PRIORITÃ€</label>
+                              <label style={{ marginTop: 0 }}>PRIORITÀ</label>
                               <select
                                 value={item.priority}
                                 onChange={(event) =>
@@ -8205,7 +8232,7 @@ function App() {
           <section className="section">
             <div className="section-title">COME INFLUENZA I SUGGERIMENTI</div>
             <p className="tip" style={{ marginBottom: 0, lineHeight: 1.65 }}>
-              La â˜† trasforma un giocatore in â˜… OBIETTIVO PRIORITARIO. La stella condiziona chiamate, suggerimenti, MAX sostenibile e strategia d'asta: l'app prova a conservare budget e timing per prenderlo. Un giocatore con â˜… non viene mai proposto come esca. La prioritÃ  numerica continua a ordinare gli altri nomi della MY TEAM.
+              La ☆ trasforma un giocatore in ★ OBIETTIVO PRIORITARIO. La stella condiziona chiamate, suggerimenti, MAX sostenibile e strategia d'asta: l'app prova a conservare budget e timing per prenderlo. Un giocatore con ★ non viene mai proposto come esca. La priorità numerica continua a ordinare gli altri nomi della MY TEAM.
             </p>
           </section>
         </>
@@ -8220,7 +8247,7 @@ function App() {
             </div>
             <div className="budget-box">
               <span>VOTO</span>
-              <strong>{purchases.length > 0 ? scoreOutOf10(squadOverallScore) : 'â€”'}</strong>
+              <strong>{purchases.length > 0 ? scoreOutOf10(squadOverallScore) : '—'}</strong>
             </div>
           </header>
 
@@ -8231,11 +8258,11 @@ function App() {
             </div>
             <div className="stat">
               <span>FIT STRATEGIA</span>
-              <strong>{purchases.length > 0 ? scoreOutOf10(squadStrategyFit) : 'â€”'}</strong>
+              <strong>{purchases.length > 0 ? scoreOutOf10(squadStrategyFit) : '—'}</strong>
             </div>
             <div className="stat">
               <span>VALUE</span>
-              <strong>{purchases.length > 0 ? scoreOutOf10(squadValueScore) : 'â€”'}</strong>
+              <strong>{purchases.length > 0 ? scoreOutOf10(squadValueScore) : '—'}</strong>
             </div>
             <div className="stat highlight-stat">
               <span>RESIDUO</span>
@@ -8255,7 +8282,7 @@ function App() {
               <div>
                 <span className="eyebrow">ANALISI COMPLETA</span>
                 <strong style={{ display: 'block', marginTop: '3px' }}>
-                  Report dellâ€™asta
+                  Report dell’asta
                 </strong>
                 <p className="tip" style={{ margin: '4px 0 0' }}>
                   Aprilo solo quando vuoi una lettura completa della rosa e dei prezzi.
@@ -8267,7 +8294,7 @@ function App() {
                 style={smallChoiceStyle(squadReportOpen)}
                 onClick={() => setSquadReportOpen((value) => !value)}
               >
-                {squadReportOpen ? 'âœ• CHIUDI' : 'â†— APRI REPORT'}
+                {squadReportOpen ? '✕ CHIUDI' : '↗ APRI REPORT'}
               </button>
             </div>
           </section>
@@ -8289,24 +8316,24 @@ function App() {
             <div className="main-card" style={{ border: '1px solid #315a49' }}>
               <span className="eyebrow">{currentStrategy.name}</span>
               <h2 style={{ margin: '5px 0', fontSize: '28px' }}>
-                {purchases.length > 0 ? `${scoreOutOf10(finalReportScore)}/10` : 'â€”'}
+                {purchases.length > 0 ? `${scoreOutOf10(finalReportScore)}/10` : '—'}
               </h2>
               <p style={{ color: '#a8b1c2', fontSize: '10px', lineHeight: 1.6 }}>
-                ðŸ {finalReportVerdict()}
+                🏁 {finalReportVerdict()}
               </p>
 
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '7px', marginTop: '12px' }}>
                 <div style={{ padding: '8px', border: '1px solid #273149', borderRadius: '8px' }}>
-                  <span style={{ display: 'block', color: '#78859b', fontSize: '7px' }}>QUALITÃ€ ROSA</span>
-                  <strong>{purchases.length > 0 ? scoreOutOf10(squadOverallScore) : 'â€”'}</strong>
+                  <span style={{ display: 'block', color: '#78859b', fontSize: '7px' }}>QUALITÀ ROSA</span>
+                  <strong>{purchases.length > 0 ? scoreOutOf10(squadOverallScore) : '—'}</strong>
                 </div>
                 <div style={{ padding: '8px', border: '1px solid #273149', borderRadius: '8px' }}>
                   <span style={{ display: 'block', color: '#78859b', fontSize: '7px' }}>STRATEGIA</span>
-                  <strong>{purchases.length > 0 ? scoreOutOf10(squadStrategyFit) : 'â€”'}</strong>
+                  <strong>{purchases.length > 0 ? scoreOutOf10(squadStrategyFit) : '—'}</strong>
                 </div>
                 <div style={{ padding: '8px', border: '1px solid #273149', borderRadius: '8px' }}>
                   <span style={{ display: 'block', color: '#78859b', fontSize: '7px' }}>VALUE</span>
-                  <strong>{purchases.length > 0 ? scoreOutOf10(squadValueScore) : 'â€”'}</strong>
+                  <strong>{purchases.length > 0 ? scoreOutOf10(squadValueScore) : '—'}</strong>
                 </div>
               </div>
             </div>
@@ -8345,7 +8372,7 @@ function App() {
                   <div key={`deal-${item.player.name}-${index}`} className="main-card">
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '8px' }}>
                       <div>
-                        <span className="eyebrow">#{index + 1} AFFARE Â· {item.player.role}</span>
+                        <span className="eyebrow">#{index + 1} AFFARE · {item.player.role}</span>
                         <strong style={{ display: 'block' }}>{item.player.name}</strong>
                         <small style={{ color: '#78859b' }}>{item.player.team}</small>
                       </div>
@@ -8354,7 +8381,7 @@ function App() {
                           {item.saving >= 0 ? '+' : ''}{item.saving}
                         </strong>
                         <small style={{ display: 'block', color: '#78859b' }}>
-                          pagato {item.price} Â· mercato {item.market}
+                          pagato {item.price} · mercato {item.market}
                         </small>
                       </div>
                     </div>
@@ -8368,7 +8395,7 @@ function App() {
             <div className="section-title">OVERPAY</div>
             {biggestOverpays.length === 0 ? (
               <div className="main-card">
-                <p className="tip">âœ“ Nessun acquisto sopra il valore di mercato stimato.</p>
+                <p className="tip">✓ Nessun acquisto sopra il valore di mercato stimato.</p>
               </div>
             ) : (
               <div style={{ display: 'grid', gap: '8px' }}>
@@ -8376,14 +8403,14 @@ function App() {
                   <div key={`overpay-${item.player.name}-${index}`} className="main-card">
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '8px' }}>
                       <div>
-                        <span className="eyebrow">#{index + 1} OVERPAY Â· {item.player.role}</span>
+                        <span className="eyebrow">#{index + 1} OVERPAY · {item.player.role}</span>
                         <strong style={{ display: 'block' }}>{item.player.name}</strong>
                         <small style={{ color: '#78859b' }}>{item.player.team}</small>
                       </div>
                       <div style={{ textAlign: 'right' }}>
                         <strong style={{ color: '#ff9aa8' }}>+{item.price - item.market}</strong>
                         <small style={{ display: 'block', color: '#78859b' }}>
-                          pagato {item.price} Â· mercato {item.market}
+                          pagato {item.price} · mercato {item.market}
                         </small>
                       </div>
                     </div>
@@ -8400,7 +8427,7 @@ function App() {
                 <div key={`report-role-${analysis.role}`} className="main-card" style={{ textAlign: 'center', padding: '10px 5px' }}>
                   <span style={{ display: 'block', color: '#79b8ff', fontWeight: 900, fontSize: '16px' }}>{analysis.role}</span>
                   <strong style={{ display: 'block', fontSize: '18px', marginTop: '4px' }}>
-                    {analysis.count > 0 ? scoreOutOf10(analysis.score) : 'â€”'}
+                    {analysis.count > 0 ? scoreOutOf10(analysis.score) : '—'}
                   </strong>
                   <small style={{ color: '#78859b' }}>{analysis.count}/{analysis.required}</small>
                 </div>
@@ -8427,7 +8454,7 @@ function App() {
             style={{ ...smallChoiceStyle(false), width: '100%', marginBottom: '14px' }}
             onClick={() => setSquadReportOpen(false)}
           >
-            âœ• CHIUDI REPORT
+            ✕ CHIUDI REPORT
           </button>
         </>
       )}
@@ -8442,7 +8469,7 @@ function App() {
                   : 'ANALISI IN ATTESA'}
               </h2>
               <p style={{ color: '#a8b1c2', fontSize: '10px', lineHeight: 1.6 }}>
-                ðŸ§  {squadVerdict()}
+                🧠 {squadVerdict()}
               </p>
 
               {bestSquadRole && weakestSquadRole && (
@@ -8456,13 +8483,13 @@ function App() {
                     <span style={{ display: 'block', color: '#70d6a1', fontSize: '7px', fontWeight: 900 }}>
                       PUNTO FORTE
                     </span>
-                    <strong>{bestSquadRole.role} Â· {scoreOutOf10(bestSquadRole.score)}/10</strong>
+                    <strong>{bestSquadRole.role} · {scoreOutOf10(bestSquadRole.score)}/10</strong>
                   </div>
                   <div style={{ padding: '10px', border: '1px solid #753f48', borderRadius: '10px', background: '#2b171c' }}>
                     <span style={{ display: 'block', color: '#ff9aa8', fontSize: '7px', fontWeight: 900 }}>
                       DA MIGLIORARE
                     </span>
-                    <strong>{weakestSquadRole.role} Â· {scoreOutOf10(weakestSquadRole.score)}/10</strong>
+                    <strong>{weakestSquadRole.role} · {scoreOutOf10(weakestSquadRole.score)}/10</strong>
                   </div>
                 </div>
               )}
@@ -8499,7 +8526,7 @@ function App() {
                         {analysis.count}/{analysis.required} giocatori
                       </strong>
                       <small style={{ color: '#78859b' }}>
-                        Speso {analysis.spent} Â· Piano {analysis.planned}
+                        Speso {analysis.spent} · Piano {analysis.planned}
                       </small>
                     </div>
 
@@ -8516,7 +8543,7 @@ function App() {
                             ? '#f2c66d'
                             : '#ff9aa8',
                       }}>
-                        {analysis.count > 0 ? scoreOutOf10(analysis.score) : 'â€”'}
+                        {analysis.count > 0 ? scoreOutOf10(analysis.score) : '—'}
                       </strong>
                     </div>
                   </div>
@@ -8529,7 +8556,7 @@ function App() {
                       marginTop: '10px',
                     }}>
                       <div style={{ padding: '7px', border: '1px solid #273149', borderRadius: '8px' }}>
-                        <span style={{ display: 'block', color: '#78859b', fontSize: '7px' }}>QUALITÃ€</span>
+                        <span style={{ display: 'block', color: '#78859b', fontSize: '7px' }}>QUALITÀ</span>
                         <strong>{scoreOutOf10(analysis.quality)}</strong>
                       </div>
                       <div style={{ padding: '7px', border: '1px solid #273149', borderRadius: '8px' }}>
@@ -8648,7 +8675,7 @@ function App() {
           <section className="section">
             <div className="section-title">STRATEGIA ASTA</div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px', marginBottom: '10px' }}>
-              <button type="button" className="back-button" onClick={() => setView('pairings')}>âš½ ABBINAMENTI</button>
+              <button type="button" className="back-button" onClick={() => setView('pairings')}>⚽ ABBINAMENTI</button>
               <button type="button" className="back-button" onClick={() => setView('analysis')}>ANALISI RIVALI</button>
               <button type="button" className="back-button" onClick={() => setView('compare')}>CONFRONTO</button>
               <button type="button" className="back-button" onClick={() => setView('rivals')}>RIVALI DETTAGLIO</button>
@@ -8672,7 +8699,7 @@ function App() {
                   </button>
                 ))}
               </div>
-              <p className="tip" style={{ marginBottom: 0 }}>{currentStrategy.description} Suggerimenti, prioritÃ  â˜… e MAX vengono ricalcolati subito.</p>
+              <p className="tip" style={{ marginBottom: 0 }}>{currentStrategy.description} Suggerimenti, priorità ★ e MAX vengono ricalcolati subito.</p>
             </div>
           </section>
 
@@ -8712,8 +8739,8 @@ function App() {
                   </strong>
                   <p className="tip" style={{ margin: '5px 0 0' }}>
                     {isOnline
-                      ? 'Connessione disponibile. Puoi scaricare il pacchetto dati piÃ¹ recente.'
-                      : 'Sei offline. Lâ€™asta continua normalmente con tutti i dati giÃ  memorizzati sul dispositivo.'}
+                      ? 'Connessione disponibile. Puoi scaricare il pacchetto dati più recente.'
+                      : 'Sei offline. L’asta continua normalmente con tutti i dati già memorizzati sul dispositivo.'}
                   </p>
                 </div>
 
@@ -8776,7 +8803,7 @@ function App() {
                 disabled={!isOnline || updateStatus === 'updating'}
                 onClick={() => runDataUpdate()}
               >
-                {updateStatus === 'updating' ? 'â†» AGGIORNAMENTOâ€¦' : 'â†» AGGIORNA ORA'}
+                {updateStatus === 'updating' ? '↻ AGGIORNAMENTO…' : '↻ AGGIORNA ORA'}
               </button>
 
               {updateStatus === 'error' && (
@@ -8805,17 +8832,17 @@ function App() {
                   }}
                 >
                   <strong style={{ color: '#6ce6b3', fontSize: '9px' }}>
-                    âœ“ AGGIORNAMENTO COMPLETATO
+                    ✓ AGGIORNAMENTO COMPLETATO
                   </strong>
                   <p className="tip" style={{ margin: '4px 0 0' }}>
-                    Dati aggiornati e controllo della versione dellâ€™app completato. Lâ€™app si ricarica automaticamente con la versione piÃ¹ recente disponibile.
+                    Dati aggiornati e controllo della versione dell’app completato. L’app si ricarica automaticamente con la versione più recente disponibile.
                   </p>
                 </div>
               )}
             </div>
 
             <div className="main-card" style={{ marginTop: '9px' }}>
-              <strong>GESTIONE DATI â€” FASE 1</strong>
+              <strong>GESTIONE DATI — FASE 1</strong>
               <p className="tip" style={{ margin: '5px 0 10px' }}>
                 Dati sorgente e dati personali sono separati. Prima di ogni aggiornamento viene creato un backup locale.
               </p>
@@ -8852,7 +8879,7 @@ function App() {
             </div>
 
             <div className="main-card" style={{ marginTop: '9px' }}>
-              <strong>COSA PUÃ’ AGGIORNARE</strong>
+              <strong>COSA PUÒ AGGIORNARE</strong>
               <div
                 style={{
                   display: 'flex',
@@ -8866,7 +8893,7 @@ function App() {
                   'TRASFERIMENTI',
                   'RUOLI',
                   'PREZZI',
-                  'TITOLARITÃ€',
+                  'TITOLARITÀ',
                   'RIGORISTI',
                   'PIAZZATI',
                   'STATISTICHE',
@@ -8877,7 +8904,7 @@ function App() {
                 ))}
               </div>
               <p className="tip" style={{ margin: '9px 0 0' }}>
-                Lâ€™aggiornamento modifica soltanto il database calcistico. MY TEAM, acquisti,
+                L’aggiornamento modifica soltanto il database calcistico. MY TEAM, acquisti,
                 prezzi pagati, rivali, strategia, storico e impostazioni personali restano intatti.
               </p>
             </div>
@@ -8895,7 +8922,7 @@ function App() {
                   <div>
                     <strong>{updateChanges.length} MODIFICHE NEL PACCHETTO</strong>
                     <p className="tip" style={{ margin: '4px 0 0' }}>
-                      Guarda cosa Ã¨ cambiato rispetto al database precedente.
+                      Guarda cosa è cambiato rispetto al database precedente.
                     </p>
                   </div>
                   <button
@@ -8944,13 +8971,13 @@ function App() {
           </section>
 
           <section className="section">
-            <div className="section-title">MODALITÃ€ OFFLINE</div>
+            <div className="section-title">MODALITÀ OFFLINE</div>
 
             <div className="main-card">
-              <strong>âœ“ ASTA DISPONIBILE SENZA INTERNET</strong>
+              <strong>✓ ASTA DISPONIBILE SENZA INTERNET</strong>
               <p className="tip" style={{ margin: '6px 0 0', lineHeight: 1.65 }}>
                 Budget, acquisti, ASTA LIVE, MY TEAM, rosa, rivali, storico, strategie e
-                lâ€™ultimo pacchetto dati scaricato rimangono memorizzati localmente.
+                l’ultimo pacchetto dati scaricato rimangono memorizzati localmente.
                 La connessione serve soltanto quando vuoi scaricare nuovi aggiornamenti.
               </p>
             </div>
@@ -8966,9 +8993,9 @@ function App() {
                 style={{ color: '#fff', textAlign: 'left', cursor: 'pointer' }}
                 onClick={() => setView('history')}
               >
-                <strong>â—· STORICO ASTA</strong>
+                <strong>◷ STORICO ASTA</strong>
                 <p className="tip" style={{ marginBottom: 0 }}>
-                  Tutti gli acquisti tuoi e dei rivali, con possibilitÃ  di annullare le operazioni.
+                  Tutti gli acquisti tuoi e dei rivali, con possibilità di annullare le operazioni.
                 </p>
               </button>
 
@@ -8978,7 +9005,7 @@ function App() {
                 style={{ color: '#fff', textAlign: 'left', cursor: 'pointer' }}
                 onClick={() => setView('settings')}
               >
-                <strong>âš™ IMPOSTAZIONI & BACKUP</strong>
+                <strong>⚙ IMPOSTAZIONI & BACKUP</strong>
                 <p className="tip" style={{ marginBottom: 0 }}>
                   Configurazione, strategia, esportazione, importazione e reset.
                 </p>
@@ -9021,7 +9048,7 @@ function App() {
                   <div key={`history-mine-${purchase.player.name}-${index}`} className="main-card">
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '8px', alignItems: 'center' }}>
                       <div>
-                        <span className="eyebrow">MIO ACQUISTO Â· {purchase.player.role}</span>
+                        <span className="eyebrow">MIO ACQUISTO · {purchase.player.role}</span>
                         <strong style={{ display: 'block', marginTop: '3px' }}>{purchase.player.name}</strong>
                         <small style={{ color: '#78859b' }}>{purchase.player.team}</small>
                       </div>
@@ -9036,7 +9063,7 @@ function App() {
                       style={{ ...smallChoiceStyle(false), width: '100%', marginTop: '10px', border: '1px solid #753f48', color: '#ff9aa8' }}
                       onClick={() => undoMyPurchase(index)}
                     >
-                      â†© ANNULLA ACQUISTO
+                      ↩ ANNULLA ACQUISTO
                     </button>
                   </div>
                 ))}
@@ -9058,7 +9085,7 @@ function App() {
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '8px', alignItems: 'center' }}>
                       <div>
                         <span className="eyebrow">
-                          {activeRivals[sale.rivalId] ?? `RIVALE ${sale.rivalId + 1}`} Â· {sale.player.role}
+                          {activeRivals[sale.rivalId] ?? `RIVALE ${sale.rivalId + 1}`} · {sale.player.role}
                         </span>
                         <strong style={{ display: 'block', marginTop: '3px' }}>{sale.player.name}</strong>
                         <small style={{ color: '#78859b' }}>{sale.player.team}</small>
@@ -9074,7 +9101,7 @@ function App() {
                       style={{ ...smallChoiceStyle(false), width: '100%', marginTop: '10px' }}
                       onClick={() => undoRivalPurchase(index)}
                     >
-                      â†© ANNULLA ASSEGNAZIONE
+                      ↩ ANNULLA ASSEGNAZIONE
                     </button>
                   </div>
                 ))}
@@ -9088,7 +9115,7 @@ function App() {
               <strong>Correzione immediata</strong>
               <p className="tip">
                 Puoi annullare qualsiasi acquisto inserito per errore. Budget, giocatori disponibili,
-                strategia adattiva, Regista dâ€™Asta e analisi rivali vengono ricalcolati automaticamente.
+                strategia adattiva, Regista d’Asta e analisi rivali vengono ricalcolati automaticamente.
               </p>
             </div>
           </section>
@@ -9112,7 +9139,7 @@ function App() {
             <div className="section-title">STRATEGIA ASTA</div>
             <div className="main-card">
               <p className="tip" style={{ marginTop: 0 }}>
-                Puoi cambiare strategia anche durante lâ€™asta. Tutti i suggerimenti e i MAX vengono ricalcolati automaticamente.
+                Puoi cambiare strategia anche durante l’asta. Tutti i suggerimenti e i MAX vengono ricalcolati automaticamente.
               </p>
 
               <div style={{
@@ -9171,19 +9198,19 @@ function App() {
                   fontSize: '13px',
                 }}>
                   {saveStatus === 'error'
-                    ? 'âš  ERRORE SALVATAGGIO'
+                    ? '⚠ ERRORE SALVATAGGIO'
                     : !auctionSafe
-                    ? 'âš  CONTROLLO ASTA'
+                    ? '⚠ CONTROLLO ASTA'
                     : saveStatus === 'saving'
-                    ? 'â— SALVATAGGIO...'
-                    : 'âœ“ DATI SALVATI'}
+                    ? '● SALVATAGGIO...'
+                    : '✓ DATI SALVATI'}
                 </strong>
 
                 <p style={{ margin: '6px 0 0', color: '#8e9ab0', fontSize: '10px', lineHeight: 1.5 }}>
                   {saveStatus === 'error'
                     ? 'Esporta subito un backup prima di continuare.'
                     : !auctionSafe
-                    ? integrityIssues.join(' Â· ')
+                    ? integrityIssues.join(' · ')
                     : lastSavedAt
                     ? `Ultimo salvataggio: ${lastSavedAt.toLocaleTimeString('it-IT', {
                         hour: '2-digit',
@@ -9209,7 +9236,7 @@ function App() {
                   style={smallChoiceStyle(false)}
                   onClick={exportBackup}
                 >
-                  ðŸ’¾ ESPORTA BACKUP
+                  💾 ESPORTA BACKUP
                 </button>
 
                 <button
@@ -9217,7 +9244,7 @@ function App() {
                   style={smallChoiceStyle(false)}
                   onClick={importBackup}
                 >
-                  ðŸ“¥ IMPORTA BACKUP
+                  📥 IMPORTA BACKUP
                 </button>
 
                 <button
@@ -9229,22 +9256,22 @@ function App() {
                   }}
                   onClick={resetAuction}
                 >
-                  ðŸ—‘ RESET ASTA
+                  🗑 RESET ASTA
                 </button>
               </div>
             </div>
           </section>
 
           <section className="section">
-            <div className="section-title">CONTROLLO INTEGRITÃ€</div>
+            <div className="section-title">CONTROLLO INTEGRITÀ</div>
             <div className="main-card">
               <strong style={{ color: auctionSafe ? '#70d6a1' : '#ff9aa8' }}>
-                {auctionSafe ? 'âœ“ Tutto regolare' : 'âš  Verifica necessaria'}
+                {auctionSafe ? '✓ Tutto regolare' : '⚠ Verifica necessaria'}
               </strong>
               <p className="tip">
                 {auctionSafe
-                  ? 'Nessun problema rilevato nei dati dellâ€™asta.'
-                  : integrityIssues.join(' Â· ')}
+                  ? 'Nessun problema rilevato nei dati dell’asta.'
+                  : integrityIssues.join(' · ')}
               </p>
             </div>
           </section>
@@ -9256,7 +9283,7 @@ function App() {
         <>
           <header className="topbar">
             <div>
-              <p className="eyebrow">GAME THEORY Â· CONFRONTO LIVE</p>
+              <p className="eyebrow">GAME THEORY · CONFRONTO LIVE</p>
               <h1>LEGA & RIVALI</h1>
             </div>
             <div className="budget-box">
@@ -9268,7 +9295,7 @@ function App() {
           <section className="stats">
             <div className="stat">
               <span>MIO VOTO</span>
-              <strong>{purchases.length > 0 ? scoreOutOf10(finalReportScore) : 'â€”'}</strong>
+              <strong>{purchases.length > 0 ? scoreOutOf10(finalReportScore) : '—'}</strong>
             </div>
             <div className="stat">
               <span>GIOCATORI</span>
@@ -9290,11 +9317,11 @@ function App() {
               <span className="eyebrow">CLASSIFICA STIMATA</span>
               <h2 style={{ margin: '5px 0' }}>#{myLeaguePosition}</h2>
               <p style={{ color: '#a8b1c2', fontSize: '10px', lineHeight: 1.6 }}>
-                ðŸ§  {rankingVerdict()}
+                🧠 {rankingVerdict()}
               </p>
               <p className="tip">
-                Il confronto usa solo gli acquisti che hai registrato nellâ€™app:
-                qualitÃ , prezzo pagato, completamento dei ruoli e budget residuo.
+                Il confronto usa solo gli acquisti che hai registrato nell’app:
+                qualità, prezzo pagato, completamento dei ruoli e budget residuo.
               </p>
             </div>
           </section>
@@ -9333,7 +9360,7 @@ function App() {
                     <div>
                       <strong style={{ display: 'block' }}>{entry.name}</strong>
                       <small style={{ color: '#78859b' }}>
-                        {entry.count}/25 Â· budget {entry.remaining}
+                        {entry.count}/25 · budget {entry.remaining}
                       </small>
                     </div>
 
@@ -9350,7 +9377,7 @@ function App() {
                             ? '#f2c66d'
                             : '#ff9aa8',
                       }}>
-                        {entry.count > 0 ? scoreOutOf10(entry.score) : 'â€”'}
+                        {entry.count > 0 ? scoreOutOf10(entry.score) : '—'}
                       </strong>
                     </div>
                   </div>
@@ -9363,7 +9390,7 @@ function App() {
                       marginTop: '9px',
                     }}>
                       <div style={{ padding: '6px', border: '1px solid #273149', borderRadius: '7px' }}>
-                        <span style={{ display: 'block', color: '#78859b', fontSize: '6px' }}>QUALITÃ€</span>
+                        <span style={{ display: 'block', color: '#78859b', fontSize: '6px' }}>QUALITÀ</span>
                         <strong>{scoreOutOf10(entry.quality)}</strong>
                       </div>
                       <div style={{ padding: '6px', border: '1px solid #273149', borderRadius: '7px' }}>
@@ -9391,7 +9418,7 @@ function App() {
             <section className="section">
               <div className="section-title">RIVALE DA BATTERE</div>
               <div className="main-card" style={{ border: '1px solid #753f48' }}>
-                <span className="eyebrow">âš  PIÃ™ FORTE AL MOMENTO</span>
+                <span className="eyebrow">⚠ PIÙ FORTE AL MOMENTO</span>
                 <h2 style={{ margin: '5px 0' }}>{strongestRival.name}</h2>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '7px' }}>
                   <div>
@@ -9415,8 +9442,8 @@ function App() {
             <div className="section-title">LETTURA CORRETTA</div>
             <div className="main-card">
               <p className="tip">
-                Questa Ã¨ una stima dinamica, non una previsione del campionato.
-                PiÃ¹ acquisti dei rivali registri, piÃ¹ il confronto diventa rappresentativo.
+                Questa è una stima dinamica, non una previsione del campionato.
+                Più acquisti dei rivali registri, più il confronto diventa rappresentativo.
               </p>
             </div>
           </section>
@@ -9447,12 +9474,12 @@ function App() {
                       <span style={{ color: '#68758d', fontSize: '8px', fontWeight: 900 }}>INTELLIGENZA RIVALE</span>
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginTop: '8px' }}>
                         <div><small style={{ color: '#78859b' }}>PROFILO</small><strong style={{ display: 'block' }}>{intel.profile}</strong></div>
-                        <div><small style={{ color: '#78859b' }}>PERICOLOSITÃ€</small><strong style={{ display: 'block' }}>{intel.threatScore.toFixed(1)}/10</strong></div>
-                        <div><small style={{ color: '#78859b' }}>AGGRESSIVITÃ€</small><strong style={{ display: 'block' }}>{intel.aggression.toFixed(1)}/10</strong></div>
-                        <div><small style={{ color: '#78859b' }}>VS MERCATO</small><strong style={{ display: 'block' }}>{intel.sample > 0 ? Math.round(intel.avgMarketRatio * 100) + '%' : 'â€”'}</strong></div>
+                        <div><small style={{ color: '#78859b' }}>PERICOLOSITÀ</small><strong style={{ display: 'block' }}>{intel.threatScore.toFixed(1)}/10</strong></div>
+                        <div><small style={{ color: '#78859b' }}>AGGRESSIVITÀ</small><strong style={{ display: 'block' }}>{intel.aggression.toFixed(1)}/10</strong></div>
+                        <div><small style={{ color: '#78859b' }}>VS MERCATO</small><strong style={{ display: 'block' }}>{intel.sample > 0 ? Math.round(intel.avgMarketRatio * 100) + '%' : '—'}</strong></div>
                       </div>
                       <p style={{ color: '#78859b', fontSize: '10px', lineHeight: 1.5, marginBottom: 0 }}>
-                        Analisi basata su {intel.sample} acquisti registrati. Diventa piÃ¹ affidabile durante lâ€™asta.
+                        Analisi basata su {intel.sample} acquisti registrati. Diventa più affidabile durante l’asta.
                       </p>
                     </div>
 

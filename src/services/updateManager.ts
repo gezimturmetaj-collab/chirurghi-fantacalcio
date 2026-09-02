@@ -26,7 +26,12 @@ const staleHours: Record<DatasetName, number> = {
 }
 
 function quotaError(error: unknown) {
-  return error instanceof DOMException && (error.name === 'QuotaExceededError' || error.name === 'NS_ERROR_DOM_QUOTA_REACHED' || error.code === 22 || error.code === 1014)
+  const message = error instanceof Error ? error.message.toLowerCase() : String(error ?? '').toLowerCase()
+  return (
+    (typeof DOMException !== 'undefined' && error instanceof DOMException && (
+      error.name === 'QuotaExceededError' || error.name === 'NS_ERROR_DOM_QUOTA_REACHED' || error.code === 22 || error.code === 1014
+    )) || message.includes('quota') || (message.includes('storage') && message.includes('exceed'))
+  )
 }
 
 function safeCacheWrite(key: string, value: unknown) {
@@ -34,9 +39,9 @@ function safeCacheWrite(key: string, value: unknown) {
   try { localStorage.setItem(key, text); return true } catch (error) {
     if (!quotaError(error)) return false
     try {
-      localStorage.removeItem('fantawarroom_v2_sourceData')
-      localStorage.removeItem('fantawarroom_v2_changelog')
-      localStorage.removeItem(CHANGES_KEY)
+      for (const disposable of ['fantawarroom_v2_sourceData','fantawarroom_v2_changelog',CHANGES_KEY]) {
+        if (disposable !== key) localStorage.removeItem(disposable)
+      }
       localStorage.setItem(key, text)
       return true
     } catch { return false }
@@ -73,7 +78,7 @@ export class UpdateManager {
   applyLegacyPayload(payload: LegacyUpdatePayload) {
     if (!payload || !Array.isArray(payload.players) || typeof payload.generatedAt !== 'string') throw new Error('Pacchetto dati non valido.')
 
-    // NIENTE backup automatico dell'intero dataset: su Safari/iPhone puÃ² saturare localStorage.
+    // NIENTE backup automatico dell'intero dataset: su Safari/iPhone può saturare localStorage.
     // I dati utente restano separati e non vengono toccati.
     let previous: SourcePlayerData[] = []
     try { previous = structuredClone(this.dataManager.getSourcePlayers()) } catch { previous = [] }
